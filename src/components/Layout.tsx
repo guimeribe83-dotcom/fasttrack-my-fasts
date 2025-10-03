@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import logo from "@/assets/logo.png";
 
 interface LayoutProps {
   children: ReactNode;
@@ -40,9 +41,7 @@ export const Layout = ({ children }: LayoutProps) => {
       <aside className="w-60 bg-sidebar border-r border-sidebar-border flex flex-col">
         <div className="p-6 border-b border-sidebar-border">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-primary flex items-center justify-center text-white font-bold text-lg">
-              F
-            </div>
+            <img src={logo} alt="FastTrack Logo" className="w-12 h-12 rounded-xl" />
             <div>
               <h1 className="font-bold text-sidebar-foreground">FastTrack</h1>
               <p className="text-xs text-sidebar-foreground/60">Meu Jejum Diário</p>
