@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import GerenciarJejuns from "./pages/GerenciarJejuns";
 import NovoJejum from "./pages/NovoJejum";
+import EditarJejum from "./pages/EditarJejum";
 import Historico from "./pages/Historico";
 import Lembretes from "./pages/Lembretes";
 import NotFound from "./pages/NotFound";
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/gerenciar" element={<GerenciarJejuns />} />
           <Route path="/novo-jejum" element={<NovoJejum />} />
+          <Route path="/editar-jejum/:id" element={<EditarJejum />} />
           <Route path="/historico" element={<Historico />} />
           <Route path="/lembretes" element={<Lembretes />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
