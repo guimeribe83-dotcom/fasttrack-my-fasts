@@ -214,19 +214,65 @@ export default function Index() {
               Etapas do Jejum
             </h3>
             <div className="grid gap-4">
-              {blocks.map((block) => {
+              {blocks.map((block, blockIndex) => {
                 const blockDays = completedDays.filter(
                   (day) => day.block_id === block.id
                 );
-                const isCompleted = block.manually_completed || blockDays.length >= block.total_days;
-                const isActive = !isCompleted && blocks.findIndex((b) => !b.manually_completed) === blocks.indexOf(block);
+                
+                // Calculate how many days from days_completed_before_app belong to this block
+                let daysFromBeforeApp = 0;
+                let remainingDaysFromBeforeApp = activeFast.days_completed_before_app || 0;
+                
+                // Distribute days_completed_before_app across blocks in order
+                for (let i = 0; i < blocks.length; i++) {
+                  if (i < blockIndex) {
+                    // For previous blocks, subtract their full total
+                    remainingDaysFromBeforeApp -= blocks[i].total_days;
+                  } else if (i === blockIndex) {
+                    // For current block, take remaining days (up to block's total)
+                    daysFromBeforeApp = Math.min(
+                      Math.max(0, remainingDaysFromBeforeApp),
+                      block.total_days
+                    );
+                  }
+                }
+                
+                const totalBlockCompleted = blockDays.length + daysFromBeforeApp;
+                const isCompleted = block.manually_completed || totalBlockCompleted >= block.total_days;
+                
+                // Find first incomplete block
+                let firstIncompleteIndex = -1;
+                for (let i = 0; i < blocks.length; i++) {
+                  const bDays = completedDays.filter((day) => day.block_id === blocks[i].id);
+                  let bDaysFromBeforeApp = 0;
+                  let bRemainingDaysFromBeforeApp = activeFast.days_completed_before_app || 0;
+                  
+                  for (let j = 0; j < blocks.length; j++) {
+                    if (j < i) {
+                      bRemainingDaysFromBeforeApp -= blocks[j].total_days;
+                    } else if (j === i) {
+                      bDaysFromBeforeApp = Math.min(
+                        Math.max(0, bRemainingDaysFromBeforeApp),
+                        blocks[i].total_days
+                      );
+                    }
+                  }
+                  
+                  const bTotalCompleted = bDays.length + bDaysFromBeforeApp;
+                  if (!blocks[i].manually_completed && bTotalCompleted < blocks[i].total_days) {
+                    firstIncompleteIndex = i;
+                    break;
+                  }
+                }
+                
+                const isActive = blockIndex === firstIncompleteIndex;
                 
                 return (
                   <BlockCard
                     key={block.id}
                     name={block.name}
                     totalDays={block.total_days}
-                    completedDays={blockDays.length}
+                    completedDays={totalBlockCompleted}
                     isCompleted={isCompleted}
                     isActive={isActive}
                   />
