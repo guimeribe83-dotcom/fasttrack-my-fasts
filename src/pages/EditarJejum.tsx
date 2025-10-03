@@ -250,7 +250,7 @@ export default function EditarJejum() {
             </Card>
 
             <div>
-              <div className="flex items-center justify-between mb-4">
+              <div className="mb-4">
                 <div>
                   <h2 className="text-xl font-semibold text-foreground">
                     Blocos (Opcional)
@@ -259,10 +259,6 @@ export default function EditarJejum() {
                     Divida seu jejum em etapas
                   </p>
                 </div>
-                <Button type="button" onClick={addBlock} variant="outline" size="sm">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Adicionar Bloco
-                </Button>
               </div>
 
               <div className="space-y-4">
@@ -341,6 +337,11 @@ export default function EditarJejum() {
                     </div>
                   </Card>
                 ))}
+
+                <Button type="button" onClick={addBlock} variant="outline" className="w-full">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Adicionar Bloco
+                </Button>
 
                 {blocks.length > 0 && (
                   <p className="text-xs text-muted-foreground">
