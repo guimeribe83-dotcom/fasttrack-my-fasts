@@ -14,7 +14,186 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      fast_blocks: {
+        Row: {
+          created_at: string | null
+          fast_id: string
+          id: string
+          manually_completed: boolean | null
+          name: string
+          order_index: number
+          total_days: number
+        }
+        Insert: {
+          created_at?: string | null
+          fast_id: string
+          id?: string
+          manually_completed?: boolean | null
+          name: string
+          order_index: number
+          total_days: number
+        }
+        Update: {
+          created_at?: string | null
+          fast_id?: string
+          id?: string
+          manually_completed?: boolean | null
+          name?: string
+          order_index?: number
+          total_days?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fast_blocks_fast_id_fkey"
+            columns: ["fast_id"]
+            isOneToOne: false
+            referencedRelation: "fasts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fast_days: {
+        Row: {
+          block_id: string | null
+          completed: boolean
+          created_at: string | null
+          date: string
+          fast_id: string
+          id: string
+        }
+        Insert: {
+          block_id?: string | null
+          completed?: boolean
+          created_at?: string | null
+          date: string
+          fast_id: string
+          id?: string
+        }
+        Update: {
+          block_id?: string | null
+          completed?: boolean
+          created_at?: string | null
+          date?: string
+          fast_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fast_days_block_id_fkey"
+            columns: ["block_id"]
+            isOneToOne: false
+            referencedRelation: "fast_blocks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fast_days_fast_id_fkey"
+            columns: ["fast_id"]
+            isOneToOne: false
+            referencedRelation: "fasts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fasts: {
+        Row: {
+          created_at: string | null
+          days_completed_before_app: number | null
+          id: string
+          is_active: boolean | null
+          name: string
+          start_date: string
+          total_days: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          days_completed_before_app?: number | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          start_date: string
+          total_days: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          days_completed_before_app?: number | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          start_date?: string
+          total_days?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fasts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          full_name: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      reminders: {
+        Row: {
+          created_at: string | null
+          enabled: boolean | null
+          id: string
+          label: string
+          time: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          enabled?: boolean | null
+          id?: string
+          label: string
+          time: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          enabled?: boolean | null
+          id?: string
+          label?: string
+          time?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reminders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
