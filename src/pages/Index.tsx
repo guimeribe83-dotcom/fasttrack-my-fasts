@@ -157,47 +157,47 @@ export default function Index() {
 
   return (
     <Layout>
-      <div className="p-8 max-w-6xl mx-auto space-y-8">
+      <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-6 md:space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-4xl font-bold text-foreground mb-2">
+          <h1 className="text-2xl md:text-4xl font-bold text-foreground mb-2">
             Bem-vindo de volta! 👋
           </h1>
-          <p className="text-muted-foreground capitalize">{today}</p>
+          <p className="text-sm md:text-base text-muted-foreground capitalize">{today}</p>
         </div>
 
         {/* Progress Section */}
-        <Card className="p-8">
-          <div className="flex flex-col lg:flex-row items-center gap-8">
+        <Card className="p-4 md:p-8">
+          <div className="flex flex-col lg:flex-row items-center gap-6 md:gap-8">
             <ProgressCircle percentage={percentage} />
             
-            <div className="flex-1 space-y-6 w-full">
+            <div className="flex-1 space-y-4 md:space-y-6 w-full">
               <div>
-                <h2 className="text-3xl font-bold text-foreground mb-2">
+                <h2 className="text-xl md:text-3xl font-bold text-foreground mb-1 md:mb-2">
                   {activeFast.name}
                 </h2>
-                <p className="text-muted-foreground">Seu jejum está em andamento</p>
+                <p className="text-sm md:text-base text-muted-foreground">Seu jejum está em andamento</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <Card className="p-4 bg-primary/5 border-primary/20">
-                  <div className="flex items-center gap-3">
-                    <CheckCircle className="w-8 h-8 text-primary" />
+              <div className="grid grid-cols-2 gap-3 md:gap-4">
+                <Card className="p-3 md:p-4 bg-primary/5 border-primary/20">
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <CheckCircle className="w-6 h-6 md:w-8 md:h-8 text-primary flex-shrink-0" />
                     <div>
-                      <p className="text-sm text-muted-foreground">CONCLUÍDOS</p>
-                      <p className="text-3xl font-bold text-primary">{totalCompleted}</p>
-                      <p className="text-xs text-muted-foreground">de {activeFast.total_days} dias</p>
+                      <p className="text-[10px] md:text-sm text-muted-foreground font-medium">CONCLUÍDOS</p>
+                      <p className="text-2xl md:text-3xl font-bold text-primary">{totalCompleted}</p>
+                      <p className="text-[10px] md:text-xs text-muted-foreground">de {activeFast.total_days} dias</p>
                     </div>
                   </div>
                 </Card>
 
-                <Card className="p-4 bg-success/5 border-success/20">
-                  <div className="flex items-center gap-3">
-                    <Calendar className="w-8 h-8 text-success" />
+                <Card className="p-3 md:p-4 bg-success/5 border-success/20">
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <Calendar className="w-6 h-6 md:w-8 md:h-8 text-success flex-shrink-0" />
                     <div>
-                      <p className="text-sm text-muted-foreground">FALTAM</p>
-                      <p className="text-3xl font-bold text-success">{daysRemaining}</p>
-                      <p className="text-xs text-muted-foreground">dias restantes</p>
+                      <p className="text-[10px] md:text-sm text-muted-foreground font-medium">FALTAM</p>
+                      <p className="text-2xl md:text-3xl font-bold text-success">{daysRemaining}</p>
+                      <p className="text-[10px] md:text-xs text-muted-foreground">dias restantes</p>
                     </div>
                   </div>
                 </Card>
@@ -208,9 +208,9 @@ export default function Index() {
 
         {/* Blocks Section */}
         {blocks.length > 0 && (
-          <div className="space-y-4">
-            <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
-              <Calendar className="w-5 h-5" />
+          <div className="space-y-3 md:space-y-4">
+            <h3 className="text-lg md:text-xl font-bold text-foreground flex items-center gap-2">
+              <Calendar className="w-5 h-5 md:w-6 md:h-6" />
               Etapas do Jejum
             </h3>
             <div className="grid gap-4">
@@ -283,24 +283,25 @@ export default function Index() {
         )}
 
         {/* Action Button */}
-        <div className="flex gap-4">
+        <div className="flex gap-3 md:gap-4">
           <Button
             size="lg"
-            className="flex-1 h-14 text-lg bg-gradient-success hover:opacity-90"
+            className="flex-1 h-12 md:h-14 text-sm md:text-lg bg-gradient-success hover:opacity-90"
             onClick={handleCompleteDay}
             disabled={dayAlreadyCompleted}
           >
-            <CheckCircle className="mr-2 w-5 h-5" />
-            {dayAlreadyCompleted ? "Dia Já Registrado" : "Registrar Dia Concluído"}
+            <CheckCircle className="mr-1.5 md:mr-2 w-4 h-4 md:w-5 md:h-5" />
+            <span className="hidden sm:inline">{dayAlreadyCompleted ? "Dia Já Registrado" : "Registrar Dia Concluído"}</span>
+            <span className="sm:hidden">{dayAlreadyCompleted ? "Registrado" : "Registrar Dia"}</span>
           </Button>
           <Button
             size="lg"
             variant="outline"
-            className="h-14"
+            className="h-12 md:h-14 px-3 md:px-4"
             onClick={() => navigate("/historico")}
           >
-            <Calendar className="mr-2 w-5 h-5" />
-            Histórico
+            <Calendar className="mr-0 md:mr-2 w-5 h-5" />
+            <span className="hidden md:inline">Histórico</span>
           </Button>
         </div>
       </div>

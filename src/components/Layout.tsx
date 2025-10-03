@@ -98,14 +98,14 @@ export const Layout = ({ children }: LayoutProps) => {
                 key={item.path}
                 to={item.path}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg transition-all flex-1",
+                  "flex flex-col items-center justify-center gap-0.5 px-3 py-2 rounded-lg transition-all flex-1",
                   isActive
                     ? "text-primary font-medium"
                     : "text-sidebar-foreground/60"
                 )}
               >
-                <Icon className="w-5 h-5" />
-                <span className="text-[10px]">{item.label}</span>
+                <Icon className="w-6 h-6" />
+                <span className="text-[10px] font-medium">{item.label}</span>
               </Link>
             );
           })}
