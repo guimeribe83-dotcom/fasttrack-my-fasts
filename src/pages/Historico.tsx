@@ -108,40 +108,40 @@ export default function Historico() {
 
   return (
     <Layout>
-      <div className="p-8 max-w-5xl mx-auto space-y-6">
+      <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-4 md:space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Histórico</h1>
-          <p className="text-muted-foreground">Acompanhe seus dias</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">Histórico</h1>
+          <p className="text-sm md:text-base text-muted-foreground">Acompanhe seus dias</p>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4">
-          <Card className="p-4 bg-success-light border-success/30">
-            <div className="flex items-center gap-3">
-              <CheckCircle className="w-8 h-8 text-success" />
+        <div className="grid grid-cols-3 gap-2 md:gap-4">
+          <Card className="p-3 md:p-4 bg-success/5 border-success/20">
+            <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
+              <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-success" />
               <div>
-                <p className="text-2xl font-bold text-success">{totalCompleted}</p>
-                <p className="text-sm text-muted-foreground">Concluídos</p>
+                <p className="text-lg md:text-2xl font-bold text-success">{totalCompleted}</p>
+                <p className="text-xs md:text-sm text-muted-foreground">Concluídos</p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-4 bg-destructive-light border-destructive/30">
-            <div className="flex items-center gap-3">
-              <XCircle className="w-8 h-8 text-destructive" />
+          <Card className="p-3 md:p-4 bg-destructive/5 border-destructive/20">
+            <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
+              <XCircle className="w-5 h-5 md:w-6 md:h-6 text-destructive" />
               <div>
-                <p className="text-2xl font-bold text-destructive">{totalFailed}</p>
-                <p className="text-sm text-muted-foreground">Não Concluídos</p>
+                <p className="text-lg md:text-2xl font-bold text-destructive">{totalFailed}</p>
+                <p className="text-xs md:text-sm text-muted-foreground">Não Concluídos</p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-4 bg-muted border-muted-foreground/30">
-            <div className="flex items-center gap-3">
-              <Circle className="w-8 h-8 text-muted-foreground" />
+          <Card className="p-3 md:p-4 bg-muted/30 border-muted-foreground/20">
+            <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
+              <Circle className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
               <div>
-                <p className="text-2xl font-bold text-muted-foreground">{totalPending}</p>
-                <p className="text-sm text-muted-foreground">Pendentes</p>
+                <p className="text-lg md:text-2xl font-bold text-muted-foreground">{totalPending}</p>
+                <p className="text-xs md:text-sm text-muted-foreground">Pendentes</p>
               </div>
             </div>
           </Card>
@@ -149,39 +149,39 @@ export default function Historico() {
 
         {/* Note */}
         {totalCompleted < activeFast.total_days && (
-          <Card className="p-4 bg-primary/5 border-primary/30">
-            <p className="text-sm">
+          <Card className="p-3 md:p-4 bg-primary/5 border-primary/20">
+            <p className="text-xs md:text-sm">
               <strong>1º dia já concluído:</strong> Antes de usar o app
             </p>
           </Card>
         )}
 
         {/* Calendar */}
-        <Card className="p-6">
-          <div className="flex items-center gap-2 mb-6">
-            <CalendarIcon className="w-5 h-5 text-primary" />
-            <h2 className="text-xl font-semibold text-foreground">
+        <Card className="p-4 md:p-6">
+          <div className="flex items-center gap-2 mb-4 md:mb-6">
+            <CalendarIcon className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+            <h2 className="text-lg md:text-xl font-semibold text-foreground">
               Calendário do Jejum
             </h2>
           </div>
 
-          <div className="mb-4">
-            <h3 className="text-lg font-medium text-foreground capitalize">
+          <div className="mb-3 md:mb-4">
+            <h3 className="text-base md:text-lg font-medium text-foreground capitalize">
               {format(currentMonth, "MMMM yyyy", { locale: ptBR })}
             </h3>
           </div>
 
           {/* Weekday headers */}
-          <div className="grid grid-cols-7 gap-2 mb-2">
+          <div className="grid grid-cols-7 gap-1 md:gap-2 mb-2">
             {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((day) => (
-              <div key={day} className="text-center text-sm font-medium text-muted-foreground">
+              <div key={day} className="text-center text-xs md:text-sm font-medium text-muted-foreground">
                 {day}
               </div>
             ))}
           </div>
 
           {/* Calendar grid */}
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid grid-cols-7 gap-1 md:gap-2">
             {/* Empty cells for days before month starts */}
             {Array.from({ length: monthStart.getDay() }).map((_, i) => (
               <div key={`empty-${i}`} />
@@ -196,47 +196,44 @@ export default function Historico() {
                 <div
                   key={date.toISOString()}
                   className={cn(
-                    "aspect-square flex flex-col items-center justify-center rounded-lg border-2 transition-all",
-                    status === "completed" && "bg-success-light border-success",
-                    status === "failed" && "bg-destructive-light border-destructive",
-                    status === "pending" && "border-border bg-background",
-                    isToday && "ring-2 ring-primary"
+                    "aspect-square flex flex-col items-center justify-center rounded-md md:rounded-lg border transition-all",
+                    status === "completed" && "bg-success/10 border-success/30",
+                    status === "failed" && "bg-destructive/10 border-destructive/30",
+                    status === "pending" && "border-border/50 bg-muted/20",
+                    isToday && "ring-1 ring-primary/50"
                   )}
                 >
                   <span className={cn(
-                    "text-sm font-medium",
+                    "text-[10px] md:text-xs font-medium",
                     status === "completed" && "text-success",
                     status === "failed" && "text-destructive",
                     status === "pending" && "text-muted-foreground"
                   )}>
-                    Dia {format(date, "d")}
+                    {format(date, "d")}
                   </span>
-                  <div className="mt-1">
-                    {status === "completed" && <CheckCircle className="w-4 h-4 text-success" />}
-                    {status === "failed" && <XCircle className="w-4 h-4 text-destructive" />}
-                    {status === "pending" && <Circle className="w-4 h-4 text-muted-foreground" />}
+                  <div className="mt-0.5 md:mt-1">
+                    {status === "completed" && <CheckCircle className="w-3 h-3 md:w-4 md:h-4 text-success" />}
+                    {status === "failed" && <XCircle className="w-3 h-3 md:w-4 md:h-4 text-destructive" />}
+                    {status === "pending" && <Circle className="w-3 h-3 md:w-4 md:h-4 text-muted-foreground/50" />}
                   </div>
-                  <span className="text-xs text-muted-foreground mt-1">
-                    {format(date, "dd/MM")}
-                  </span>
                 </div>
               );
             })}
           </div>
 
           {/* Legend */}
-          <div className="flex items-center justify-center gap-6 mt-6 pt-6 border-t">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-success" />
-              <span className="text-sm text-muted-foreground">Concluído</span>
+          <div className="flex flex-wrap items-center justify-center gap-3 md:gap-6 mt-4 md:mt-6 pt-4 md:pt-6 border-t">
+            <div className="flex items-center gap-1.5 md:gap-2">
+              <CheckCircle className="w-3 h-3 md:w-4 md:h-4 text-success" />
+              <span className="text-xs md:text-sm text-muted-foreground">Concluído</span>
             </div>
-            <div className="flex items-center gap-2">
-              <XCircle className="w-4 h-4 text-destructive" />
-              <span className="text-sm text-muted-foreground">Não Concluído</span>
+            <div className="flex items-center gap-1.5 md:gap-2">
+              <XCircle className="w-3 h-3 md:w-4 md:h-4 text-destructive" />
+              <span className="text-xs md:text-sm text-muted-foreground">Não Concluído</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Circle className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Pendente</span>
+            <div className="flex items-center gap-1.5 md:gap-2">
+              <Circle className="w-3 h-3 md:w-4 md:h-4 text-muted-foreground/50" />
+              <span className="text-xs md:text-sm text-muted-foreground">Pendente</span>
             </div>
           </div>
         </Card>
