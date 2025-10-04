@@ -1,10 +1,11 @@
 import { ReactNode } from "react";
-import { Home, Plus, History, Bell, List, LogOut } from "lucide-react";
+import { Home, Plus, History, Bell, List, LogOut, Settings } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/logo.png";
+import { useTranslation } from "react-i18next";
 
 interface LayoutProps {
   children: ReactNode;
@@ -13,13 +14,14 @@ interface LayoutProps {
 export const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
       toast({
         variant: "destructive",
-        title: "Erro ao sair",
+        title: t("common.error"),
         description: error.message,
       });
     } else {
@@ -28,11 +30,11 @@ export const Layout = ({ children }: LayoutProps) => {
   };
 
   const menuItems = [
-    { icon: Home, label: "Início", path: "/" },
-    { icon: List, label: "Gerenciar", path: "/gerenciar" },
-    { icon: Plus, label: "Novo", path: "/novo-jejum" },
-    { icon: History, label: "Histórico", path: "/historico" },
-    { icon: Bell, label: "Lembretes", path: "/lembretes" },
+    { icon: Home, label: t("menu.home"), path: "/" },
+    { icon: List, label: t("menu.manage"), path: "/gerenciar" },
+    { icon: Plus, label: t("menu.new"), path: "/novo-jejum" },
+    { icon: History, label: t("menu.history"), path: "/historico" },
+    { icon: Bell, label: t("menu.reminders"), path: "/lembretes" },
   ];
 
   return (
@@ -43,8 +45,8 @@ export const Layout = ({ children }: LayoutProps) => {
           <div className="flex items-center gap-3">
             <img src={logo} alt="FastTrack Logo" className="w-12 h-12 rounded-xl" />
             <div>
-              <h1 className="font-bold text-sidebar-foreground">FastTrack</h1>
-              <p className="text-xs text-sidebar-foreground/60">Meu Jejum Diário</p>
+              <h1 className="font-bold text-sidebar-foreground">{t("app.name")}</h1>
+              <p className="text-xs text-sidebar-foreground/60">{t("app.subtitle")}</p>
             </div>
           </div>
         </div>
@@ -71,13 +73,25 @@ export const Layout = ({ children }: LayoutProps) => {
           })}
         </nav>
 
-        <div className="p-4 border-t border-sidebar-border">
+        <div className="p-4 border-t border-sidebar-border space-y-1">
+          <Link
+            to="/configuracoes"
+            className={cn(
+              "flex items-center gap-3 px-4 py-3 rounded-lg transition-all",
+              location.pathname === "/configuracoes"
+                ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                : "text-sidebar-foreground hover:bg-sidebar-accent/50"
+            )}
+          >
+            <Settings className="w-5 h-5" />
+            <span>{t("menu.settings")}</span>
+          </Link>
           <button
             onClick={handleLogout}
             className="flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-sidebar-foreground hover:bg-destructive/10 hover:text-destructive w-full"
           >
             <LogOut className="w-5 h-5" />
-            <span>Sair</span>
+            <span>{t("menu.logout")}</span>
           </button>
         </div>
       </aside>

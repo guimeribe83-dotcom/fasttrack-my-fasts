@@ -9,14 +9,24 @@ import { supabase } from "@/integrations/supabase/client";
 import { CheckCircle, Calendar } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { ptBR, enUS, es } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 
 export default function Index() {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [activeFast, setActiveFast] = useState<any>(null);
   const [blocks, setBlocks] = useState<any[]>([]);
   const [completedDays, setCompletedDays] = useState<any[]>([]);
+
+  const getDateFnsLocale = () => {
+    switch (i18n.language) {
+      case 'en': return enUS;
+      case 'es': return es;
+      default: return ptBR;
+    }
+  };
 
   useEffect(() => {
     checkAuth();
@@ -73,7 +83,7 @@ export default function Index() {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Erro ao carregar jejum",
+        title: t("common.error"),
         description: error.message,
       });
     } finally {
@@ -99,8 +109,8 @@ export default function Index() {
         if (error.code === "23505") {
           toast({
             variant: "destructive",
-            title: "Dia já registrado",
-            description: "Você já registrou o dia de hoje!",
+            title: t("home.errorMarking"),
+            description: t("home.errorMarking"),
           });
           return;
         }
@@ -108,15 +118,15 @@ export default function Index() {
       }
 
       toast({
-        title: "Dia registrado!",
-        description: "Parabéns por manter seu jejum!",
+        title: t("common.success"),
+        description: t("home.successMarked"),
       });
 
       loadActiveFast();
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Erro ao registrar dia",
+        title: t("home.errorMarking"),
         description: error.message,
       });
     }
@@ -126,7 +136,7 @@ export default function Index() {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-screen">
-          <p className="text-muted-foreground">Carregando...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </Layout>
     );
@@ -136,11 +146,11 @@ export default function Index() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center min-h-screen p-8">
-          <h2 className="text-2xl font-bold mb-4 text-foreground">Nenhum jejum ativo</h2>
+          <h2 className="text-2xl font-bold mb-4 text-foreground">{t("home.noActiveFast")}</h2>
           <p className="text-muted-foreground mb-6 text-center">
-            Comece criando seu primeiro jejum para acompanhar seu progresso espiritual.
+            {t("home.noActiveFastMessage")}
           </p>
-          <Button onClick={() => navigate("/novo-jejum")}>Criar Jejum</Button>
+          <Button onClick={() => navigate("/novo-jejum")}>{t("home.createFast")}</Button>
         </div>
       </Layout>
     );
@@ -150,7 +160,7 @@ export default function Index() {
   const daysRemaining = activeFast.total_days - totalCompleted;
   const percentage = Math.round((totalCompleted / activeFast.total_days) * 100);
 
-  const today = format(new Date(), "EEEE, d 'de' MMMM", { locale: ptBR });
+  const today = format(new Date(), "EEEE, d 'de' MMMM", { locale: getDateFnsLocale() });
   const dayAlreadyCompleted = completedDays.some(
     (day) => day.date === format(new Date(), "yyyy-MM-dd")
   );
@@ -161,7 +171,7 @@ export default function Index() {
         {/* Header */}
         <div>
           <h1 className="text-2xl md:text-4xl font-bold text-foreground mb-2">
-            Bem-vindo de volta! 👋
+            {activeFast.name}
           </h1>
           <p className="text-sm md:text-base text-muted-foreground capitalize">{today}</p>
         </div>
@@ -174,9 +184,9 @@ export default function Index() {
             <div className="flex-1 space-y-4 md:space-y-6 w-full">
               <div>
                 <h2 className="text-xl md:text-3xl font-bold text-foreground mb-1 md:mb-2">
-                  {activeFast.name}
+                  {t("home.progress")}
                 </h2>
-                <p className="text-sm md:text-base text-muted-foreground">Seu jejum está em andamento</p>
+                <p className="text-sm md:text-base text-muted-foreground">{t("home.daysCompleted", { count: totalCompleted, total: activeFast.total_days })}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-3 md:gap-4">
@@ -184,9 +194,9 @@ export default function Index() {
                   <div className="flex items-center gap-2 md:gap-3">
                     <CheckCircle className="w-6 h-6 md:w-8 md:h-8 text-primary flex-shrink-0" />
                     <div>
-                      <p className="text-[10px] md:text-sm text-muted-foreground font-medium">CONCLUÍDOS</p>
+                      <p className="text-[10px] md:text-sm text-muted-foreground font-medium uppercase">{t("home.completed")}</p>
                       <p className="text-2xl md:text-3xl font-bold text-primary">{totalCompleted}</p>
-                      <p className="text-[10px] md:text-xs text-muted-foreground">de {activeFast.total_days} dias</p>
+                      <p className="text-[10px] md:text-xs text-muted-foreground">{t("home.daysCompleted", { count: totalCompleted, total: activeFast.total_days })}</p>
                     </div>
                   </div>
                 </Card>
@@ -195,9 +205,9 @@ export default function Index() {
                   <div className="flex items-center gap-2 md:gap-3">
                     <Calendar className="w-6 h-6 md:w-8 md:h-8 text-success flex-shrink-0" />
                     <div>
-                      <p className="text-[10px] md:text-sm text-muted-foreground font-medium">FALTAM</p>
+                      <p className="text-[10px] md:text-sm text-muted-foreground font-medium uppercase">{t("history.pending")}</p>
                       <p className="text-2xl md:text-3xl font-bold text-success">{daysRemaining}</p>
-                      <p className="text-[10px] md:text-xs text-muted-foreground">dias restantes</p>
+                      <p className="text-[10px] md:text-xs text-muted-foreground">{t("home.days")}</p>
                     </div>
                   </div>
                 </Card>
@@ -211,7 +221,7 @@ export default function Index() {
           <div className="space-y-3 md:space-y-4">
             <h3 className="text-lg md:text-xl font-bold text-foreground flex items-center gap-2">
               <Calendar className="w-5 h-5 md:w-6 md:h-6" />
-              Etapas do Jejum
+              {t("home.stages")}
             </h3>
             <div className="grid gap-4">
               {blocks.map((block, blockIndex) => {
@@ -291,8 +301,8 @@ export default function Index() {
             disabled={dayAlreadyCompleted}
           >
             <CheckCircle className="mr-1.5 md:mr-2 w-4 h-4 md:w-5 md:h-5" />
-            <span className="hidden sm:inline">{dayAlreadyCompleted ? "Dia Já Registrado" : "Registrar Dia Concluído"}</span>
-            <span className="sm:hidden">{dayAlreadyCompleted ? "Registrado" : "Registrar Dia"}</span>
+            <span className="hidden sm:inline">{dayAlreadyCompleted ? t("home.completed") : t("home.markAsCompleted")}</span>
+            <span className="sm:hidden">{dayAlreadyCompleted ? t("home.completed") : t("home.markAsCompleted")}</span>
           </Button>
           <Button
             size="lg"
@@ -301,7 +311,7 @@ export default function Index() {
             onClick={() => navigate("/historico")}
           >
             <Calendar className="mr-0 md:mr-2 w-5 h-5" />
-            <span className="hidden md:inline">Histórico</span>
+            <span className="hidden md:inline">{t("menu.history")}</span>
           </Button>
         </div>
       </div>
