@@ -91,6 +91,14 @@ export default function Perfil() {
         .from('avatars')
         .getPublicUrl(fileName);
 
+      // Save avatar_url to database immediately
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: publicUrl })
+        .eq("id", user.id);
+
+      if (updateError) throw updateError;
+
       setAvatarUrl(publicUrl);
 
       toast({
