@@ -8,7 +8,9 @@ import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Bell, Plus, Trash2 } from "lucide-react";
+import { Bell, Plus, Trash2, BellRing, BellOff } from "lucide-react";
+import { useNotifications } from "@/hooks/useNotifications";
+import { useTranslation } from "react-i18next";
 
 interface Reminder {
   id: string;
@@ -19,6 +21,8 @@ interface Reminder {
 
 export default function Lembretes() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { permission, requestPermission, isSupported } = useNotifications();
   const [loading, setLoading] = useState(true);
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [newLabel, setNewLabel] = useState("");
@@ -50,11 +54,27 @@ export default function Lembretes() {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Erro ao carregar lembretes",
+        title: t("reminders.error"),
         description: error.message,
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRequestPermission = async () => {
+    const granted = await requestPermission();
+    if (granted) {
+      toast({
+        title: t("reminders.permissionGranted"),
+        description: t("reminders.permissionGrantedMessage"),
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: t("reminders.permissionDenied"),
+        description: t("reminders.permissionDeniedMessage"),
+      });
     }
   };
 
@@ -64,8 +84,8 @@ export default function Lembretes() {
     if (!newLabel || !newTime) {
       toast({
         variant: "destructive",
-        title: "Campos obrigatórios",
-        description: "Preencha o rótulo e horário.",
+        title: t("reminders.requiredFields"),
+        description: t("reminders.requiredFieldsMessage"),
       });
       return;
     }
@@ -84,8 +104,8 @@ export default function Lembretes() {
       if (error) throw error;
 
       toast({
-        title: "Lembrete adicionado!",
-        description: "Você receberá notificações neste horário.",
+        title: t("reminders.success"),
+        description: t("reminders.successMessage"),
       });
 
       setNewLabel("");
@@ -94,7 +114,7 @@ export default function Lembretes() {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Erro ao adicionar lembrete",
+        title: t("reminders.error"),
         description: error.message,
       });
     }
@@ -112,12 +132,12 @@ export default function Lembretes() {
       setReminders(reminders.map((r) => (r.id === id ? { ...r, enabled } : r)));
 
       toast({
-        title: enabled ? "Lembrete ativado" : "Lembrete desativado",
+        title: enabled ? t("reminders.enabled") : t("reminders.disabled"),
       });
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Erro ao atualizar lembrete",
+        title: t("reminders.error"),
         description: error.message,
       });
     }
@@ -130,14 +150,14 @@ export default function Lembretes() {
       if (error) throw error;
 
       toast({
-        title: "Lembrete excluído",
+        title: t("reminders.deleteSuccess"),
       });
 
       loadReminders();
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Erro ao excluir lembrete",
+        title: t("reminders.deleteError"),
         description: error.message,
       });
     }
@@ -147,7 +167,7 @@ export default function Lembretes() {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-screen">
-          <p className="text-muted-foreground">Carregando...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </Layout>
     );
@@ -157,32 +177,77 @@ export default function Lembretes() {
     <Layout>
       <div className="p-8 max-w-3xl mx-auto space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Lembretes</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">{t("reminders.title")}</h1>
           <p className="text-muted-foreground">
-            Configure notificações para não esquecer
+            {t("reminders.subtitle")}
           </p>
         </div>
+
+        {/* Notification Permission Banner */}
+        {isSupported && permission !== 'granted' && (
+          <Card className="p-4 bg-primary/5 border-primary/20">
+            <div className="flex items-start gap-4">
+              <BellRing className="w-6 h-6 text-primary mt-0.5 flex-shrink-0" />
+              <div className="flex-1 space-y-2">
+                <h3 className="font-semibold text-foreground">{t("reminders.enableNotifications")}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {t("reminders.enableNotificationsMessage")}
+                </p>
+                <Button 
+                  onClick={handleRequestPermission}
+                  className="bg-primary hover:bg-primary/90"
+                  size="sm"
+                >
+                  <BellRing className="mr-2 w-4 h-4" />
+                  {t("reminders.allowNotifications")}
+                </Button>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {isSupported && permission === 'granted' && (
+          <Card className="p-4 bg-success/5 border-success/20">
+            <div className="flex items-center gap-3">
+              <Bell className="w-5 h-5 text-success" />
+              <p className="text-sm text-success font-medium">
+                {t("reminders.notificationsEnabled")}
+              </p>
+            </div>
+          </Card>
+        )}
+
+        {!isSupported && (
+          <Card className="p-4 bg-destructive/5 border-destructive/20">
+            <div className="flex items-center gap-3">
+              <BellOff className="w-5 h-5 text-destructive" />
+              <p className="text-sm text-destructive">
+                {t("reminders.notSupported")}
+              </p>
+            </div>
+          </Card>
+        )}
 
         {/* Add new reminder */}
         <Card className="p-6">
           <div className="flex items-center gap-2 mb-4">
             <Plus className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-semibold text-foreground">Novo Lembrete</h2>
+            <h2 className="text-lg font-semibold text-foreground">{t("reminders.addNew")}</h2>
           </div>
 
           <form onSubmit={handleAddReminder} className="space-y-4">
             <div>
-              <Label htmlFor="label">Rótulo</Label>
+              <Label htmlFor="label">{t("reminders.label")}</Label>
               <Input
                 id="label"
-                placeholder="Ex: Café da manhã, Almoço..."
+                placeholder={t("reminders.labelPlaceholder")}
                 value={newLabel}
                 onChange={(e) => setNewLabel(e.target.value)}
               />
             </div>
 
             <div>
-              <Label htmlFor="time">Horário</Label>
+              <Label htmlFor="time">{t("reminders.time")}</Label>
               <Input
                 id="time"
                 type="time"
@@ -193,7 +258,7 @@ export default function Lembretes() {
 
             <Button type="submit" className="w-full bg-gradient-primary">
               <Plus className="mr-2 w-4 h-4" />
-              Adicionar Lembrete
+              {t("reminders.add")}
             </Button>
           </form>
         </Card>
@@ -203,14 +268,14 @@ export default function Lembretes() {
           <div className="flex items-center gap-2 mb-4">
             <Bell className="w-5 h-5 text-primary" />
             <h2 className="text-lg font-semibold text-foreground">
-              Meus Lembretes ({reminders.length})
+              {t("reminders.myReminders")} ({reminders.length})
             </h2>
           </div>
 
           {reminders.length === 0 ? (
             <div className="text-center py-8">
               <Bell className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
-              <p className="text-muted-foreground">Nenhum lembrete configurado</p>
+              <p className="text-muted-foreground">{t("reminders.noReminders")}</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -245,9 +310,7 @@ export default function Lembretes() {
 
         <Card className="p-4 bg-muted border-muted-foreground/30">
           <p className="text-sm text-muted-foreground">
-            <strong>Nota:</strong> Os lembretes são apenas visuais nesta versão. Para receber
-            notificações reais no seu dispositivo, você precisará conceder permissão quando
-            solicitado pelo app.
+            {t("reminders.note")}
           </p>
         </Card>
       </div>
