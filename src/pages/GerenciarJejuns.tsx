@@ -133,56 +133,98 @@ export default function GerenciarJejuns() {
 
   return (
     <Layout>
-      <div className="p-8 max-w-4xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="p-4 md:p-8 max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 md:mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Gerenciar Jejuns</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">Gerenciar Jejuns</h1>
+            <p className="text-sm md:text-base text-muted-foreground">
               Defina o jejum ativo, edite ou crie novos propósitos
             </p>
           </div>
-          <Button onClick={() => navigate("/novo-jejum")}>
+          <Button onClick={() => navigate("/novo-jejum")} className="bg-gradient-primary h-11 whitespace-nowrap">
             <Plus className="mr-2 w-4 h-4" />
             Criar Novo Jejum
           </Button>
         </div>
 
         {fasts.length === 0 ? (
-          <Card className="p-12 text-center">
-            <p className="text-muted-foreground mb-4">Nenhum jejum cadastrado ainda</p>
-            <Button onClick={() => navigate("/novo-jejum")}>
-              Criar Primeiro Jejum
-            </Button>
+          <Card className="p-12 text-center border-dashed">
+            <div className="flex flex-col items-center">
+              <div className="w-20 h-20 rounded-full bg-muted/50 flex items-center justify-center mb-4">
+                <Plus className="w-10 h-10 text-muted-foreground/50" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">Nenhum jejum cadastrado</h3>
+              <p className="text-sm text-muted-foreground mb-6">Comece criando seu primeiro jejum</p>
+              <Button onClick={() => navigate("/novo-jejum")} className="bg-gradient-primary h-11">
+                <Plus className="mr-2 w-4 h-4" />
+                Criar Primeiro Jejum
+              </Button>
+            </div>
           </Card>
         ) : (
-          <div className="space-y-4">
+          <div className="grid gap-4">
             {fasts.map((fast) => {
               const completedDays = fast.fast_days?.[0]?.count || 0;
               const totalCompleted = completedDays + (fast.days_completed_before_app || 0);
               const percentage = Math.round((totalCompleted / fast.total_days) * 100);
 
               return (
-                <Card key={fast.id} className={`p-6 ${fast.is_active ? "border-primary border-2" : ""}`}>
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-xl font-bold text-foreground">{fast.name}</h3>
-                        {fast.is_active && (
-                          <Badge variant="default" className="bg-primary">
-                            <Star className="w-3 h-3 mr-1" />
-                            Ativo
-                          </Badge>
-                        )}
+                <Card 
+                  key={fast.id} 
+                  className={`p-4 md:p-6 transition-all hover:shadow-md ${
+                    fast.is_active ? "border-primary border-2 bg-primary/5" : "border-border"
+                  }`}
+                >
+                  <div className="flex flex-col md:flex-row md:items-start gap-4">
+                    {/* Left side - Info */}
+                    <div className="flex-1 space-y-4">
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <h3 className="text-lg md:text-xl font-bold text-foreground">{fast.name}</h3>
+                          {fast.is_active && (
+                            <Badge className="bg-primary/90 text-white border-0">
+                              <Star className="w-3 h-3 mr-1 fill-current" />
+                              Ativo
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {fast.total_days} dias • Iniciado em {new Date(fast.start_date).toLocaleDateString('pt-BR')}
+                        </p>
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        {fast.total_days} dias
-                      </p>
+
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-muted-foreground font-medium">Progresso</span>
+                          <span className="text-primary font-bold">{percentage}%</span>
+                        </div>
+                        <Progress value={percentage} className="h-2" />
+                        <p className="text-xs text-muted-foreground">
+                          {totalCompleted} de {fast.total_days} dias concluídos
+                        </p>
+                      </div>
+
+                      {!fast.is_active && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSetActive(fast.id)}
+                          className="w-full md:w-auto h-9"
+                        >
+                          <Star className="w-4 h-4 mr-2" />
+                          Tornar Ativo
+                        </Button>
+                      )}
                     </div>
-                    <div className="flex gap-2">
+
+                    {/* Right side - Actions */}
+                    <div className="flex md:flex-col gap-2">
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => navigate(`/editar-jejum/${fast.id}`)}
+                        className="h-9 w-9"
                       >
                         <Edit className="w-4 h-4" />
                       </Button>
@@ -190,36 +232,11 @@ export default function GerenciarJejuns() {
                         variant="ghost"
                         size="icon"
                         onClick={() => setDeleteId(fast.id)}
+                        className="h-9 w-9"
                       >
                         <Trash2 className="w-4 h-4 text-destructive" />
                       </Button>
                     </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="text-muted-foreground">Progresso</span>
-                        <span className="font-medium text-primary">{percentage}%</span>
-                      </div>
-                      <Progress value={percentage} />
-                    </div>
-
-                    <p className="text-sm text-muted-foreground">
-                      {totalCompleted} de {fast.total_days} dias concluídos
-                    </p>
-
-                    {!fast.is_active && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleSetActive(fast.id)}
-                        className="w-full"
-                      >
-                        <Star className="w-4 h-4 mr-2" />
-                        Tornar Ativo
-                      </Button>
-                    )}
                   </div>
                 </Card>
               );
@@ -228,18 +245,18 @@ export default function GerenciarJejuns() {
         )}
 
         <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-          <AlertDialogContent>
+          <AlertDialogContent className="max-w-md">
             <AlertDialogHeader>
-              <AlertDialogTitle>Excluir jejum</AlertDialogTitle>
-              <AlertDialogDescription>
+              <AlertDialogTitle className="text-xl">Excluir jejum?</AlertDialogTitle>
+              <AlertDialogDescription className="text-sm leading-relaxed">
                 Tem certeza que deseja excluir este jejum? Esta ação não pode ser desfeita.
-                Todos os dias registrados e blocos serão removidos.
+                Todos os dias registrados e blocos serão removidos permanentemente.
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete} className="bg-destructive">
-                Excluir
+            <AlertDialogFooter className="gap-2">
+              <AlertDialogCancel className="h-10">Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90 h-10">
+                Excluir Jejum
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

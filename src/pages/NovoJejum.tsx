@@ -117,35 +117,38 @@ export default function NovoJejum() {
 
   return (
     <Layout>
-      <div className="p-8 max-w-3xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Criar Novo Jejum</h1>
-          <p className="text-muted-foreground">Configure seu propósito espiritual</p>
+      <div className="p-4 md:p-8 max-w-4xl mx-auto">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">Criar Novo Jejum</h1>
+          <p className="text-sm md:text-base text-muted-foreground">Configure seu propósito espiritual</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Info */}
-          <Card className="p-6">
-            <div className="flex items-center gap-2 mb-6">
-              <Calendar className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-semibold text-foreground">Informações Básicas</h2>
+          <Card className="p-4 md:p-6 border-2">
+            <div className="flex items-center gap-2 mb-4 md:mb-6">
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Calendar className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+              </div>
+              <h2 className="text-lg md:text-xl font-semibold text-foreground">Informações Básicas</h2>
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="name">Nome do Jejum *</Label>
+            <div className="space-y-4 md:space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-sm font-medium">Nome do Jejum *</Label>
                 <Input
                   id="name"
                   placeholder="Ex: Jejum de Daniel, Jejum de 21 dias..."
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
+                  className="h-11"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="totalDays">Total de Dias *</Label>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="totalDays" className="text-sm font-medium">Total de Dias *</Label>
                   <Input
                     id="totalDays"
                     type="number"
@@ -154,23 +157,25 @@ export default function NovoJejum() {
                     value={totalDays}
                     onChange={(e) => setTotalDays(e.target.value)}
                     required
+                    className="h-11"
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="startDate">Data de Início *</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="startDate" className="text-sm font-medium">Data de Início *</Label>
                   <Input
                     id="startDate"
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
                     required
+                    className="h-11"
                   />
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="daysCompletedBefore">
+              <div className="space-y-2">
+                <Label htmlFor="daysCompletedBefore" className="text-sm font-medium">
                   Dias Já Concluídos (antes do app)
                 </Label>
                 <Input
@@ -180,8 +185,9 @@ export default function NovoJejum() {
                   placeholder="0"
                   value={daysCompletedBefore}
                   onChange={(e) => setDaysCompletedBefore(e.target.value)}
+                  className="h-11"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-muted-foreground">
                   Se você já estava em jejum antes de usar o app, informe quantos dias já completou
                 </p>
               </div>
@@ -189,19 +195,24 @@ export default function NovoJejum() {
           </Card>
 
           {/* Blocks */}
-          <Card className="p-6">
-            <div className="flex items-center gap-2 mb-6">
-              <Layers className="w-5 h-5 text-success" />
-              <h2 className="text-xl font-semibold text-foreground">Blocos (Opcional)</h2>
+          <Card className="p-4 md:p-6 border-2">
+            <div className="flex items-center gap-2 mb-4 md:mb-6">
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-success/10 flex items-center justify-center">
+                <Layers className="w-4 h-4 md:w-5 md:h-5 text-success" />
+              </div>
+              <div>
+                <h2 className="text-lg md:text-xl font-semibold text-foreground">Blocos</h2>
+                <p className="text-xs text-muted-foreground">Opcional</p>
+              </div>
             </div>
 
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-sm text-muted-foreground mb-4 md:mb-6">
               Divida seu jejum em etapas para acompanhar melhor seu progresso
             </p>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               {blocks.map((block, index) => (
-                <Card key={block.id} className="p-4 bg-muted/30">
+                <Card key={block.id} className="p-4 bg-muted/50 border-muted-foreground/20">
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
                       <div className="flex-1 space-y-3">
@@ -209,6 +220,7 @@ export default function NovoJejum() {
                           placeholder="Nome do bloco (ex: Arroz, Carne...)"
                           value={block.name}
                           onChange={(e) => updateBlock(block.id, "name", e.target.value)}
+                          className="h-10"
                         />
                         <Input
                           type="number"
@@ -218,6 +230,7 @@ export default function NovoJejum() {
                           onChange={(e) =>
                             updateBlock(block.id, "totalDays", parseInt(e.target.value) || 0)
                           }
+                          className="h-10"
                         />
                       </div>
                       <Button
@@ -225,6 +238,7 @@ export default function NovoJejum() {
                         variant="ghost"
                         size="icon"
                         onClick={() => removeBlock(block.id)}
+                        className="flex-shrink-0"
                       >
                         <Trash2 className="w-4 h-4 text-destructive" />
                       </Button>
@@ -237,7 +251,7 @@ export default function NovoJejum() {
                           updateBlock(block.id, "manuallyCompleted", checked)
                         }
                       />
-                      <Label htmlFor={`completed-${block.id}`} className="text-sm cursor-pointer">
+                      <Label htmlFor={`completed-${block.id}`} className="text-sm cursor-pointer text-muted-foreground">
                         Marcar como já concluído
                       </Label>
                     </div>
@@ -249,7 +263,7 @@ export default function NovoJejum() {
                 type="button"
                 variant="outline"
                 onClick={addBlock}
-                className="w-full"
+                className="w-full h-11 border-dashed"
               >
                 <Plus className="mr-2 w-4 h-4" />
                 Adicionar Bloco
@@ -258,19 +272,19 @@ export default function NovoJejum() {
           </Card>
 
           {/* Submit */}
-          <div className="flex gap-4">
+          <div className="flex flex-col-reverse md:flex-row gap-3 md:gap-4 pt-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => navigate("/gerenciar")}
-              className="flex-1"
+              className="flex-1 h-11"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-gradient-primary"
+              className="flex-1 h-11 bg-gradient-primary hover:opacity-90"
             >
               {loading ? "Criando..." : "Iniciar Jejum →"}
             </Button>
