@@ -38,7 +38,8 @@
     "markAsCompleted": "Marcar como Completado",
     "markAsNotCompleted": "Marcar como No Completado",
     "successMarked": "¡Día marcado con éxito!",
-    "errorMarking": "Error al marcar el día"
+    "errorMarking": "Error al marcar el día",
+    "dayAlreadyMarked": "Este día ya ha sido marcado"
   },
   "manage": {
     "title": "Administrar Ayunos",

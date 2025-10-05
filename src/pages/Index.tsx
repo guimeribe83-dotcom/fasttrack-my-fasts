@@ -97,25 +97,57 @@ export default function Index() {
     try {
       const today = format(new Date(), "yyyy-MM-dd");
       
+      // Check if day already exists
+      const { data: existingDay } = await supabase
+        .from("fast_days")
+        .select("id")
+        .eq("fast_id", activeFast.id)
+        .eq("date", today)
+        .maybeSingle();
+
+      if (existingDay) {
+        toast({
+          variant: "destructive",
+          title: t("home.errorMarking"),
+          description: t("home.dayAlreadyMarked"),
+        });
+        return;
+      }
+
+      // Find the active block to assign this day to
+      let activeBlockId = null;
+      let remainingDaysFromBeforeApp = activeFast.days_completed_before_app || 0;
+
+      for (let i = 0; i < blocks.length; i++) {
+        const block = blocks[i];
+        const blockDays = completedDays.filter((day) => day.block_id === block.id);
+        
+        // Calculate days from before app for this block
+        let daysFromBeforeApp = 0;
+        if (remainingDaysFromBeforeApp > 0) {
+          daysFromBeforeApp = Math.min(remainingDaysFromBeforeApp, block.total_days);
+          remainingDaysFromBeforeApp -= daysFromBeforeApp;
+        }
+        
+        const totalBlockCompleted = blockDays.length + daysFromBeforeApp;
+        
+        // If this block is not complete and not manually completed, it's the active one
+        if (!block.manually_completed && totalBlockCompleted < block.total_days) {
+          activeBlockId = block.id;
+          break;
+        }
+      }
+      
       const { error } = await supabase
         .from("fast_days")
         .insert({
           fast_id: activeFast.id,
           date: today,
           completed: true,
+          block_id: activeBlockId,
         });
 
-      if (error) {
-        if (error.code === "23505") {
-          toast({
-            variant: "destructive",
-            title: t("home.errorMarking"),
-            description: t("home.errorMarking"),
-          });
-          return;
-        }
-        throw error;
-      }
+      if (error) throw error;
 
       toast({
         title: t("common.success"),

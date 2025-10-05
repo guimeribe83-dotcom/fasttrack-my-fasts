@@ -51,12 +51,22 @@ export default function Historico() {
       const { data: allDays, error: daysError } = await supabase
         .from("fast_days")
         .select("*")
-        .eq("fast_id", fast.id);
+        .eq("fast_id", fast.id)
+        .order("date", { ascending: false });
 
       if (daysError) throw daysError;
 
-      setCompletedDays(allDays?.filter((d) => d.completed) || []);
-      setFailedDays(allDays?.filter((d) => !d.completed) || []);
+      // Remove duplicates by keeping only the most recent entry for each date
+      const uniqueDays = allDays?.reduce((acc: any[], day: any) => {
+        const existingDay = acc.find((d) => d.date === day.date);
+        if (!existingDay) {
+          acc.push(day);
+        }
+        return acc;
+      }, []) || [];
+
+      setCompletedDays(uniqueDays.filter((d) => d.completed));
+      setFailedDays(uniqueDays.filter((d) => !d.completed));
     } catch (error: any) {
       toast({
         variant: "destructive",

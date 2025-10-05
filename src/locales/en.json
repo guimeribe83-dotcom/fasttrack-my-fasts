@@ -38,7 +38,8 @@
     "markAsCompleted": "Mark as Completed",
     "markAsNotCompleted": "Mark as Not Completed",
     "successMarked": "Day marked successfully!",
-    "errorMarking": "Error marking the day"
+    "errorMarking": "Error marking the day",
+    "dayAlreadyMarked": "This day has already been marked"
   },
   "manage": {
     "title": "Manage Fasts",
