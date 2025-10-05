@@ -11,6 +11,7 @@ import EditarJejum from "./pages/EditarJejum";
 import Historico from "./pages/Historico";
 import Lembretes from "./pages/Lembretes";
 import Configuracoes from "./pages/Configuracoes";
+import Perfil from "./pages/Perfil";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/historico" element={<Historico />} />
           <Route path="/lembretes" element={<Lembretes />} />
           <Route path="/configuracoes" element={<Configuracoes />} />
+          <Route path="/perfil" element={<Perfil />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

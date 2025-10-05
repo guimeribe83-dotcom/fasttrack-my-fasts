@@ -149,6 +149,26 @@
     "success": "¡Configuración guardada con éxito!",
     "error": "Error al guardar configuración"
   },
+  "profile": {
+    "title": "Mi Perfil",
+    "subtitle": "Gestiona tu información personal",
+    "fullName": "Nombre Completo",
+    "fullNamePlaceholder": "Ingresa tu nombre completo",
+    "church": "Iglesia",
+    "churchPlaceholder": "Ingresa el nombre de tu iglesia",
+    "clickToChange": "Haz clic en la cámara para cambiar la foto",
+    "photoUpdated": "¡Foto actualizada!",
+    "photoUpdatedMessage": "Tu foto de perfil ha sido actualizada con éxito.",
+    "uploadError": "Error al cargar",
+    "save": "Guardar Cambios",
+    "saving": "Guardando...",
+    "success": "¡Perfil actualizado!",
+    "successMessage": "Tu información ha sido actualizada con éxito.",
+    "logout": "Cerrar Sesión",
+    "welcome": "Bienvenido(a)",
+    "guest": "Invitado",
+    "myProfile": "Mi Perfil"
+  },
   "common": {
     "loading": "Cargando...",
     "error": "Error",

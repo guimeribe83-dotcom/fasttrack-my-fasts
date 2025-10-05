@@ -149,6 +149,26 @@
     "success": "Configurações salvas com sucesso!",
     "error": "Erro ao salvar configurações"
   },
+  "profile": {
+    "title": "Meu Perfil",
+    "subtitle": "Gerencie suas informações pessoais",
+    "fullName": "Nome Completo",
+    "fullNamePlaceholder": "Digite seu nome completo",
+    "church": "Igreja",
+    "churchPlaceholder": "Digite o nome da sua igreja",
+    "clickToChange": "Clique na câmera para alterar a foto",
+    "photoUpdated": "Foto atualizada!",
+    "photoUpdatedMessage": "Sua foto de perfil foi atualizada com sucesso.",
+    "uploadError": "Erro ao fazer upload",
+    "save": "Salvar Alterações",
+    "saving": "Salvando...",
+    "success": "Perfil atualizado!",
+    "successMessage": "Suas informações foram atualizadas com sucesso.",
+    "logout": "Sair da Conta",
+    "welcome": "Bem-vindo(a)",
+    "guest": "Visitante",
+    "myProfile": "Meu Perfil"
+  },
   "common": {
     "loading": "Carregando...",
     "error": "Erro",

@@ -149,6 +149,26 @@
     "success": "Settings saved successfully!",
     "error": "Error saving settings"
   },
+  "profile": {
+    "title": "My Profile",
+    "subtitle": "Manage your personal information",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Enter your full name",
+    "church": "Church",
+    "churchPlaceholder": "Enter your church name",
+    "clickToChange": "Click the camera to change photo",
+    "photoUpdated": "Photo updated!",
+    "photoUpdatedMessage": "Your profile photo has been updated successfully.",
+    "uploadError": "Upload error",
+    "save": "Save Changes",
+    "saving": "Saving...",
+    "success": "Profile updated!",
+    "successMessage": "Your information has been updated successfully.",
+    "logout": "Sign Out",
+    "welcome": "Welcome",
+    "guest": "Guest",
+    "myProfile": "My Profile"
+  },
   "common": {
     "loading": "Loading...",
     "error": "Error",

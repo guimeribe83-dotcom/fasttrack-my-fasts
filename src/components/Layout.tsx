@@ -6,6 +6,7 @@ import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/logo.png";
 import { useTranslation } from "react-i18next";
+import { UserHeader } from "./UserHeader";
 
 interface LayoutProps {
   children: ReactNode;
@@ -98,6 +99,11 @@ export const Layout = ({ children }: LayoutProps) => {
 
       {/* Main Content */}
       <main className="flex-1 overflow-auto pb-20 md:pb-0">
+        {/* Top Header - Desktop */}
+        <div className="hidden md:flex items-center justify-end p-4 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10">
+          <UserHeader />
+        </div>
+        
         {children}
       </main>
 
