@@ -5,8 +5,9 @@ import { ProgressCircle } from "@/components/ProgressCircle";
 import { BlockCard } from "@/components/BlockCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
-import { CheckCircle, Calendar } from "lucide-react";
+import { CheckCircle, Calendar, User } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ptBR, enUS, es } from "date-fns/locale";
@@ -19,6 +20,7 @@ export default function Index() {
   const [activeFast, setActiveFast] = useState<any>(null);
   const [blocks, setBlocks] = useState<any[]>([]);
   const [completedDays, setCompletedDays] = useState<any[]>([]);
+  const [profile, setProfile] = useState<any>(null);
 
   const getDateFnsLocale = () => {
     switch (i18n.language) {
@@ -44,6 +46,18 @@ export default function Index() {
   const loadActiveFast = async () => {
     try {
       setLoading(true);
+      
+      // Load user profile
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+        
+        if (profileData) setProfile(profileData);
+      }
       
       // Load active fast
       const { data: fast, error: fastError } = await supabase
@@ -200,12 +214,32 @@ export default function Index() {
   return (
     <Layout>
       <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-6 md:space-y-8">
-        {/* Header */}
+        {/* Welcome Header with Avatar */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 md:gap-4">
+            <Avatar className="w-12 h-12 md:w-16 md:h-16 border-2 border-primary/20">
+              <AvatarImage src={profile?.avatar_url} alt={profile?.full_name} />
+              <AvatarFallback className="bg-primary/10 text-primary font-semibold text-lg md:text-2xl">
+                {profile?.full_name ? profile.full_name.charAt(0).toUpperCase() : <User className="w-6 h-6 md:w-8 md:h-8" />}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="text-sm md:text-base text-muted-foreground">
+                {t("profile.welcome")}
+              </p>
+              <h1 className="text-xl md:text-3xl font-bold text-foreground">
+                {profile?.full_name || t("profile.guest")}!
+              </h1>
+            </div>
+          </div>
+        </div>
+
+        {/* Fast Title */}
         <div>
-          <h1 className="text-2xl md:text-4xl font-bold text-foreground mb-2">
+          <h2 className="text-lg md:text-2xl font-bold text-foreground mb-1">
             {activeFast.name}
-          </h1>
-          <p className="text-sm md:text-base text-muted-foreground capitalize">{today}</p>
+          </h2>
+          <p className="text-xs md:text-sm text-muted-foreground capitalize">{today}</p>
         </div>
 
         {/* Progress Section */}

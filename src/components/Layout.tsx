@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Home, Plus, History, Bell, List, LogOut, Settings } from "lucide-react";
+import { Home, Plus, History, Bell, List, LogOut, Settings, User as UserIcon } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -36,6 +36,7 @@ export const Layout = ({ children }: LayoutProps) => {
     { icon: Plus, label: t("menu.new"), path: "/novo-jejum" },
     { icon: History, label: t("menu.history"), path: "/historico" },
     { icon: Bell, label: t("menu.reminders"), path: "/lembretes" },
+    { icon: UserIcon, label: t("profile.myProfile"), path: "/perfil" },
   ];
 
   return (
