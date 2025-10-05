@@ -36,7 +36,6 @@ export const Layout = ({ children }: LayoutProps) => {
     { icon: Plus, label: t("menu.new"), path: "/novo-jejum" },
     { icon: History, label: t("menu.history"), path: "/historico" },
     { icon: Bell, label: t("menu.reminders"), path: "/lembretes" },
-    { icon: UserIcon, label: t("profile.myProfile"), path: "/perfil" },
   ];
 
   return (
