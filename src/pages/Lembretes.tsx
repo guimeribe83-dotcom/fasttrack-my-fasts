@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,9 +10,8 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Bell, Plus, Trash2, BellRing, BellOff } from "lucide-react";
 import { useNotifications } from "@/hooks/useNotifications";
-import { useTranslation } from "react-i18next";
+import { Bell, Plus, Trash2, BellRing, BellOff } from "lucide-react";
 
 interface Reminder {
   id: string;
