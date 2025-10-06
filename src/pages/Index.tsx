@@ -12,118 +12,110 @@ import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ptBR, enUS, es } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
-
 export default function Index() {
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
+  const {
+    t,
+    i18n
+  } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [activeFast, setActiveFast] = useState<any>(null);
   const [blocks, setBlocks] = useState<any[]>([]);
   const [completedDays, setCompletedDays] = useState<any[]>([]);
   const [profile, setProfile] = useState<any>(null);
-
   const getDateFnsLocale = () => {
     switch (i18n.language) {
-      case 'en': return enUS;
-      case 'es': return es;
-      default: return ptBR;
+      case 'en':
+        return enUS;
+      case 'es':
+        return es;
+      default:
+        return ptBR;
     }
   };
-
   useEffect(() => {
     checkAuth();
   }, []);
-
   const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: {
+        session
+      }
+    } = await supabase.auth.getSession();
     if (!session) {
       navigate("/auth");
       return;
     }
     loadActiveFast();
   };
-
   const loadActiveFast = async () => {
     try {
       setLoading(true);
-      
+
       // Load user profile
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (user) {
-        const { data: profileData } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single();
-        
+        const {
+          data: profileData
+        } = await supabase.from("profiles").select("*").eq("id", user.id).single();
         if (profileData) setProfile(profileData);
       }
-      
+
       // Load active fast
-      const { data: fast, error: fastError } = await supabase
-        .from("fasts")
-        .select("*")
-        .eq("is_active", true)
-        .maybeSingle();
-
+      const {
+        data: fast,
+        error: fastError
+      } = await supabase.from("fasts").select("*").eq("is_active", true).maybeSingle();
       if (fastError) throw fastError;
-
       if (!fast) {
         setLoading(false);
         return;
       }
-
       setActiveFast(fast);
 
       // Load blocks
-      const { data: blocksData, error: blocksError } = await supabase
-        .from("fast_blocks")
-        .select("*")
-        .eq("fast_id", fast.id)
-        .order("order_index");
-
+      const {
+        data: blocksData,
+        error: blocksError
+      } = await supabase.from("fast_blocks").select("*").eq("fast_id", fast.id).order("order_index");
       if (blocksError) throw blocksError;
       setBlocks(blocksData || []);
 
       // Load completed days
-      const { data: daysData, error: daysError } = await supabase
-        .from("fast_days")
-        .select("*")
-        .eq("fast_id", fast.id)
-        .eq("completed", true);
-
+      const {
+        data: daysData,
+        error: daysError
+      } = await supabase.from("fast_days").select("*").eq("fast_id", fast.id).eq("completed", true);
       if (daysError) throw daysError;
       setCompletedDays(daysData || []);
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: error.message
       });
     } finally {
       setLoading(false);
     }
   };
-
   const handleCompleteDay = async () => {
     if (!activeFast) return;
-
     try {
       const today = format(new Date(), "yyyy-MM-dd");
-      
-      // Check if day already exists
-      const { data: existingDay } = await supabase
-        .from("fast_days")
-        .select("id")
-        .eq("fast_id", activeFast.id)
-        .eq("date", today)
-        .maybeSingle();
 
+      // Check if day already exists
+      const {
+        data: existingDay
+      } = await supabase.from("fast_days").select("id").eq("fast_id", activeFast.id).eq("date", today).maybeSingle();
       if (existingDay) {
         toast({
           variant: "destructive",
           title: t("home.errorMarking"),
-          description: t("home.dayAlreadyMarked"),
+          description: t("home.dayAlreadyMarked")
         });
         return;
       }
@@ -131,66 +123,55 @@ export default function Index() {
       // Find the active block to assign this day to
       let activeBlockId = null;
       let remainingDaysFromBeforeApp = activeFast.days_completed_before_app || 0;
-
       for (let i = 0; i < blocks.length; i++) {
         const block = blocks[i];
-        const blockDays = completedDays.filter((day) => day.block_id === block.id);
-        
+        const blockDays = completedDays.filter(day => day.block_id === block.id);
+
         // Calculate days from before app for this block
         let daysFromBeforeApp = 0;
         if (remainingDaysFromBeforeApp > 0) {
           daysFromBeforeApp = Math.min(remainingDaysFromBeforeApp, block.total_days);
           remainingDaysFromBeforeApp -= daysFromBeforeApp;
         }
-        
         const totalBlockCompleted = blockDays.length + daysFromBeforeApp;
-        
+
         // If this block is not complete and not manually completed, it's the active one
         if (!block.manually_completed && totalBlockCompleted < block.total_days) {
           activeBlockId = block.id;
           break;
         }
       }
-      
-      const { error } = await supabase
-        .from("fast_days")
-        .insert({
-          fast_id: activeFast.id,
-          date: today,
-          completed: true,
-          block_id: activeBlockId,
-        });
-
+      const {
+        error
+      } = await supabase.from("fast_days").insert({
+        fast_id: activeFast.id,
+        date: today,
+        completed: true,
+        block_id: activeBlockId
+      });
       if (error) throw error;
-
       toast({
         title: t("common.success"),
-        description: t("home.successMarked"),
+        description: t("home.successMarked")
       });
-
       loadActiveFast();
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: t("home.errorMarking"),
-        description: error.message,
+        description: error.message
       });
     }
   };
-
   if (loading) {
-    return (
-      <Layout>
+    return <Layout>
         <div className="flex items-center justify-center min-h-screen">
           <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
-      </Layout>
-    );
+      </Layout>;
   }
-
   if (!activeFast) {
-    return (
-      <Layout>
+    return <Layout>
         <div className="flex flex-col items-center justify-center min-h-screen p-8">
           <h2 className="text-2xl font-bold mb-4 text-foreground">{t("home.noActiveFast")}</h2>
           <p className="text-muted-foreground mb-6 text-center">
@@ -198,28 +179,20 @@ export default function Index() {
           </p>
           <Button onClick={() => navigate("/novo-jejum")}>{t("home.createFast")}</Button>
         </div>
-      </Layout>
-    );
+      </Layout>;
   }
-
   const totalCompleted = completedDays.length + (activeFast.days_completed_before_app || 0);
   const daysRemaining = activeFast.total_days - totalCompleted;
-  const percentage = Math.round((totalCompleted / activeFast.total_days) * 100);
-
-  const today = format(new Date(), "EEEE, d 'de' MMMM", { locale: getDateFnsLocale() });
-  const dayAlreadyCompleted = completedDays.some(
-    (day) => day.date === format(new Date(), "yyyy-MM-dd")
-  );
-
-  return (
-    <Layout>
+  const percentage = Math.round(totalCompleted / activeFast.total_days * 100);
+  const today = format(new Date(), "EEEE, d 'de' MMMM", {
+    locale: getDateFnsLocale()
+  });
+  const dayAlreadyCompleted = completedDays.some(day => day.date === format(new Date(), "yyyy-MM-dd"));
+  return <Layout>
       <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-4 md:space-y-6">
         {/* Header - Mobile Only */}
         <div className="flex items-center gap-3 md:hidden">
-          <Avatar 
-            className="w-8 h-8 cursor-pointer hover:opacity-80 transition-opacity" 
-            onClick={() => navigate("/perfil")}
-          >
+          <Avatar className="w-8 h-8 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate("/perfil")}>
             <AvatarImage src={profile?.avatar_url} alt={profile?.full_name} />
             <AvatarFallback className="bg-primary/10 text-primary text-sm">
               {profile?.full_name ? profile.full_name.charAt(0).toUpperCase() : <User className="w-4 h-4" />}
@@ -235,9 +208,7 @@ export default function Index() {
 
         {/* Fast Title - Desktop */}
         <div className="hidden md:block">
-          <h2 className="text-xl font-semibold text-foreground mb-0.5">
-            {activeFast.name}
-          </h2>
+          
           <p className="text-sm text-muted-foreground capitalize">{today}</p>
         </div>
 
@@ -280,102 +251,67 @@ export default function Index() {
         </Card>
 
         {/* Blocks Section */}
-        {blocks.length > 0 && (
-          <div className="space-y-3">
+        {blocks.length > 0 && <div className="space-y-3">
             <h3 className="text-base md:text-lg font-semibold text-foreground">
               {t("home.stages")}
             </h3>
             <div className="grid gap-2.5">
               {blocks.map((block, blockIndex) => {
-                const blockDays = completedDays.filter(
-                  (day) => day.block_id === block.id
-                );
-                
-                // Calculate how many days from days_completed_before_app belong to this block
-                let daysFromBeforeApp = 0;
-                let remainingDaysFromBeforeApp = activeFast.days_completed_before_app || 0;
-                
-                // Distribute days_completed_before_app across blocks in order
-                for (let i = 0; i < blocks.length; i++) {
-                  if (i < blockIndex) {
-                    // For previous blocks, subtract their full total
-                    remainingDaysFromBeforeApp -= blocks[i].total_days;
-                  } else if (i === blockIndex) {
-                    // For current block, take remaining days (up to block's total)
-                    daysFromBeforeApp = Math.min(
-                      Math.max(0, remainingDaysFromBeforeApp),
-                      block.total_days
-                    );
-                  }
+            const blockDays = completedDays.filter(day => day.block_id === block.id);
+
+            // Calculate how many days from days_completed_before_app belong to this block
+            let daysFromBeforeApp = 0;
+            let remainingDaysFromBeforeApp = activeFast.days_completed_before_app || 0;
+
+            // Distribute days_completed_before_app across blocks in order
+            for (let i = 0; i < blocks.length; i++) {
+              if (i < blockIndex) {
+                // For previous blocks, subtract their full total
+                remainingDaysFromBeforeApp -= blocks[i].total_days;
+              } else if (i === blockIndex) {
+                // For current block, take remaining days (up to block's total)
+                daysFromBeforeApp = Math.min(Math.max(0, remainingDaysFromBeforeApp), block.total_days);
+              }
+            }
+            const totalBlockCompleted = blockDays.length + daysFromBeforeApp;
+            const isCompleted = block.manually_completed || totalBlockCompleted >= block.total_days;
+
+            // Find first incomplete block
+            let firstIncompleteIndex = -1;
+            for (let i = 0; i < blocks.length; i++) {
+              const bDays = completedDays.filter(day => day.block_id === blocks[i].id);
+              let bDaysFromBeforeApp = 0;
+              let bRemainingDaysFromBeforeApp = activeFast.days_completed_before_app || 0;
+              for (let j = 0; j < blocks.length; j++) {
+                if (j < i) {
+                  bRemainingDaysFromBeforeApp -= blocks[j].total_days;
+                } else if (j === i) {
+                  bDaysFromBeforeApp = Math.min(Math.max(0, bRemainingDaysFromBeforeApp), blocks[i].total_days);
                 }
-                
-                const totalBlockCompleted = blockDays.length + daysFromBeforeApp;
-                const isCompleted = block.manually_completed || totalBlockCompleted >= block.total_days;
-                
-                // Find first incomplete block
-                let firstIncompleteIndex = -1;
-                for (let i = 0; i < blocks.length; i++) {
-                  const bDays = completedDays.filter((day) => day.block_id === blocks[i].id);
-                  let bDaysFromBeforeApp = 0;
-                  let bRemainingDaysFromBeforeApp = activeFast.days_completed_before_app || 0;
-                  
-                  for (let j = 0; j < blocks.length; j++) {
-                    if (j < i) {
-                      bRemainingDaysFromBeforeApp -= blocks[j].total_days;
-                    } else if (j === i) {
-                      bDaysFromBeforeApp = Math.min(
-                        Math.max(0, bRemainingDaysFromBeforeApp),
-                        blocks[i].total_days
-                      );
-                    }
-                  }
-                  
-                  const bTotalCompleted = bDays.length + bDaysFromBeforeApp;
-                  if (!blocks[i].manually_completed && bTotalCompleted < blocks[i].total_days) {
-                    firstIncompleteIndex = i;
-                    break;
-                  }
-                }
-                
-                const isActive = blockIndex === firstIncompleteIndex;
-                
-                return (
-                  <BlockCard
-                    key={block.id}
-                    name={block.name}
-                    totalDays={block.total_days}
-                    completedDays={totalBlockCompleted}
-                    isCompleted={isCompleted}
-                    isActive={isActive}
-                  />
-                );
-              })}
+              }
+              const bTotalCompleted = bDays.length + bDaysFromBeforeApp;
+              if (!blocks[i].manually_completed && bTotalCompleted < blocks[i].total_days) {
+                firstIncompleteIndex = i;
+                break;
+              }
+            }
+            const isActive = blockIndex === firstIncompleteIndex;
+            return <BlockCard key={block.id} name={block.name} totalDays={block.total_days} completedDays={totalBlockCompleted} isCompleted={isCompleted} isActive={isActive} />;
+          })}
             </div>
-          </div>
-        )}
+          </div>}
 
         {/* Action Buttons */}
         <div className="flex gap-2.5 pt-2">
-          <Button
-            size="lg"
-            className="flex-1 h-11 md:h-12 text-sm font-medium bg-gradient-success hover:opacity-90 shadow-none"
-            onClick={handleCompleteDay}
-            disabled={dayAlreadyCompleted}
-          >
+          <Button size="lg" className="flex-1 h-11 md:h-12 text-sm font-medium bg-gradient-success hover:opacity-90 shadow-none" onClick={handleCompleteDay} disabled={dayAlreadyCompleted}>
             <CheckCircle className="mr-2 w-4 h-4" />
             {dayAlreadyCompleted ? t("home.completed") : t("home.markAsCompleted")}
           </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            className="h-11 md:h-12 px-4 shadow-none"
-            onClick={() => navigate("/historico")}
-          >
+          <Button size="lg" variant="outline" className="h-11 md:h-12 px-4 shadow-none" onClick={() => navigate("/historico")}>
             <Calendar className="mr-0 md:mr-2 w-4 h-4" />
             <span className="hidden md:inline">{t("menu.history")}</span>
           </Button>
         </div>
       </div>
-    </Layout>
-  );
+    </Layout>;
 }
