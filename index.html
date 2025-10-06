@@ -1,12 +1,30 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" href="/favicon.png" type="image/png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    
+    <!-- Primary Meta Tags -->
     <title>FastTrack - Meu Jejum Diário</title>
+    <meta name="title" content="FastTrack - Meu Jejum Diário" />
     <meta name="description" content="Acompanhe seu jejum espiritual com progresso diário, blocos e lembretes personalizados" />
-    <meta name="author" content="Lovable" />
+    <meta name="author" content="FastTrack" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="application-name" content="FastTrack" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="FastTrack" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#8B5CF6" />
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="/icon-512x512.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icon-512x512.png" />
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="/manifest.json" />
 
     <meta property="og:title" content="fasttrack-my-fasts" />
     <meta property="og:description" content="Lovable Generated Project" />
@@ -21,5 +39,14 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => console.log('SW registered:', registration))
+            .catch(error => console.log('SW registration failed:', error));
+        });
+      }
+    </script>
   </body>
 </html>
