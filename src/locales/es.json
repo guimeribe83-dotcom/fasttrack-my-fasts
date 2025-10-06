@@ -107,7 +107,8 @@
     "legend": "Leyenda",
     "legendCompleted": "Completado",
     "legendNotCompleted": "No Completado",
-    "legendPending": "Pendiente"
+    "legendPending": "Pendiente",
+    "daysBeforeApp": "Días ya completados antes de la app"
   },
   "reminders": {
     "title": "Recordatorios",

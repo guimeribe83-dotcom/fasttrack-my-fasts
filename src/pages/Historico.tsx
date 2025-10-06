@@ -136,80 +136,82 @@ export default function Historico() {
 
   return (
     <Layout>
-      <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-4 md:space-y-6">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">{t("history.title")}</h1>
-          <p className="text-sm md:text-base text-muted-foreground">{t("history.subtitle")}</p>
+      <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="space-y-1">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t("history.title")}</h1>
+          <p className="text-sm text-[#6b7280]">{t("history.subtitle")}</p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-2 md:gap-4">
-          <Card className="p-3 md:p-4 bg-success/5 border-success/20">
-            <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
-              <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-success" />
+        {/* Stats Cards */}
+        <div className="grid grid-cols-3 gap-3 md:gap-4">
+          <Card className="p-4 bg-white border-l-4 border-l-[#10b981] shadow-sm">
+            <div className="flex flex-col items-center gap-2 text-center">
+              <CheckCircle className="w-6 h-6 text-[#10b981]" />
               <div>
-                <p className="text-lg md:text-2xl font-bold text-success">{totalCompleted}</p>
-                <p className="text-xs md:text-sm text-muted-foreground">{t("history.completed")}</p>
+                <p className="text-2xl font-bold text-[#10b981]">{totalCompleted}</p>
+                <p className="text-xs text-[#6b7280] mt-1">{t("history.completed")}</p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-3 md:p-4 bg-destructive/5 border-destructive/20">
-            <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
-              <XCircle className="w-5 h-5 md:w-6 md:h-6 text-destructive" />
+          <Card className="p-4 bg-white border-l-4 border-l-[#ef4444] shadow-sm">
+            <div className="flex flex-col items-center gap-2 text-center">
+              <XCircle className="w-6 h-6 text-[#ef4444]" />
               <div>
-                <p className="text-lg md:text-2xl font-bold text-destructive">{totalFailed}</p>
-                <p className="text-xs md:text-sm text-muted-foreground">{t("history.notCompleted")}</p>
+                <p className="text-2xl font-bold text-[#ef4444]">{totalFailed}</p>
+                <p className="text-xs text-[#6b7280] mt-1">{t("history.notCompleted")}</p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-3 md:p-4 bg-muted/30 border-muted-foreground/20">
-            <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
-              <Circle className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
+          <Card className="p-4 bg-white border-l-4 border-l-[#9ca3af] shadow-sm">
+            <div className="flex flex-col items-center gap-2 text-center">
+              <Circle className="w-6 h-6 text-[#9ca3af]" />
               <div>
-                <p className="text-lg md:text-2xl font-bold text-muted-foreground">{totalPending}</p>
-                <p className="text-xs md:text-sm text-muted-foreground">{t("history.pending")}</p>
+                <p className="text-2xl font-bold text-[#9ca3af]">{totalPending}</p>
+                <p className="text-xs text-[#6b7280] mt-1">{t("history.pending")}</p>
               </div>
             </div>
           </Card>
         </div>
 
-        {/* Note */}
-        {totalCompleted < activeFast.total_days && activeFast.days_completed_before_app > 0 && (
-          <Card className="p-3 md:p-4 bg-primary/5 border-primary/20">
-            <p className="text-xs md:text-sm">
-              <strong>{t("history.firstDayNote")}</strong>
-            </p>
-          </Card>
-        )}
-
-        {/* Calendar */}
-        <Card className="p-4 md:p-6">
-          <div className="flex items-center gap-2 mb-4 md:mb-6">
-            <CalendarIcon className="w-4 h-4 md:w-5 md:h-5 text-primary" />
-            <h2 className="text-lg md:text-xl font-semibold text-foreground">
+        {/* Calendar Card */}
+        <Card className="p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-6">
+            <CalendarIcon className="w-5 h-5 text-primary" />
+            <h2 className="text-xl font-semibold text-foreground">
               {t("history.fastCalendar")}
             </h2>
           </div>
 
-          <div className="mb-3 md:mb-4">
-            <h3 className="text-base md:text-lg font-medium text-foreground capitalize">
+          {/* Chip - Days completed before app */}
+          {activeFast.days_completed_before_app > 0 && (
+            <div className="mb-4 flex justify-center">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#dbeafe] text-[#1e40af] rounded-full text-xs font-medium">
+                <CheckCircle className="w-3.5 h-3.5" />
+                <span>{activeFast.days_completed_before_app} {t("history.daysBeforeApp")}</span>
+              </div>
+            </div>
+          )}
+
+          <div className="mb-4">
+            <h3 className="text-lg font-medium text-foreground capitalize">
               {format(currentMonth, "MMMM yyyy", { locale: getDateFnsLocale() })}
             </h3>
           </div>
 
           {/* Weekday headers */}
-          <div className="grid grid-cols-7 gap-1 md:gap-2 mb-2">
+          <div className="grid grid-cols-7 gap-3 mb-3">
             {getWeekDays().map((day) => (
-              <div key={day} className="text-center text-xs md:text-sm font-medium text-muted-foreground">
+              <div key={day} className="text-center text-sm font-medium text-[#6b7280]">
                 {day}
               </div>
             ))}
           </div>
 
           {/* Calendar grid */}
-          <div className="grid grid-cols-7 gap-1 md:gap-2">
+          <div className="grid grid-cols-7 gap-3">
             {/* Empty cells for days before month starts */}
             {Array.from({ length: monthStart.getDay() }).map((_, i) => (
               <div key={`empty-${i}`} />
@@ -224,25 +226,25 @@ export default function Historico() {
                 <div
                   key={date.toISOString()}
                   className={cn(
-                    "aspect-square flex flex-col items-center justify-center rounded-md md:rounded-lg border transition-all",
-                    status === "completed" && "bg-success/10 border-success/30",
-                    status === "failed" && "bg-destructive/10 border-destructive/30",
-                    status === "pending" && "border-border/50 bg-muted/20",
-                    isToday && "ring-1 ring-primary/50"
+                    "aspect-square flex flex-col items-center justify-center rounded-lg transition-all",
+                    status === "completed" && "bg-[#d1fae5]",
+                    status === "failed" && "bg-[#fee2e2]",
+                    status === "pending" && "bg-[#f3f4f6]",
+                    isToday && "ring-2 ring-primary/30"
                   )}
                 >
                   <span className={cn(
-                    "text-[10px] md:text-xs font-medium",
-                    status === "completed" && "text-success",
-                    status === "failed" && "text-destructive",
-                    status === "pending" && "text-muted-foreground"
+                    "text-sm font-medium mb-1",
+                    status === "completed" && "text-[#059669]",
+                    status === "failed" && "text-[#dc2626]",
+                    status === "pending" && "text-[#6b7280]"
                   )}>
                     {format(date, "d")}
                   </span>
-                  <div className="mt-0.5 md:mt-1">
-                    {status === "completed" && <CheckCircle className="w-3 h-3 md:w-4 md:h-4 text-success" />}
-                    {status === "failed" && <XCircle className="w-3 h-3 md:w-4 md:h-4 text-destructive" />}
-                    {status === "pending" && <Circle className="w-3 h-3 md:w-4 md:h-4 text-muted-foreground/50" />}
+                  <div>
+                    {status === "completed" && <div className="w-1.5 h-1.5 rounded-full bg-[#059669]" />}
+                    {status === "failed" && <div className="w-1.5 h-1.5 rounded-full bg-[#dc2626]" />}
+                    {status === "pending" && <div className="w-1.5 h-1.5 rounded-full bg-[#9ca3af]" />}
                   </div>
                 </div>
               );
@@ -250,18 +252,18 @@ export default function Historico() {
           </div>
 
           {/* Legend */}
-          <div className="flex flex-wrap items-center justify-center gap-3 md:gap-6 mt-4 md:mt-6 pt-4 md:pt-6 border-t">
-            <div className="flex items-center gap-1.5 md:gap-2">
-              <CheckCircle className="w-3 h-3 md:w-4 md:h-4 text-success" />
-              <span className="text-xs md:text-sm text-muted-foreground">{t("history.legendCompleted")}</span>
+          <div className="flex items-center justify-center gap-6 mt-6 pt-6 border-t">
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-[#10b981]" />
+              <span className="text-xs text-[#6b7280]">{t("history.legendCompleted")}</span>
             </div>
-            <div className="flex items-center gap-1.5 md:gap-2">
-              <XCircle className="w-3 h-3 md:w-4 md:h-4 text-destructive" />
-              <span className="text-xs md:text-sm text-muted-foreground">{t("history.legendNotCompleted")}</span>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-[#ef4444]" />
+              <span className="text-xs text-[#6b7280]">{t("history.legendNotCompleted")}</span>
             </div>
-            <div className="flex items-center gap-1.5 md:gap-2">
-              <Circle className="w-3 h-3 md:w-4 md:h-4 text-muted-foreground/50" />
-              <span className="text-xs md:text-sm text-muted-foreground">{t("history.legendPending")}</span>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-[#9ca3af]" />
+              <span className="text-xs text-[#6b7280]">{t("history.legendPending")}</span>
             </div>
           </div>
         </Card>
