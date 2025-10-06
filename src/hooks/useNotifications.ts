@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from 'react-i18next';
+import { LocalNotifications } from '@capacitor/local-notifications';
+import { Capacitor } from '@capacitor/core';
 
 interface Reminder {
   id: string;
@@ -11,21 +13,36 @@ interface Reminder {
 
 export const useNotifications = () => {
   const { t } = useTranslation();
-  const [permission, setPermission] = useState<NotificationPermission>('default');
+  const [permission, setPermission] = useState<NotificationPermission | 'granted' | 'denied'>('default');
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const lastNotificationTime = useRef<{ [key: string]: string }>({});
   const checkInterval = useRef<number | null>(null);
+  const isNative = Capacitor.isNativePlatform();
 
   // Request notification permission
   const requestPermission = async () => {
-    if (!('Notification' in window)) {
-      console.log('This browser does not support notifications');
-      return false;
-    }
+    if (isNative) {
+      // Use Capacitor Local Notifications for native platforms
+      try {
+        const result = await LocalNotifications.requestPermissions();
+        const granted = result.display === 'granted';
+        setPermission(granted ? 'granted' : 'denied');
+        return granted;
+      } catch (error) {
+        console.error('Error requesting native permissions:', error);
+        return false;
+      }
+    } else {
+      // Use web notifications for browser
+      if (!('Notification' in window)) {
+        console.log('This browser does not support notifications');
+        return false;
+      }
 
-    const result = await Notification.requestPermission();
-    setPermission(result);
-    return result === 'granted';
+      const result = await Notification.requestPermission();
+      setPermission(result);
+      return result === 'granted';
+    }
   };
 
   // Load reminders from database
@@ -44,9 +61,51 @@ export const useNotifications = () => {
     }
   };
 
-  // Check if it's time to show notification
+  // Schedule native notifications for all reminders
+  const scheduleNativeNotifications = async () => {
+    if (!isNative || permission !== 'granted') return;
+
+    try {
+      // Cancel all existing notifications
+      await LocalNotifications.cancel({ notifications: reminders.map((r, idx) => ({ id: idx + 1 })) });
+
+      // Schedule new notifications
+      const notifications = reminders.map((reminder, index) => {
+        const [hours, minutes] = reminder.time.split(':').map(Number);
+        const now = new Date();
+        const scheduledTime = new Date();
+        scheduledTime.setHours(hours, minutes, 0, 0);
+
+        // If the time has passed today, schedule for tomorrow
+        if (scheduledTime <= now) {
+          scheduledTime.setDate(scheduledTime.getDate() + 1);
+        }
+
+        return {
+          id: index + 1,
+          title: t('reminders.notificationTitle'),
+          body: reminder.label,
+          schedule: {
+            at: scheduledTime,
+            repeats: true,
+            every: 'day' as const,
+          },
+          sound: 'beep.wav',
+          smallIcon: 'ic_stat_icon_config_sample',
+        };
+      });
+
+      if (notifications.length > 0) {
+        await LocalNotifications.schedule({ notifications });
+      }
+    } catch (error) {
+      console.error('Error scheduling native notifications:', error);
+    }
+  };
+
+  // Check if it's time to show notification (for web only)
   const checkReminders = () => {
-    if (permission !== 'granted') return;
+    if (isNative || permission !== 'granted') return;
 
     const now = new Date();
     const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -62,15 +121,15 @@ export const useNotifications = () => {
 
       // Check if current time matches reminder time
       if (reminder.time === currentTime) {
-        showNotification(reminder);
+        showWebNotification(reminder);
         lastNotificationTime.current[reminderKey] = currentTime;
       }
     });
   };
 
-  // Show browser notification
-  const showNotification = (reminder: Reminder) => {
-    if (permission !== 'granted') return;
+  // Show browser notification (for web only)
+  const showWebNotification = (reminder: Reminder) => {
+    if (isNative || permission !== 'granted') return;
 
     const notification = new Notification(t('reminders.notificationTitle'), {
       body: reminder.label,
@@ -94,12 +153,24 @@ export const useNotifications = () => {
 
   // Initialize notification system
   useEffect(() => {
-    // Check current permission
-    if ('Notification' in window) {
-      setPermission(Notification.permission);
-    }
+    const initPermissions = async () => {
+      if (isNative) {
+        // Check native permissions
+        try {
+          const result = await LocalNotifications.checkPermissions();
+          setPermission(result.display === 'granted' ? 'granted' : 'denied');
+        } catch (error) {
+          console.error('Error checking native permissions:', error);
+        }
+      } else {
+        // Check web permissions
+        if ('Notification' in window) {
+          setPermission(Notification.permission);
+        }
+      }
+    };
 
-    // Load reminders initially
+    initPermissions();
     loadReminders();
 
     // Set up realtime subscription for reminders changes
@@ -123,9 +194,16 @@ export const useNotifications = () => {
     };
   }, []);
 
-  // Set up check interval
+  // Schedule notifications when reminders change (native only)
   useEffect(() => {
-    if (permission === 'granted' && reminders.length > 0) {
+    if (isNative && permission === 'granted') {
+      scheduleNativeNotifications();
+    }
+  }, [reminders, permission, isNative]);
+
+  // Set up check interval (web only)
+  useEffect(() => {
+    if (!isNative && permission === 'granted' && reminders.length > 0) {
       // Check immediately
       checkReminders();
 
@@ -140,11 +218,11 @@ export const useNotifications = () => {
         clearInterval(checkInterval.current);
       }
     };
-  }, [permission, reminders]);
+  }, [permission, reminders, isNative]);
 
   return {
     permission,
     requestPermission,
-    isSupported: 'Notification' in window,
+    isSupported: isNative || 'Notification' in window,
   };
 };
