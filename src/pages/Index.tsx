@@ -4,6 +4,7 @@ import { Layout } from "@/components/Layout";
 import { ProgressCircle } from "@/components/ProgressCircle";
 import { BlockCard } from "@/components/BlockCard";
 import { InstallPWA } from "@/components/InstallPWA";
+import { PWAUpdatePrompt } from "@/components/PWAUpdatePrompt";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -191,6 +192,7 @@ export default function Index() {
   const dayAlreadyCompleted = completedDays.some(day => day.date === format(new Date(), "yyyy-MM-dd"));
   return <Layout>
       <InstallPWA />
+      <PWAUpdatePrompt />
       <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-4 md:space-y-6">
         {/* Header - Mobile Only */}
         <div className="flex items-center gap-3 md:hidden">
