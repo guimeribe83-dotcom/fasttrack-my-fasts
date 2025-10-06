@@ -92,17 +92,21 @@
   },
   "history": {
     "title": "Historial",
+    "subtitle": "Sigue tus días",
     "loading": "Cargando historial...",
     "noActiveFast": "Sin ayuno activo",
-    "noActiveFastMessage": "No tienes ningún ayuno activo en este momento.",
+    "noActiveFastMessage": "Crea un ayuno para visualizar el historial.",
+    "error": "Error al cargar historial",
     "stats": "Estadísticas",
     "completed": "Completados",
     "notCompleted": "No Completados",
     "pending": "Pendientes",
+    "firstDayNote": "Días ya completados: Antes de usar la app",
+    "fastCalendar": "Calendario del Ayuno",
     "calendar": "Calendario",
     "legend": "Leyenda",
     "legendCompleted": "Completado",
-    "legendNotCompleted": "No completado",
+    "legendNotCompleted": "No Completado",
     "legendPending": "Pendiente"
   },
   "reminders": {
@@ -141,6 +145,7 @@
     "title": "Configuración",
     "language": "Idioma",
     "languageDescription": "Elige el idioma de la aplicación",
+    "selectLanguage": "Seleccionar idioma",
     "languages": {
       "pt": "Português",
       "en": "English",

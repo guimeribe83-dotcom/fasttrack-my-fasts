@@ -92,17 +92,21 @@
   },
   "history": {
     "title": "Histórico",
+    "subtitle": "Acompanhe seus dias",
     "loading": "Carregando histórico...",
     "noActiveFast": "Nenhum jejum ativo",
-    "noActiveFastMessage": "Você não tem nenhum jejum ativo no momento.",
+    "noActiveFastMessage": "Crie um jejum para visualizar o histórico.",
+    "error": "Erro ao carregar histórico",
     "stats": "Estatísticas",
     "completed": "Concluídos",
     "notCompleted": "Não Concluídos",
     "pending": "Pendentes",
+    "firstDayNote": "Dias já concluídos: Antes de usar o app",
+    "fastCalendar": "Calendário do Jejum",
     "calendar": "Calendário",
     "legend": "Legenda",
     "legendCompleted": "Concluído",
-    "legendNotCompleted": "Não concluído",
+    "legendNotCompleted": "Não Concluído",
     "legendPending": "Pendente"
   },
   "reminders": {
@@ -141,6 +145,7 @@
     "title": "Configurações",
     "language": "Idioma",
     "languageDescription": "Escolha o idioma do aplicativo",
+    "selectLanguage": "Selecionar idioma",
     "languages": {
       "pt": "Português",
       "en": "English",

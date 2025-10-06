@@ -92,17 +92,21 @@
   },
   "history": {
     "title": "History",
+    "subtitle": "Track your days",
     "loading": "Loading history...",
     "noActiveFast": "No active fast",
-    "noActiveFastMessage": "You don't have any active fast at the moment.",
+    "noActiveFastMessage": "Create a fast to view history.",
+    "error": "Error loading history",
     "stats": "Statistics",
     "completed": "Completed",
     "notCompleted": "Not Completed",
     "pending": "Pending",
+    "firstDayNote": "Days already completed: Before using the app",
+    "fastCalendar": "Fast Calendar",
     "calendar": "Calendar",
     "legend": "Legend",
     "legendCompleted": "Completed",
-    "legendNotCompleted": "Not completed",
+    "legendNotCompleted": "Not Completed",
     "legendPending": "Pending"
   },
   "reminders": {
@@ -141,6 +145,7 @@
     "title": "Settings",
     "language": "Language",
     "languageDescription": "Choose the app language",
+    "selectLanguage": "Select language",
     "languages": {
       "pt": "Português",
       "en": "English",

@@ -6,16 +6,34 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { CheckCircle, XCircle, Circle, Calendar as CalendarIcon } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { ptBR, enUS, es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 export default function Historico() {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [activeFast, setActiveFast] = useState<any>(null);
   const [completedDays, setCompletedDays] = useState<any[]>([]);
   const [failedDays, setFailedDays] = useState<any[]>([]);
   const [currentMonth] = useState(new Date());
+
+  const getDateFnsLocale = () => {
+    switch (i18n.language) {
+      case 'en': return enUS;
+      case 'es': return es;
+      default: return ptBR;
+    }
+  };
+
+  const getWeekDays = () => {
+    switch (i18n.language) {
+      case 'en': return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      case 'es': return ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+      default: return ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+    }
+  };
 
   useEffect(() => {
     checkAuth();
@@ -70,7 +88,7 @@ export default function Historico() {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Erro ao carregar histórico",
+        title: t("history.error"),
         description: error.message,
       });
     } finally {
@@ -82,7 +100,7 @@ export default function Historico() {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-screen">
-          <p className="text-muted-foreground">Carregando...</p>
+          <p className="text-muted-foreground">{t("history.loading")}</p>
         </div>
       </Layout>
     );
@@ -92,9 +110,9 @@ export default function Historico() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center min-h-screen p-8">
-          <h2 className="text-2xl font-bold mb-4 text-foreground">Nenhum jejum ativo</h2>
+          <h2 className="text-2xl font-bold mb-4 text-foreground">{t("history.noActiveFast")}</h2>
           <p className="text-muted-foreground mb-6">
-            Crie um jejum para visualizar o histórico.
+            {t("history.noActiveFastMessage")}
           </p>
         </div>
       </Layout>
@@ -120,8 +138,8 @@ export default function Historico() {
     <Layout>
       <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-4 md:space-y-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">Histórico</h1>
-          <p className="text-sm md:text-base text-muted-foreground">Acompanhe seus dias</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">{t("history.title")}</h1>
+          <p className="text-sm md:text-base text-muted-foreground">{t("history.subtitle")}</p>
         </div>
 
         {/* Stats */}
@@ -131,7 +149,7 @@ export default function Historico() {
               <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-success" />
               <div>
                 <p className="text-lg md:text-2xl font-bold text-success">{totalCompleted}</p>
-                <p className="text-xs md:text-sm text-muted-foreground">Concluídos</p>
+                <p className="text-xs md:text-sm text-muted-foreground">{t("history.completed")}</p>
               </div>
             </div>
           </Card>
@@ -141,7 +159,7 @@ export default function Historico() {
               <XCircle className="w-5 h-5 md:w-6 md:h-6 text-destructive" />
               <div>
                 <p className="text-lg md:text-2xl font-bold text-destructive">{totalFailed}</p>
-                <p className="text-xs md:text-sm text-muted-foreground">Não Concluídos</p>
+                <p className="text-xs md:text-sm text-muted-foreground">{t("history.notCompleted")}</p>
               </div>
             </div>
           </Card>
@@ -151,17 +169,17 @@ export default function Historico() {
               <Circle className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
               <div>
                 <p className="text-lg md:text-2xl font-bold text-muted-foreground">{totalPending}</p>
-                <p className="text-xs md:text-sm text-muted-foreground">Pendentes</p>
+                <p className="text-xs md:text-sm text-muted-foreground">{t("history.pending")}</p>
               </div>
             </div>
           </Card>
         </div>
 
         {/* Note */}
-        {totalCompleted < activeFast.total_days && (
+        {totalCompleted < activeFast.total_days && activeFast.days_completed_before_app > 0 && (
           <Card className="p-3 md:p-4 bg-primary/5 border-primary/20">
             <p className="text-xs md:text-sm">
-              <strong>1º dia já concluído:</strong> Antes de usar o app
+              <strong>{t("history.firstDayNote")}</strong>
             </p>
           </Card>
         )}
@@ -171,19 +189,19 @@ export default function Historico() {
           <div className="flex items-center gap-2 mb-4 md:mb-6">
             <CalendarIcon className="w-4 h-4 md:w-5 md:h-5 text-primary" />
             <h2 className="text-lg md:text-xl font-semibold text-foreground">
-              Calendário do Jejum
+              {t("history.fastCalendar")}
             </h2>
           </div>
 
           <div className="mb-3 md:mb-4">
             <h3 className="text-base md:text-lg font-medium text-foreground capitalize">
-              {format(currentMonth, "MMMM yyyy", { locale: ptBR })}
+              {format(currentMonth, "MMMM yyyy", { locale: getDateFnsLocale() })}
             </h3>
           </div>
 
           {/* Weekday headers */}
           <div className="grid grid-cols-7 gap-1 md:gap-2 mb-2">
-            {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((day) => (
+            {getWeekDays().map((day) => (
               <div key={day} className="text-center text-xs md:text-sm font-medium text-muted-foreground">
                 {day}
               </div>
@@ -235,15 +253,15 @@ export default function Historico() {
           <div className="flex flex-wrap items-center justify-center gap-3 md:gap-6 mt-4 md:mt-6 pt-4 md:pt-6 border-t">
             <div className="flex items-center gap-1.5 md:gap-2">
               <CheckCircle className="w-3 h-3 md:w-4 md:h-4 text-success" />
-              <span className="text-xs md:text-sm text-muted-foreground">Concluído</span>
+              <span className="text-xs md:text-sm text-muted-foreground">{t("history.legendCompleted")}</span>
             </div>
             <div className="flex items-center gap-1.5 md:gap-2">
               <XCircle className="w-3 h-3 md:w-4 md:h-4 text-destructive" />
-              <span className="text-xs md:text-sm text-muted-foreground">Não Concluído</span>
+              <span className="text-xs md:text-sm text-muted-foreground">{t("history.legendNotCompleted")}</span>
             </div>
             <div className="flex items-center gap-1.5 md:gap-2">
               <Circle className="w-3 h-3 md:w-4 md:h-4 text-muted-foreground/50" />
-              <span className="text-xs md:text-sm text-muted-foreground">Pendente</span>
+              <span className="text-xs md:text-sm text-muted-foreground">{t("history.legendPending")}</span>
             </div>
           </div>
         </Card>
