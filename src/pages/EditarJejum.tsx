@@ -92,7 +92,13 @@ export default function EditarJejum() {
   };
 
   const removeBlock = (index: number) => {
-    setBlocks(blocks.filter((_, i) => i !== index));
+    const newBlocks = blocks.filter((_, i) => i !== index);
+    // Recalculate order_index
+    const reindexedBlocks = newBlocks.map((block, idx) => ({
+      ...block,
+      order_index: idx,
+    }));
+    setBlocks(reindexedBlocks);
   };
 
   const updateBlock = (index: number, field: keyof Block, value: any) => {
@@ -106,6 +112,7 @@ export default function EditarJejum() {
     setSaving(true);
 
     try {
+      // Validação básica
       if (!fastName.trim()) {
         throw new Error("Nome do jejum é obrigatório");
       }
@@ -114,15 +121,40 @@ export default function EditarJejum() {
         throw new Error("Total de dias deve ser maior que zero");
       }
 
-      const totalBlockDays = blocks.reduce(
-        (sum, block) => sum + Number(block.total_days || 0),
-        0
-      );
+      // Validar days_completed_before
+      if (daysCompletedBefore < 0) {
+        throw new Error("Dias já concluídos não pode ser negativo");
+      }
 
-      if (blocks.length > 0 && totalBlockDays !== totalDays) {
-        throw new Error(
-          `A soma dos dias dos blocos (${totalBlockDays}) deve ser igual ao total de dias do jejum (${totalDays})`
+      if (daysCompletedBefore > totalDays) {
+        throw new Error("Dias já concluídos não pode ser maior que o total de dias");
+      }
+
+      // Validar blocos
+      if (blocks.length > 0) {
+        // Verificar se todos os blocos têm nome
+        const emptyBlocks = blocks.filter(b => !b.name.trim());
+        if (emptyBlocks.length > 0) {
+          throw new Error("Todos os blocos devem ter um nome");
+        }
+
+        // Verificar se todos os blocos têm dias válidos
+        const invalidDaysBlocks = blocks.filter(b => !b.total_days || b.total_days <= 0);
+        if (invalidDaysBlocks.length > 0) {
+          throw new Error("Todos os blocos devem ter pelo menos 1 dia");
+        }
+
+        // Verificar se a soma dos dias dos blocos bate com o total
+        const totalBlockDays = blocks.reduce(
+          (sum, block) => sum + Number(block.total_days || 0),
+          0
         );
+
+        if (totalBlockDays !== totalDays) {
+          throw new Error(
+            `A soma dos dias dos blocos (${totalBlockDays}) deve ser igual ao total de dias do jejum (${totalDays})`
+          );
+        }
       }
 
       // Update fast
@@ -132,10 +164,20 @@ export default function EditarJejum() {
           name: fastName.trim(),
           total_days: totalDays,
           days_completed_before_app: daysCompletedBefore,
+          updated_at: new Date().toISOString(),
         })
         .eq("id", id);
 
       if (fastError) throw fastError;
+
+      // Delete all existing fast_days for blocks that will be removed
+      const { error: deleteDaysError } = await supabase
+        .from("fast_days")
+        .delete()
+        .eq("fast_id", id)
+        .not("block_id", "is", null);
+
+      if (deleteDaysError) throw deleteDaysError;
 
       // Delete existing blocks
       const { error: deleteError } = await supabase
@@ -150,9 +192,9 @@ export default function EditarJejum() {
         const blocksToInsert = blocks.map((block, index) => ({
           fast_id: id,
           name: block.name.trim(),
-          total_days: block.total_days,
+          total_days: Number(block.total_days),
           order_index: index,
-          manually_completed: block.manually_completed,
+          manually_completed: block.manually_completed || false,
         }));
 
         const { error: blocksError } = await supabase
