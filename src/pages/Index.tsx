@@ -214,6 +214,27 @@ export default function Index() {
   return (
     <Layout>
       <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-6 md:space-y-8">
+        {/* Welcome Header with Avatar - Mobile Only */}
+        <div className="flex items-center justify-between md:hidden">
+          <div>
+            <p className="text-sm text-muted-foreground">
+              {t("profile.welcome")}
+            </p>
+            <h1 className="text-xl font-bold text-foreground">
+              {profile?.full_name || t("profile.guest")}!
+            </h1>
+          </div>
+          <Avatar 
+            className="w-12 h-12 border-2 border-primary/20 cursor-pointer hover:border-primary transition-colors" 
+            onClick={() => navigate("/perfil")}
+          >
+            <AvatarImage src={profile?.avatar_url} alt={profile?.full_name} />
+            <AvatarFallback className="bg-primary/10 text-primary font-semibold text-lg">
+              {profile?.full_name ? profile.full_name.charAt(0).toUpperCase() : <User className="w-6 h-6" />}
+            </AvatarFallback>
+          </Avatar>
+        </div>
+
         {/* Fast Title */}
         <div>
           <h2 className="text-lg md:text-2xl font-bold text-foreground mb-1">
