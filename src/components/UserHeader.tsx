@@ -92,10 +92,6 @@ export const UserHeader = () => {
             <User className="mr-2 w-4 h-4" />
             {t("profile.myProfile")}
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => navigate("/configuracoes")} className="cursor-pointer">
-            <Settings className="mr-2 w-4 h-4" />
-            {t("menu.settings")}
-          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={handleLogout}
