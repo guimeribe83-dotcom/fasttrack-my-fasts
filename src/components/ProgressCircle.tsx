@@ -6,8 +6,8 @@ interface ProgressCircleProps {
 
 export const ProgressCircle = ({ 
   percentage, 
-  size = 200, 
-  strokeWidth = 12 
+  size = 140, 
+  strokeWidth = 10 
 }: ProgressCircleProps) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
@@ -24,6 +24,7 @@ export const ProgressCircle = ({
           fill="none"
           stroke="hsl(var(--muted))"
           strokeWidth={strokeWidth}
+          opacity="0.3"
         />
         {/* Progress circle */}
         <circle
@@ -40,8 +41,8 @@ export const ProgressCircle = ({
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-4xl font-bold text-foreground">{percentage}%</span>
-        <span className="text-sm text-muted-foreground">concluído</span>
+        <span className="text-3xl font-bold text-foreground">{percentage}%</span>
+        <span className="text-xs text-muted-foreground">concluído</span>
       </div>
     </div>
   );

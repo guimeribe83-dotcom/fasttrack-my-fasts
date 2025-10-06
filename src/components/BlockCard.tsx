@@ -23,41 +23,37 @@ export const BlockCard = ({
   return (
     <Card 
       className={cn(
-        "p-3 md:p-4 transition-all",
-        isActive && "border-primary border-2 bg-primary/5",
-        isCompleted && "bg-success-light border-success"
+        "p-3 transition-all border shadow-none bg-card",
+        isActive && "border-primary/30 bg-primary/[0.03]",
+        isCompleted && "border-success/30 bg-success/[0.03]"
       )}
     >
-      <div className="flex items-start justify-between mb-2 md:mb-3">
-        <div className="flex-1">
-          <h3 className="text-sm md:text-base font-semibold text-foreground">{name}</h3>
-          <p className="text-xs md:text-sm text-muted-foreground">{totalDays} dias</p>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-0.5">
+            <h3 className="text-sm font-medium text-foreground truncate">{name}</h3>
+            {isCompleted && <CheckCircle2 className="w-3.5 h-3.5 text-success flex-shrink-0" />}
+            {isActive && !isCompleted && (
+              <span className="px-1.5 py-0.5 text-[10px] font-medium bg-primary/10 text-primary rounded">
+                Atual
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground">{totalDays} dias</p>
         </div>
-        <div className="flex items-center gap-1 md:gap-2">
-          {isCompleted ? (
-            <span className="flex items-center gap-1 text-xs md:text-sm font-medium text-success">
-              <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
-              <span className="hidden sm:inline">Concluído</span>
-            </span>
-          ) : isActive ? (
-            <span className="text-xs md:text-sm font-medium text-primary">
-              <span className="hidden sm:inline">Em Andamento</span>
-              <span className="sm:hidden">Atual</span>
-            </span>
-          ) : (
-            <span className="flex items-center gap-1 text-xs md:text-sm text-muted-foreground">
-              <Circle className="w-3.5 h-3.5 md:w-4 md:h-4" />
-              <span className="hidden sm:inline">Não iniciado</span>
-            </span>
-          )}
+        <div className="text-right flex-shrink-0">
+          <p className="text-xs font-medium text-foreground mb-0.5">{completedDays}/{totalDays}</p>
+          <p className="text-[10px] text-muted-foreground">{Math.round(percentage)}%</p>
         </div>
       </div>
-      <div className="space-y-1.5 md:space-y-2">
-        <Progress value={percentage} className="h-1.5 md:h-2" />
-        <p className="text-[10px] md:text-xs text-right text-muted-foreground">
-          {completedDays} de {totalDays} dias
-        </p>
-      </div>
+      <Progress 
+        value={percentage} 
+        className={cn(
+          "h-1.5 mt-2.5",
+          isActive && "[&>div]:bg-primary",
+          isCompleted && "[&>div]:bg-success"
+        )} 
+      />
     </Card>
   );
 };

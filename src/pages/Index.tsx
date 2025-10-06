@@ -213,71 +213,67 @@ export default function Index() {
 
   return (
     <Layout>
-      <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-6 md:space-y-8">
-        {/* Welcome Header with Avatar - Mobile Only */}
-        <div className="flex items-center justify-between md:hidden">
-          <div>
-            <p className="text-sm text-muted-foreground">
-              {t("profile.welcome")}
-            </p>
-            <h1 className="text-xl font-bold text-foreground">
-              {profile?.full_name || t("profile.guest")}!
-            </h1>
-          </div>
+      <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-4 md:space-y-6">
+        {/* Header - Mobile Only */}
+        <div className="flex items-center gap-3 md:hidden">
           <Avatar 
-            className="w-12 h-12 border-2 border-primary/20 cursor-pointer hover:border-primary transition-colors" 
+            className="w-8 h-8 cursor-pointer hover:opacity-80 transition-opacity" 
             onClick={() => navigate("/perfil")}
           >
             <AvatarImage src={profile?.avatar_url} alt={profile?.full_name} />
-            <AvatarFallback className="bg-primary/10 text-primary font-semibold text-lg">
-              {profile?.full_name ? profile.full_name.charAt(0).toUpperCase() : <User className="w-6 h-6" />}
+            <AvatarFallback className="bg-primary/10 text-primary text-sm">
+              {profile?.full_name ? profile.full_name.charAt(0).toUpperCase() : <User className="w-4 h-4" />}
             </AvatarFallback>
           </Avatar>
+          <div>
+            <h1 className="text-base font-semibold text-foreground">
+              {profile?.full_name || t("profile.guest")}
+            </h1>
+            <p className="text-xs text-muted-foreground capitalize">{today}</p>
+          </div>
         </div>
 
-        {/* Fast Title */}
-        <div>
-          <h2 className="text-lg md:text-2xl font-bold text-foreground mb-1">
+        {/* Fast Title - Desktop */}
+        <div className="hidden md:block">
+          <h2 className="text-xl font-semibold text-foreground mb-0.5">
             {activeFast.name}
           </h2>
-          <p className="text-xs md:text-sm text-muted-foreground capitalize">{today}</p>
+          <p className="text-sm text-muted-foreground capitalize">{today}</p>
         </div>
 
         {/* Progress Section */}
-        <Card className="p-4 md:p-8">
-          <div className="flex flex-col lg:flex-row items-center gap-6 md:gap-8">
-            <ProgressCircle percentage={percentage} />
+        <Card className="p-4 md:p-6 bg-card border-border shadow-none">
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            <div className="flex-shrink-0">
+              <ProgressCircle percentage={percentage} size={140} strokeWidth={10} />
+            </div>
             
-            <div className="flex-1 space-y-4 md:space-y-6 w-full">
-              <div>
-                <h2 className="text-xl md:text-3xl font-bold text-foreground mb-1 md:mb-2">
-                  {t("home.progress")}
-                </h2>
-                <p className="text-sm md:text-base text-muted-foreground">{t("home.daysCompleted", { count: totalCompleted, total: activeFast.total_days })}</p>
+            <div className="flex-1 w-full">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-foreground mb-1">
+                  {activeFast.name}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {totalCompleted} de {activeFast.total_days} dias · {daysRemaining} restantes
+                </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 md:gap-4">
-                <Card className="p-3 md:p-4 bg-primary/5 border-primary/20">
-                  <div className="flex items-center gap-2 md:gap-3">
-                    <CheckCircle className="w-6 h-6 md:w-8 md:h-8 text-primary flex-shrink-0" />
-                    <div>
-                      <p className="text-[10px] md:text-sm text-muted-foreground font-medium uppercase">{t("home.completed")}</p>
-                      <p className="text-2xl md:text-3xl font-bold text-primary">{totalCompleted}</p>
-                      <p className="text-[10px] md:text-xs text-muted-foreground">{t("home.daysCompleted", { count: totalCompleted, total: activeFast.total_days })}</p>
-                    </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-primary/5 rounded-lg p-3 border border-primary/10">
+                  <div className="flex items-center gap-2 mb-1">
+                    <CheckCircle className="w-4 h-4 text-primary" />
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">{t("home.completed")}</p>
                   </div>
-                </Card>
+                  <p className="text-2xl font-bold text-primary">{totalCompleted}</p>
+                </div>
 
-                <Card className="p-3 md:p-4 bg-success/5 border-success/20">
-                  <div className="flex items-center gap-2 md:gap-3">
-                    <Calendar className="w-6 h-6 md:w-8 md:h-8 text-success flex-shrink-0" />
-                    <div>
-                      <p className="text-[10px] md:text-sm text-muted-foreground font-medium uppercase">{t("history.pending")}</p>
-                      <p className="text-2xl md:text-3xl font-bold text-success">{daysRemaining}</p>
-                      <p className="text-[10px] md:text-xs text-muted-foreground">{t("home.days")}</p>
-                    </div>
+                <div className="bg-success/5 rounded-lg p-3 border border-success/10">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Calendar className="w-4 h-4 text-success" />
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">{t("history.pending")}</p>
                   </div>
-                </Card>
+                  <p className="text-2xl font-bold text-success">{daysRemaining}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -285,12 +281,11 @@ export default function Index() {
 
         {/* Blocks Section */}
         {blocks.length > 0 && (
-          <div className="space-y-3 md:space-y-4">
-            <h3 className="text-lg md:text-xl font-bold text-foreground flex items-center gap-2">
-              <Calendar className="w-5 h-5 md:w-6 md:h-6" />
+          <div className="space-y-3">
+            <h3 className="text-base md:text-lg font-semibold text-foreground">
               {t("home.stages")}
             </h3>
-            <div className="grid gap-4">
+            <div className="grid gap-2.5">
               {blocks.map((block, blockIndex) => {
                 const blockDays = completedDays.filter(
                   (day) => day.block_id === block.id
@@ -359,25 +354,24 @@ export default function Index() {
           </div>
         )}
 
-        {/* Action Button */}
-        <div className="flex gap-3 md:gap-4">
+        {/* Action Buttons */}
+        <div className="flex gap-2.5 pt-2">
           <Button
             size="lg"
-            className="flex-1 h-12 md:h-14 text-sm md:text-lg bg-gradient-success hover:opacity-90"
+            className="flex-1 h-11 md:h-12 text-sm font-medium bg-gradient-success hover:opacity-90 shadow-none"
             onClick={handleCompleteDay}
             disabled={dayAlreadyCompleted}
           >
-            <CheckCircle className="mr-1.5 md:mr-2 w-4 h-4 md:w-5 md:h-5" />
-            <span className="hidden sm:inline">{dayAlreadyCompleted ? t("home.completed") : t("home.markAsCompleted")}</span>
-            <span className="sm:hidden">{dayAlreadyCompleted ? t("home.completed") : t("home.markAsCompleted")}</span>
+            <CheckCircle className="mr-2 w-4 h-4" />
+            {dayAlreadyCompleted ? t("home.completed") : t("home.markAsCompleted")}
           </Button>
           <Button
             size="lg"
             variant="outline"
-            className="h-12 md:h-14 px-3 md:px-4"
+            className="h-11 md:h-12 px-4 shadow-none"
             onClick={() => navigate("/historico")}
           >
-            <Calendar className="mr-0 md:mr-2 w-5 h-5" />
+            <Calendar className="mr-0 md:mr-2 w-4 h-4" />
             <span className="hidden md:inline">{t("menu.history")}</span>
           </Button>
         </div>
