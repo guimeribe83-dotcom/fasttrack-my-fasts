@@ -45,6 +45,8 @@ export default function Index() {
   useEffect(() => {
     if (activeFast) {
       loadActiveFast();
+    } else {
+      setLoading(false);
     }
   }, [activeFast?.id]);
   const checkAuth = async () => {

@@ -10,6 +10,7 @@ import { toast } from "@/hooks/use-toast";
 import { Plus, Trash2, Calendar, Layers } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useLocalFasts } from "@/hooks/useLocalFasts";
+import { db } from "@/lib/localDatabase";
 
 interface Block {
   id: string;
@@ -61,7 +62,18 @@ export default function NovoJejum() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Usuário não autenticado");
 
-      // Create fast in local DB (works offline!)
+      // Deactivate all existing fasts first
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (currentUser) {
+        const existingFasts = await db.fasts.where('user_id').equals(currentUser.id).toArray();
+        for (const fast of existingFasts) {
+          if (fast.is_active) {
+            await db.fasts.update(fast.id, { is_active: false, _pending_sync: true });
+          }
+        }
+      }
+
+      // Create fast in local DB as active (works offline!)
       const fastId = await createFast({
         user_id: user.id,
         name,
@@ -70,9 +82,6 @@ export default function NovoJejum() {
         days_completed_before_app: parseInt(daysCompletedBefore || "0"),
         is_active: true
       });
-
-      // Set as active (deactivates others)
-      await setActiveFast(fastId);
 
       // Create blocks in local DB
       for (let i = 0; i < blocks.length; i++) {
