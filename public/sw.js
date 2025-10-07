@@ -1,5 +1,5 @@
 // FastTrack PWA Service Worker - Native implementation (no CDN dependencies)
-const CACHE_VERSION = 'fasttrack-v2';
+const CACHE_VERSION = 'fasttrack-v3';
 const CACHE_NAME = `fasttrack-${CACHE_VERSION}`;
 const OFFLINE_PAGE = '/offline.html';
 
@@ -10,7 +10,8 @@ const PRECACHE_ASSETS = [
   '/manifest.json',
   '/favicon.png',
   '/icon-512x512.png',
-  '/offline.html'
+  '/offline.html',
+  '/assets/logo.png'
 ];
 
 // Install event - precache essential assets
@@ -69,12 +70,17 @@ self.addEventListener('fetch', (event) => {
           });
           return response;
         })
-        .catch(() => {
+        .catch(async () => {
           // If network fails, try cache, then offline page
-          return caches.match(request)
-            .then((cachedResponse) => {
-              return cachedResponse || caches.match(OFFLINE_PAGE);
-            });
+          const cachedResponse = await caches.match(request);
+          if (cachedResponse) return cachedResponse;
+          
+          // Try to return the main index.html for SPA routing
+          const indexResponse = await caches.match('/index.html');
+          if (indexResponse) return indexResponse;
+          
+          // Last resort: offline page
+          return caches.match(OFFLINE_PAGE);
         })
     );
     return;
@@ -155,14 +161,21 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(request)
       .then((response) => {
-        const responseClone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(request, responseClone);
-        });
+        // Only cache successful responses
+        if (response.ok) {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, responseClone);
+          });
+        }
         return response;
       })
-      .catch(() => {
-        return caches.match(request);
+      .catch(async () => {
+        const cachedResponse = await caches.match(request);
+        return cachedResponse || new Response('Offline', { 
+          status: 503, 
+          statusText: 'Service Unavailable' 
+        });
       })
   );
 });
