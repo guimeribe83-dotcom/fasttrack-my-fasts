@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 
@@ -37,10 +36,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const [profileLoading, setProfileLoading] = useState(false);
 
   const loadProfile = async (userId: string) => {
+    if (profileLoading) return; // Prevent concurrent loads
+    
     try {
+      setProfileLoading(true);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -51,11 +53,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setProfile(data);
     } catch (error) {
       console.error('Error loading profile:', error);
+    } finally {
+      setProfileLoading(false);
     }
   };
 
   const refreshProfile = async () => {
-    if (user) {
+    if (user && !profileLoading) {
       await loadProfile(user.id);
     }
   };

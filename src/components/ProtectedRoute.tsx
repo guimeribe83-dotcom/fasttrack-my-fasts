@@ -1,7 +1,6 @@
 import { ReactNode, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { Layout } from './Layout';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -13,18 +12,13 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/auth');
+      navigate('/auth', { replace: true });
     }
   }, [user, loading, navigate]);
 
+  // Show nothing while checking auth - let the page handle its own loading state
   if (loading) {
-    return (
-      <Layout>
-        <div className="flex items-center justify-center min-h-screen">
-          <p className="text-muted-foreground">Carregando...</p>
-        </div>
-      </Layout>
-    );
+    return null;
   }
 
   if (!user) {

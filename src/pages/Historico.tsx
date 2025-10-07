@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
 import { CheckCircle, XCircle, Circle, Calendar as CalendarIcon } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from "date-fns";
@@ -79,8 +80,31 @@ export default function Historico() {
   if (loading) {
     return (
       <Layout>
-        <div className="flex items-center justify-center min-h-screen">
-          <p className="text-muted-foreground">{t("history.loading")}</p>
+        <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6">
+          <div className="space-y-1">
+            <Skeleton className="h-8 w-48 mb-2" />
+            <Skeleton className="h-4 w-64" />
+          </div>
+          <div className="grid grid-cols-3 gap-3 md:gap-4">
+            {[1, 2, 3].map((i) => (
+              <Card key={i} className="p-4">
+                <Skeleton className="h-16 w-full" />
+              </Card>
+            ))}
+          </div>
+          <Card className="p-6 shadow-sm">
+            <Skeleton className="h-6 w-48 mb-6" />
+            <div className="grid grid-cols-7 gap-3 mb-3">
+              {Array.from({ length: 7 }).map((_, i) => (
+                <Skeleton key={i} className="h-6 w-full" />
+              ))}
+            </div>
+            <div className="grid grid-cols-7 gap-3">
+              {Array.from({ length: 35 }).map((_, i) => (
+                <Skeleton key={i} className="aspect-square rounded-lg" />
+              ))}
+            </div>
+          </Card>
         </div>
       </Layout>
     );

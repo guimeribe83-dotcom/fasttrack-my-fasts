@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
@@ -162,8 +163,24 @@ export default function Lembretes() {
   if (loading) {
     return (
       <Layout>
-        <div className="flex items-center justify-center min-h-screen">
-          <p className="text-muted-foreground">{t("common.loading")}</p>
+        <div className="p-4 md:p-8 max-w-5xl mx-auto">
+          <div className="mb-6 md:mb-8">
+            <Skeleton className="h-8 w-48 mb-2" />
+            <Skeleton className="h-4 w-96" />
+          </div>
+          <div className="grid lg:grid-cols-2 gap-6">
+            <div className="space-y-6">
+              <Card className="p-4 md:p-6">
+                <Skeleton className="h-32 w-full" />
+              </Card>
+              <Card className="p-4 md:p-6">
+                <Skeleton className="h-64 w-full" />
+              </Card>
+            </div>
+            <Card className="p-4 md:p-6">
+              <Skeleton className="h-96 w-full" />
+            </Card>
+          </div>
         </div>
       </Layout>
     );

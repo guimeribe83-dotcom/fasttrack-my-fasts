@@ -7,6 +7,7 @@ import { InstallPWA } from "@/components/InstallPWA";
 import { PWAUpdatePrompt } from "@/components/PWAUpdatePrompt";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CheckCircle, Calendar, User } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -137,11 +138,46 @@ export default function Index() {
     }
   };
   if (loading) {
-    return <Layout>
-        <div className="flex items-center justify-center min-h-screen">
-          <p className="text-muted-foreground">{t("common.loading")}</p>
+    return (
+      <Layout>
+        <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-4 md:space-y-6">
+          <div className="flex items-center gap-3 md:hidden">
+            <Skeleton className="h-8 w-8 rounded-full" />
+            <div className="flex-1">
+              <Skeleton className="h-4 w-32 mb-2" />
+              <Skeleton className="h-3 w-48" />
+            </div>
+          </div>
+          <div className="hidden md:block">
+            <Skeleton className="h-8 w-64 mb-2" />
+            <Skeleton className="h-4 w-40" />
+          </div>
+          <Card className="p-4 md:p-6">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <Skeleton className="h-[140px] w-[140px] rounded-full" />
+              <div className="flex-1 w-full space-y-4">
+                <div>
+                  <Skeleton className="h-6 w-48 mb-2" />
+                  <Skeleton className="h-4 w-64" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <Skeleton className="h-20 w-full rounded-lg" />
+                  <Skeleton className="h-20 w-full rounded-lg" />
+                </div>
+              </div>
+            </div>
+          </Card>
+          <div className="space-y-3">
+            <Skeleton className="h-6 w-32" />
+            {[1, 2, 3].map((i) => (
+              <Card key={i} className="p-4">
+                <Skeleton className="h-16 w-full" />
+              </Card>
+            ))}
+          </div>
         </div>
-      </Layout>;
+      </Layout>
+    );
   }
   if (!activeFast) {
     return <Layout>
