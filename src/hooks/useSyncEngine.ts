@@ -31,14 +31,18 @@ export const useSyncEngine = () => {
 
   useEffect(() => {
     updatePendingCount();
-    const interval = setInterval(updatePendingCount, 5000);
+    const interval = setInterval(updatePendingCount, 10000); // Increased to 10s
     return () => clearInterval(interval);
-  }, [updatePendingCount]);
+  }, []);
 
   // Sync function
   const sync = useCallback(async () => {
-    if (!isOnline || isSyncing) return;
+    if (!isOnline || isSyncing) {
+      console.log('Sync skipped:', { isOnline, isSyncing });
+      return;
+    }
 
+    console.log('Starting sync...');
     setIsSyncing(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -116,7 +120,11 @@ export const useSyncEngine = () => {
       }
 
       setLastSyncTime(new Date());
-      await updatePendingCount();
+      console.log('Sync completed successfully');
+      
+      // Update pending count after sync
+      const newCount = await db.sync_queue.count();
+      setPendingCount(newCount);
       
       if (queueItems.length > 0) {
         toast({
@@ -134,25 +142,29 @@ export const useSyncEngine = () => {
     } finally {
       setIsSyncing(false);
     }
-  }, [isOnline, isSyncing, updatePendingCount]);
+  }, [isOnline, isSyncing]);
 
-  // Auto-sync when online
+  // Auto-sync only when coming back online
   useEffect(() => {
     if (isOnline && pendingCount > 0) {
-      sync();
+      // Use a timeout to debounce and avoid rapid syncs
+      const timeoutId = setTimeout(() => {
+        sync();
+      }, 1000);
+      return () => clearTimeout(timeoutId);
     }
-  }, [isOnline, pendingCount, sync]);
+  }, [isOnline]);
 
-  // Periodic sync
+  // Periodic sync - increased interval to reduce frequency
   useEffect(() => {
     if (!isOnline) return;
     
     const interval = setInterval(() => {
       sync();
-    }, 30000); // Sync every 30 seconds when online
+    }, 60000); // Sync every 60 seconds (reduced from 30s)
 
     return () => clearInterval(interval);
-  }, [isOnline, sync]);
+  }, [isOnline]);
 
   return {
     sync,
