@@ -1,17 +1,20 @@
 {
+  "id": "/?source=pwa",
   "name": "FastTrack - Meu Jejum Diário",
   "short_name": "FastTrack",
-  "description": "Acompanhe seu jejum espiritual com progresso diário, blocos e lembretes personalizados",
+  "description": "Acompanhe seu jejum espiritual com progresso diário, blocos e lembretes personalizados. Gerencie seus períodos de jejum, receba lembretes e acompanhe seu histórico completo.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
   "background_color": "#0A0A0A",
   "theme_color": "#8B5CF6",
-  "orientation": "portrait-primary",
-  "scope": "/",
-  "categories": ["lifestyle", "health", "productivity"],
   "lang": "pt-BR",
   "dir": "ltr",
+  "categories": ["lifestyle", "health", "productivity", "utilities"],
   "prefer_related_applications": false,
+  "related_applications": [],
   "icons": [
     {
       "src": "/favicon.png",
@@ -26,41 +29,98 @@
       "purpose": "any maskable"
     }
   ],
-  "shortcuts": [
-    {
-      "name": "Novo Jejum",
-      "short_name": "Novo",
-      "description": "Iniciar um novo período de jejum",
-      "url": "/novo-jejum",
-      "icons": [{ "src": "/favicon.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Histórico",
-      "short_name": "Histórico",
-      "description": "Ver histórico de jejuns",
-      "url": "/historico",
-      "icons": [{ "src": "/favicon.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Lembretes",
-      "short_name": "Lembretes",
-      "description": "Configurar lembretes",
-      "url": "/lembretes",
-      "icons": [{ "src": "/favicon.png", "sizes": "192x192" }]
-    }
-  ],
   "screenshots": [
     {
       "src": "/screenshot-mobile.png",
       "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Tela principal do FastTrack"
+      "label": "Tela principal do FastTrack mostrando progresso do jejum"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Novo Jejum",
+      "short_name": "Novo",
+      "description": "Iniciar um novo período de jejum",
+      "url": "/novo-jejum",
+      "icons": [{ 
+        "src": "/favicon.png", 
+        "sizes": "192x192",
+        "type": "image/png"
+      }]
+    },
+    {
+      "name": "Histórico",
+      "short_name": "Histórico",
+      "description": "Ver histórico de jejuns completos",
+      "url": "/historico",
+      "icons": [{ 
+        "src": "/favicon.png", 
+        "sizes": "192x192",
+        "type": "image/png"
+      }]
+    },
+    {
+      "name": "Lembretes",
+      "short_name": "Lembretes",
+      "description": "Configurar lembretes personalizados",
+      "url": "/lembretes",
+      "icons": [{ 
+        "src": "/favicon.png", 
+        "sizes": "192x192",
+        "type": "image/png"
+      }]
+    },
+    {
+      "name": "Perfil",
+      "short_name": "Perfil",
+      "description": "Gerenciar perfil e configurações",
+      "url": "/perfil",
+      "icons": [{ 
+        "src": "/favicon.png", 
+        "sizes": "192x192",
+        "type": "image/png"
+      }]
     }
   ],
   "share_target": {
     "action": "/",
     "method": "GET",
-    "enctype": "application/x-www-form-urlencoded"
-  }
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  },
+  "file_handlers": [
+    {
+      "action": "/",
+      "accept": {
+        "text/calendar": [".ics"],
+        "application/json": [".json"]
+      }
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+fasttrack",
+      "url": "/?action=%s"
+    }
+  ],
+  "note_taking": {
+    "new_note_url": "/novo-jejum"
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "scope_extensions": [
+    {
+      "origin": "*.fasttrack.app"
+    }
+  ]
 }
