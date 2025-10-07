@@ -14,7 +14,12 @@
   "dir": "ltr",
   "categories": ["lifestyle", "health", "productivity", "utilities", "spirituality", "wellness"],
   "prefer_related_applications": false,
-  "related_applications": [],
+  "related_applications": [
+    {
+      "platform": "play",
+      "id": "app.lovable.5df1cfab6382458ca987a870c0144151"
+    }
+  ],
   "icons": [
     {
       "src": "/favicon.png",
@@ -30,6 +35,20 @@
     }
   ],
   "screenshots": [
+    {
+      "src": "/screenshot-mobile-login.png",
+      "sizes": "540x1200",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Tela de entrada do FastTrack - Seu companheiro de jejum espiritual"
+    },
+    {
+      "src": "/screenshot-mobile-novo-jejum.png",
+      "sizes": "540x1200",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Criar novo jejum com blocos personalizados e acompanhamento diário"
+    },
     {
       "src": "/screenshot-login.png",
       "sizes": "1280x720",
@@ -111,5 +130,14 @@
   },
   "launch_handler": {
     "client_mode": ["navigate-existing", "auto"]
-  }
+  },
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
+  "scope_extensions": [
+    {
+      "origin": "*.lovableproject.com"
+    },
+    {
+      "origin": "*.lovable.app"
+    }
+  ]
 }
