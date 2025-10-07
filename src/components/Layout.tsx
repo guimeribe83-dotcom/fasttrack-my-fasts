@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import logo from "@/assets/logo.png";
 import { useTranslation } from "react-i18next";
 import { UserHeader } from "./UserHeader";
+import { SyncStatus } from "./SyncStatus";
 
 interface LayoutProps {
   children: ReactNode;
@@ -98,9 +99,10 @@ export const Layout = ({ children }: LayoutProps) => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto pb-20 md:pb-0">
+      <main className="flex-1 overflow-auto pb-28 md:pb-0">
         {/* Top Header - Desktop */}
-        <div className="hidden md:flex items-center justify-end p-4 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10">
+        <div className="hidden md:flex items-center justify-between p-4 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10">
+          <SyncStatus />
           <UserHeader />
         </div>
         
@@ -109,6 +111,9 @@ export const Layout = ({ children }: LayoutProps) => {
 
       {/* Bottom Navigation - Mobile only */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-sidebar border-t border-sidebar-border z-50">
+        <div className="px-4 py-2 border-b border-sidebar-border/50">
+          <SyncStatus />
+        </div>
         <div className="flex items-center justify-around h-16 px-2">
           {menuItems.map((item) => {
             const Icon = item.icon;

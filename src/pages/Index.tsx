@@ -14,17 +14,19 @@ import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ptBR, enUS, es } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
+import { useLocalFasts } from "@/hooks/useLocalFasts";
+import { db } from "@/lib/localDatabase";
+
 export default function Index() {
   const navigate = useNavigate();
-  const {
-    t,
-    i18n
-  } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(true);
-  const [activeFast, setActiveFast] = useState<any>(null);
   const [blocks, setBlocks] = useState<any[]>([]);
   const [completedDays, setCompletedDays] = useState<any[]>([]);
   const [profile, setProfile] = useState<any>(null);
+  
+  // Use local database
+  const { activeFast, createDay, getDaysForFast, getBlocksForFast } = useLocalFasts();
   const getDateFnsLocale = () => {
     switch (i18n.language) {
       case 'en':
@@ -38,6 +40,13 @@ export default function Index() {
   useEffect(() => {
     checkAuth();
   }, []);
+
+  // Reload data when activeFast changes
+  useEffect(() => {
+    if (activeFast) {
+      loadActiveFast();
+    }
+  }, [activeFast?.id]);
   const checkAuth = async () => {
     const {
       data: {
@@ -55,45 +64,29 @@ export default function Index() {
       setLoading(true);
 
       // Load user profile
-      const {
-        data: {
-          user
-        }
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const {
-          data: profileData
-        } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .maybeSingle();
         if (profileData) setProfile(profileData);
       }
 
-      // Load active fast
-      const {
-        data: fast,
-        error: fastError
-      } = await supabase.from("fasts").select("*").eq("is_active", true).maybeSingle();
-      if (fastError) throw fastError;
-      if (!fast) {
+      // activeFast comes from useLocalFasts hook
+      if (!activeFast) {
         setLoading(false);
         return;
       }
-      setActiveFast(fast);
 
-      // Load blocks
-      const {
-        data: blocksData,
-        error: blocksError
-      } = await supabase.from("fast_blocks").select("*").eq("fast_id", fast.id).order("order_index");
-      if (blocksError) throw blocksError;
+      // Load blocks from local DB
+      const blocksData = await getBlocksForFast(activeFast.id);
       setBlocks(blocksData || []);
 
-      // Load completed days
-      const {
-        data: daysData,
-        error: daysError
-      } = await supabase.from("fast_days").select("*").eq("fast_id", fast.id).eq("completed", true);
-      if (daysError) throw daysError;
-      setCompletedDays(daysData || []);
+      // Load completed days from local DB
+      const daysData = await getDaysForFast(activeFast.id);
+      setCompletedDays(daysData?.filter(d => d.completed) || []);
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -109,10 +102,11 @@ export default function Index() {
     try {
       const today = format(new Date(), "yyyy-MM-dd");
 
-      // Check if day already exists
-      const {
-        data: existingDay
-      } = await supabase.from("fast_days").select("id").eq("fast_id", activeFast.id).eq("date", today).maybeSingle();
+      // Check if day already exists in local DB
+      const existingDay = await db.fast_days
+        .where({ fast_id: activeFast.id, date: today })
+        .first();
+
       if (existingDay) {
         toast({
           variant: "destructive",
@@ -125,11 +119,11 @@ export default function Index() {
       // Find the active block to assign this day to
       let activeBlockId = null;
       let remainingDaysFromBeforeApp = activeFast.days_completed_before_app || 0;
+      
       for (let i = 0; i < blocks.length; i++) {
         const block = blocks[i];
         const blockDays = completedDays.filter(day => day.block_id === block.id);
 
-        // Calculate days from before app for this block
         let daysFromBeforeApp = 0;
         if (remainingDaysFromBeforeApp > 0) {
           daysFromBeforeApp = Math.min(remainingDaysFromBeforeApp, block.total_days);
@@ -137,25 +131,25 @@ export default function Index() {
         }
         const totalBlockCompleted = blockDays.length + daysFromBeforeApp;
 
-        // If this block is not complete and not manually completed, it's the active one
         if (!block.manually_completed && totalBlockCompleted < block.total_days) {
           activeBlockId = block.id;
           break;
         }
       }
-      const {
-        error
-      } = await supabase.from("fast_days").insert({
+
+      // Create day using local database
+      await createDay({
         fast_id: activeFast.id,
         date: today,
         completed: true,
         block_id: activeBlockId
       });
-      if (error) throw error;
+
       toast({
         title: t("common.success"),
         description: t("home.successMarked")
       });
+      
       loadActiveFast();
     } catch (error: any) {
       toast({
