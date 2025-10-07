@@ -10,11 +10,13 @@ import { ptBR, enUS, es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { useLocalFasts } from "@/hooks/useLocalFasts";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Historico() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
-  const { activeFast, getDaysForFast } = useLocalFasts();
+  const { user } = useAuth();
+  const { activeFast, getDaysForFast } = useLocalFasts(user?.id || null);
   const [loading, setLoading] = useState(true);
   const [completedDays, setCompletedDays] = useState<any[]>([]);
   const [failedDays, setFailedDays] = useState<any[]>([]);

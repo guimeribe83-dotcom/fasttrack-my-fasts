@@ -21,13 +21,13 @@ import { db } from "@/lib/localDatabase";
 export default function Index() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const [loading, setLoading] = useState(true);
   const [blocks, setBlocks] = useState<any[]>([]);
   const [completedDays, setCompletedDays] = useState<any[]>([]);
   
   // Use local database
-  const { activeFast, createDay, getDaysForFast, getBlocksForFast } = useLocalFasts();
+  const { activeFast, createDay, getDaysForFast, getBlocksForFast } = useLocalFasts(user?.id || null);
   const getDateFnsLocale = () => {
     switch (i18n.language) {
       case 'en':

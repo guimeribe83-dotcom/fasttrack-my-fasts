@@ -10,6 +10,7 @@ import { toast } from "@/hooks/use-toast";
 import { Plus, Trash2, Calendar, Layers } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useLocalFasts } from "@/hooks/useLocalFasts";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Block {
   id: string;
@@ -20,13 +21,14 @@ interface Block {
 
 export default function NovoJejum() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
   const [totalDays, setTotalDays] = useState("");
   const [startDate, setStartDate] = useState("");
   const [daysCompletedBefore, setDaysCompletedBefore] = useState("");
   const [blocks, setBlocks] = useState<Block[]>([]);
-  const { createFast, createBlock, setActiveFast } = useLocalFasts();
+  const { createFast, createBlock, setActiveFast } = useLocalFasts(user?.id || null);
 
   const addBlock = () => {
     setBlocks([

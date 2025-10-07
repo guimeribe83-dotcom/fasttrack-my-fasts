@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Star, Edit, Trash2, Plus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useLocalFasts } from "@/hooks/useLocalFasts";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,7 +23,8 @@ import {
 
 export default function GerenciarJejuns() {
   const navigate = useNavigate();
-  const { fasts, deleteFast, setActiveFast, getDaysForFast } = useLocalFasts();
+  const { user } = useAuth();
+  const { fasts, deleteFast, setActiveFast, getDaysForFast } = useLocalFasts(user?.id || null);
   const [fastsData, setFastsData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);

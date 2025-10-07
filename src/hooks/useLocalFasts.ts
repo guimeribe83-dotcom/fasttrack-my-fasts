@@ -1,16 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import { db, LocalFast, LocalFastBlock, LocalFastDay, addToSyncQueue } from '@/lib/localDatabase';
-import { supabase } from '@/integrations/supabase/client';
 import { useLiveQuery } from 'dexie-react-hooks';
 
-export const useLocalFasts = () => {
-  const [userId, setUserId] = useState<string | null>(null);
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUserId(user?.id || null);
-    });
-  }, []);
+export const useLocalFasts = (userId: string | null) => {
 
   // Live queries from IndexedDB
   const fasts = useLiveQuery(
