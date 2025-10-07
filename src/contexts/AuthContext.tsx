@@ -37,6 +37,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(false);
+  const [ready, setReady] = useState(false);
 
   const loadProfile = async (userId: string) => {
     if (profileLoading) return; // Prevent concurrent loads
@@ -72,6 +73,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         loadProfile(session.user.id);
       }
       setLoading(false);
+      setReady(true);
     });
 
     // Listen for auth changes
@@ -88,6 +90,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Don't render children until context is ready
+  if (!ready) {
+    return null;
+  }
 
   return (
     <AuthContext.Provider value={{ user, profile, loading, refreshProfile }}>

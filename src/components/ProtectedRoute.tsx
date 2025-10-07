@@ -16,12 +16,8 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     }
   }, [user, loading, navigate]);
 
-  // Show nothing while checking auth - let the page handle its own loading state
-  if (loading) {
-    return null;
-  }
-
-  if (!user) {
+  // Don't render children until we know the auth state
+  if (loading || !user) {
     return null;
   }
 
