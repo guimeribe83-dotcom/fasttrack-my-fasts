@@ -19,7 +19,11 @@ export const useLocalFasts = () => {
   );
 
   const activeFast = useLiveQuery(
-    () => userId ? db.fasts.where({ user_id: userId, is_active: true }).first() : undefined,
+    async () => {
+      if (!userId) return undefined;
+      const allFasts = await db.fasts.where('user_id').equals(userId).toArray();
+      return allFasts.find(fast => fast.is_active);
+    },
     [userId]
   );
 

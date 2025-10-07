@@ -59,8 +59,8 @@ class LocalDatabase extends Dexie {
   constructor() {
     super('FastTrackDB');
     
-    this.version(2).stores({
-      fasts: 'id, user_id, is_active, [user_id+is_active], created_at',
+    this.version(3).stores({
+      fasts: 'id, user_id, is_active, created_at',
       fast_blocks: 'id, fast_id, order_index',
       fast_days: 'id, fast_id, block_id, date',
       sync_queue: '++id, table, created_at, attempts'
