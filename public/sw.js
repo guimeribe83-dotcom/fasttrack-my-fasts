@@ -220,7 +220,10 @@ self.addEventListener('message', (event) => {
 async function syncFastsData() {
   try {
     console.log('[SW] Syncing fasts data...');
-    // Implement your sync logic here
+    const clientList = await self.clients.matchAll({ includeUncontrolled: true, type: 'window' });
+    clientList.forEach((client) => {
+      client.postMessage({ type: 'PROCESS_OFFLINE_QUEUE' });
+    });
     return Promise.resolve();
   } catch (error) {
     console.error('[SW] Sync failed:', error);
