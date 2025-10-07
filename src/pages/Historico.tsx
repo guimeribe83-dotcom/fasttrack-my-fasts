@@ -2,22 +2,19 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { CheckCircle, XCircle, Circle, Calendar as CalendarIcon } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from "date-fns";
 import { ptBR, enUS, es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
-import { useLocalFasts } from "@/hooks/useLocalFasts";
-import { useAuth } from "@/contexts/AuthContext";
 
 export default function Historico() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
-  const { user } = useAuth();
-  const { activeFast, getDaysForFast } = useLocalFasts(user?.id || null);
   const [loading, setLoading] = useState(true);
+  const [activeFast, setActiveFast] = useState<any>(null);
   const [completedDays, setCompletedDays] = useState<any[]>([]);
   const [failedDays, setFailedDays] = useState<any[]>([]);
   const [currentMonth] = useState(new Date());
@@ -39,23 +36,43 @@ export default function Historico() {
   };
 
   useEffect(() => {
-    if (activeFast) {
-      loadData();
-    } else {
-      setLoading(false);
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      navigate("/auth");
+      return;
     }
-  }, [activeFast]);
+    loadData();
+  };
 
   const loadData = async () => {
     try {
       setLoading(true);
 
-      if (!activeFast) {
+      const { data: fast, error: fastError } = await supabase
+        .from("fasts")
+        .select("*")
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (fastError) throw fastError;
+      setActiveFast(fast);
+
+      if (!fast) {
         setLoading(false);
         return;
       }
 
-      const allDays = await getDaysForFast(activeFast.id);
+      const { data: allDays, error: daysError } = await supabase
+        .from("fast_days")
+        .select("*")
+        .eq("fast_id", fast.id)
+        .order("date", { ascending: false });
+
+      if (daysError) throw daysError;
 
       // Remove duplicates by keeping only the most recent entry for each date
       const uniqueDays = allDays?.reduce((acc: any[], day: any) => {
@@ -82,31 +99,8 @@ export default function Historico() {
   if (loading) {
     return (
       <Layout>
-        <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6">
-          <div className="space-y-1">
-            <Skeleton className="h-8 w-48 mb-2" />
-            <Skeleton className="h-4 w-64" />
-          </div>
-          <div className="grid grid-cols-3 gap-3 md:gap-4">
-            {[1, 2, 3].map((i) => (
-              <Card key={i} className="p-4">
-                <Skeleton className="h-16 w-full" />
-              </Card>
-            ))}
-          </div>
-          <Card className="p-6 shadow-sm">
-            <Skeleton className="h-6 w-48 mb-6" />
-            <div className="grid grid-cols-7 gap-3 mb-3">
-              {Array.from({ length: 7 }).map((_, i) => (
-                <Skeleton key={i} className="h-6 w-full" />
-              ))}
-            </div>
-            <div className="grid grid-cols-7 gap-3">
-              {Array.from({ length: 35 }).map((_, i) => (
-                <Skeleton key={i} className="aspect-square rounded-lg" />
-              ))}
-            </div>
-          </Card>
+        <div className="flex items-center justify-center min-h-screen">
+          <p className="text-muted-foreground">{t("history.loading")}</p>
         </div>
       </Layout>
     );

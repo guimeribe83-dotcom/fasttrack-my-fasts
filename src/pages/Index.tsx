@@ -7,27 +7,24 @@ import { InstallPWA } from "@/components/InstallPWA";
 import { PWAUpdatePrompt } from "@/components/PWAUpdatePrompt";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { supabase } from "@/integrations/supabase/client";
 import { CheckCircle, Calendar, User } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ptBR, enUS, es } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
-import { useLocalFasts } from "@/hooks/useLocalFasts";
-import { useAuth } from "@/contexts/AuthContext";
-import { db } from "@/lib/localDatabase";
-
 export default function Index() {
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
-  const { user, profile } = useAuth();
+  const {
+    t,
+    i18n
+  } = useTranslation();
   const [loading, setLoading] = useState(true);
+  const [activeFast, setActiveFast] = useState<any>(null);
   const [blocks, setBlocks] = useState<any[]>([]);
   const [completedDays, setCompletedDays] = useState<any[]>([]);
-  
-  // Use local database
-  const { activeFast, createDay, getDaysForFast, getBlocksForFast } = useLocalFasts(user?.id || null);
+  const [profile, setProfile] = useState<any>(null);
   const getDateFnsLocale = () => {
     switch (i18n.language) {
       case 'en':
@@ -38,33 +35,65 @@ export default function Index() {
         return ptBR;
     }
   };
-
-  // Reload data when activeFast changes
   useEffect(() => {
-    if (activeFast) {
-      loadActiveFast();
-    } else {
-      setLoading(false);
+    checkAuth();
+  }, []);
+  const checkAuth = async () => {
+    const {
+      data: {
+        session
+      }
+    } = await supabase.auth.getSession();
+    if (!session) {
+      navigate("/auth");
+      return;
     }
-  }, [activeFast?.id]);
-
+    loadActiveFast();
+  };
   const loadActiveFast = async () => {
     try {
       setLoading(true);
 
-      // activeFast comes from useLocalFasts hook
-      if (!activeFast) {
+      // Load user profile
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
+      if (user) {
+        const {
+          data: profileData
+        } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+        if (profileData) setProfile(profileData);
+      }
+
+      // Load active fast
+      const {
+        data: fast,
+        error: fastError
+      } = await supabase.from("fasts").select("*").eq("is_active", true).maybeSingle();
+      if (fastError) throw fastError;
+      if (!fast) {
         setLoading(false);
         return;
       }
+      setActiveFast(fast);
 
-      // Load blocks from local DB
-      const blocksData = await getBlocksForFast(activeFast.id);
+      // Load blocks
+      const {
+        data: blocksData,
+        error: blocksError
+      } = await supabase.from("fast_blocks").select("*").eq("fast_id", fast.id).order("order_index");
+      if (blocksError) throw blocksError;
       setBlocks(blocksData || []);
 
-      // Load completed days from local DB
-      const daysData = await getDaysForFast(activeFast.id);
-      setCompletedDays(daysData?.filter(d => d.completed) || []);
+      // Load completed days
+      const {
+        data: daysData,
+        error: daysError
+      } = await supabase.from("fast_days").select("*").eq("fast_id", fast.id).eq("completed", true);
+      if (daysError) throw daysError;
+      setCompletedDays(daysData || []);
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -80,11 +109,10 @@ export default function Index() {
     try {
       const today = format(new Date(), "yyyy-MM-dd");
 
-      // Check if day already exists in local DB
-      const existingDay = await db.fast_days
-        .where({ fast_id: activeFast.id, date: today })
-        .first();
-
+      // Check if day already exists
+      const {
+        data: existingDay
+      } = await supabase.from("fast_days").select("id").eq("fast_id", activeFast.id).eq("date", today).maybeSingle();
       if (existingDay) {
         toast({
           variant: "destructive",
@@ -97,11 +125,11 @@ export default function Index() {
       // Find the active block to assign this day to
       let activeBlockId = null;
       let remainingDaysFromBeforeApp = activeFast.days_completed_before_app || 0;
-      
       for (let i = 0; i < blocks.length; i++) {
         const block = blocks[i];
         const blockDays = completedDays.filter(day => day.block_id === block.id);
 
+        // Calculate days from before app for this block
         let daysFromBeforeApp = 0;
         if (remainingDaysFromBeforeApp > 0) {
           daysFromBeforeApp = Math.min(remainingDaysFromBeforeApp, block.total_days);
@@ -109,25 +137,25 @@ export default function Index() {
         }
         const totalBlockCompleted = blockDays.length + daysFromBeforeApp;
 
+        // If this block is not complete and not manually completed, it's the active one
         if (!block.manually_completed && totalBlockCompleted < block.total_days) {
           activeBlockId = block.id;
           break;
         }
       }
-
-      // Create day using local database
-      await createDay({
+      const {
+        error
+      } = await supabase.from("fast_days").insert({
         fast_id: activeFast.id,
         date: today,
         completed: true,
         block_id: activeBlockId
       });
-
+      if (error) throw error;
       toast({
         title: t("common.success"),
         description: t("home.successMarked")
       });
-      
       loadActiveFast();
     } catch (error: any) {
       toast({
@@ -138,46 +166,11 @@ export default function Index() {
     }
   };
   if (loading) {
-    return (
-      <Layout>
-        <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-4 md:space-y-6">
-          <div className="flex items-center gap-3 md:hidden">
-            <Skeleton className="h-8 w-8 rounded-full" />
-            <div className="flex-1">
-              <Skeleton className="h-4 w-32 mb-2" />
-              <Skeleton className="h-3 w-48" />
-            </div>
-          </div>
-          <div className="hidden md:block">
-            <Skeleton className="h-8 w-64 mb-2" />
-            <Skeleton className="h-4 w-40" />
-          </div>
-          <Card className="p-4 md:p-6">
-            <div className="flex flex-col md:flex-row items-center gap-6">
-              <Skeleton className="h-[140px] w-[140px] rounded-full" />
-              <div className="flex-1 w-full space-y-4">
-                <div>
-                  <Skeleton className="h-6 w-48 mb-2" />
-                  <Skeleton className="h-4 w-64" />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <Skeleton className="h-20 w-full rounded-lg" />
-                  <Skeleton className="h-20 w-full rounded-lg" />
-                </div>
-              </div>
-            </div>
-          </Card>
-          <div className="space-y-3">
-            <Skeleton className="h-6 w-32" />
-            {[1, 2, 3].map((i) => (
-              <Card key={i} className="p-4">
-                <Skeleton className="h-16 w-full" />
-              </Card>
-            ))}
-          </div>
+    return <Layout>
+        <div className="flex items-center justify-center min-h-screen">
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
-      </Layout>
-    );
+      </Layout>;
   }
   if (!activeFast) {
     return <Layout>

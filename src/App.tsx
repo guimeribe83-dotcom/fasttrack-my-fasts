@@ -1,10 +1,9 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PWAFeatures } from "@/components/PWAFeatures";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import GerenciarJejuns from "./pages/GerenciarJejuns";
@@ -20,26 +19,26 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <Toaster />
-    <Sonner />
-    <BrowserRouter>
-      <AuthProvider>
-        <PWAFeatures />
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <PWAFeatures />
+      <BrowserRouter>
         <Routes>
+          <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-          <Route path="/gerenciar" element={<ProtectedRoute><GerenciarJejuns /></ProtectedRoute>} />
-          <Route path="/novo-jejum" element={<ProtectedRoute><NovoJejum /></ProtectedRoute>} />
-          <Route path="/editar-jejum/:id" element={<ProtectedRoute><EditarJejum /></ProtectedRoute>} />
-          <Route path="/historico" element={<ProtectedRoute><Historico /></ProtectedRoute>} />
-          <Route path="/lembretes" element={<ProtectedRoute><Lembretes /></ProtectedRoute>} />
-          <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
-          <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
+          <Route path="/gerenciar" element={<GerenciarJejuns />} />
+          <Route path="/novo-jejum" element={<NovoJejum />} />
+          <Route path="/editar-jejum/:id" element={<EditarJejum />} />
+          <Route path="/historico" element={<Historico />} />
+          <Route path="/lembretes" element={<Lembretes />} />
+          <Route path="/configuracoes" element={<Configuracoes />} />
+          <Route path="/perfil" element={<Perfil />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+      </BrowserRouter>
+    </TooltipProvider>
   </QueryClientProvider>
 );
 

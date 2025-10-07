@@ -6,14 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useNotifications } from "@/hooks/useNotifications";
 import { Bell, Plus, Trash2, BellRing, BellOff } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
 
 interface Reminder {
   id: string;
@@ -25,7 +23,6 @@ interface Reminder {
 export default function Lembretes() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { user } = useAuth();
   const { permission, requestPermission, isSupported } = useNotifications();
   const [loading, setLoading] = useState(true);
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -33,10 +30,17 @@ export default function Lembretes() {
   const [newTime, setNewTime] = useState("");
 
   useEffect(() => {
-    if (user) {
-      loadReminders();
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      navigate("/auth");
+      return;
     }
-  }, [user]);
+    loadReminders();
+  };
 
   const loadReminders = async () => {
     try {
@@ -163,24 +167,8 @@ export default function Lembretes() {
   if (loading) {
     return (
       <Layout>
-        <div className="p-4 md:p-8 max-w-5xl mx-auto">
-          <div className="mb-6 md:mb-8">
-            <Skeleton className="h-8 w-48 mb-2" />
-            <Skeleton className="h-4 w-96" />
-          </div>
-          <div className="grid lg:grid-cols-2 gap-6">
-            <div className="space-y-6">
-              <Card className="p-4 md:p-6">
-                <Skeleton className="h-32 w-full" />
-              </Card>
-              <Card className="p-4 md:p-6">
-                <Skeleton className="h-64 w-full" />
-              </Card>
-            </div>
-            <Card className="p-4 md:p-6">
-              <Skeleton className="h-96 w-full" />
-            </Card>
-          </div>
+        <div className="flex items-center justify-center min-h-screen">
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </Layout>
     );

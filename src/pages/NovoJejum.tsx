@@ -9,8 +9,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Trash2, Calendar, Layers } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useLocalFasts } from "@/hooks/useLocalFasts";
-import { useAuth } from "@/contexts/AuthContext";
+import { useOfflineQueue } from "@/hooks/useOfflineQueue";
+import { useBackgroundSync } from "@/hooks/useBackgroundSync";
 
 interface Block {
   id: string;
@@ -21,14 +21,14 @@ interface Block {
 
 export default function NovoJejum() {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
   const [totalDays, setTotalDays] = useState("");
   const [startDate, setStartDate] = useState("");
   const [daysCompletedBefore, setDaysCompletedBefore] = useState("");
   const [blocks, setBlocks] = useState<Block[]>([]);
-  const { createFast, createBlock, setActiveFast } = useLocalFasts(user?.id || null);
+  const { queueCreateFast, processQueue } = useOfflineQueue();
+  const { registerSync } = useBackgroundSync();
 
   const addBlock = () => {
     setBlocks([
@@ -57,50 +57,107 @@ export default function NovoJejum() {
       return;
     }
 
+    const payload = {
+      name,
+      total_days: parseInt(totalDays),
+      start_date: startDate,
+      days_completed_before_app: parseInt(daysCompletedBefore || "0"),
+      is_active: true,
+      blocks: blocks.map((block, index) => ({
+        name: block.name,
+        total_days: block.totalDays,
+        order_index: index,
+        manually_completed: block.manuallyCompleted,
+      })),
+    };
+
+    // If offline, queue and exit early
+    if (!navigator.onLine) {
+      queueCreateFast(payload);
+      // Try to register background sync so it can process later
+      // @ts-ignore - sync not in TS types
+      registerSync && (await registerSync('sync-fasts'));
+      toast({
+        title: "Salvo offline",
+        description: "O jejum foi salvo e será sincronizado quando voltar a ficar online.",
+      });
+      // Attempt to process queue if we got back online quickly
+      await processQueue();
+      navigate("/");
+      return;
+    }
+
     try {
       setLoading(true);
 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Usuário não autenticado");
 
-      // Create fast in local DB as active (works offline!)
-      const fastId = await createFast({
-        user_id: user.id,
-        name,
-        total_days: parseInt(totalDays),
-        start_date: startDate,
-        days_completed_before_app: parseInt(daysCompletedBefore || "0"),
-        is_active: true
-      });
+      // Create fast
+      const { data: fast, error: fastError } = await supabase
+        .from("fasts")
+        .insert({
+          user_id: user.id,
+          name: payload.name,
+          total_days: payload.total_days,
+          start_date: payload.start_date,
+          days_completed_before_app: payload.days_completed_before_app,
+          is_active: payload.is_active,
+        })
+        .select()
+        .single();
 
-      // Set as active (this will deactivate others properly)
-      await setActiveFast(fastId);
+      if (fastError) throw fastError;
 
-      // Create blocks in local DB
-      for (let i = 0; i < blocks.length; i++) {
-        const block = blocks[i];
-        await createBlock({
-          fast_id: fastId,
-          name: block.name,
-          total_days: block.totalDays,
-          order_index: i,
-          manually_completed: block.manuallyCompleted
-        });
+      // Deactivate other fasts
+      await supabase
+        .from("fasts")
+        .update({ is_active: false })
+        .neq("id", fast.id);
+
+      // Create blocks
+      if (payload.blocks.length > 0) {
+        const blocksToInsert = payload.blocks.map((b, index) => ({
+          fast_id: fast.id,
+          name: b.name,
+          total_days: b.total_days,
+          order_index: index,
+          manually_completed: b.manually_completed,
+        }));
+
+        const { error: blocksError } = await supabase
+          .from("fast_blocks")
+          .insert(blocksToInsert);
+
+        if (blocksError) throw blocksError;
       }
 
       toast({
         title: "Jejum criado!",
-        description: navigator.onLine 
-          ? "Seu jejum foi criado com sucesso."
-          : "Jejum salvo offline. Será sincronizado quando voltar online.",
+        description: "Seu jejum foi criado com sucesso.",
       });
 
       navigate("/");
     } catch (error: any) {
+      // If it's a network error, queue for later
+      const message = error?.message || '';
+      if (!navigator.onLine || /Failed to fetch|NetworkError|TypeError/.test(message)) {
+        queueCreateFast(payload);
+        // @ts-ignore
+        registerSync && (await registerSync('sync-fasts'));
+        toast({
+          title: "Salvo offline",
+          description: "O jejum foi salvo e será sincronizado quando voltar a ficar online.",
+        });
+        await processQueue();
+        navigate("/");
+        return;
+      }
+
       toast({
         variant: "destructive",
         title: "Erro ao criar jejum",
-        description: error.message,
+        description: message,
       });
     } finally {
       setLoading(false);
