@@ -125,13 +125,6 @@ export const useSyncEngine = () => {
       // Update pending count after sync
       const newCount = await db.sync_queue.count();
       setPendingCount(newCount);
-      
-      if (queueItems.length > 0) {
-        toast({
-          title: "Sincronizado",
-          description: `${queueItems.length} alterações foram sincronizadas com sucesso.`,
-        });
-      }
     } catch (error) {
       console.error('Sync failed:', error);
       toast({
