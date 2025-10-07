@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
 import { Star, Edit, Trash2, Plus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useLocalFasts } from "@/hooks/useLocalFasts";
@@ -26,19 +25,6 @@ export default function GerenciarJejuns() {
   const [fastsData, setFastsData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      navigate("/auth");
-      return;
-    }
-    loadFasts();
-  };
 
   // Load fasts from local database
   const loadFasts = async () => {

@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useNotifications } from "@/hooks/useNotifications";
 import { Bell, Plus, Trash2, BellRing, BellOff } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Reminder {
   id: string;
@@ -23,6 +24,7 @@ interface Reminder {
 export default function Lembretes() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { user } = useAuth();
   const { permission, requestPermission, isSupported } = useNotifications();
   const [loading, setLoading] = useState(true);
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -30,17 +32,10 @@ export default function Lembretes() {
   const [newTime, setNewTime] = useState("");
 
   useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      navigate("/auth");
-      return;
+    if (user) {
+      loadReminders();
     }
-    loadReminders();
-  };
+  }, [user]);
 
   const loadReminders = async () => {
     try {

@@ -8,22 +8,22 @@ import { PWAUpdatePrompt } from "@/components/PWAUpdatePrompt";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { supabase } from "@/integrations/supabase/client";
 import { CheckCircle, Calendar, User } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ptBR, enUS, es } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
 import { useLocalFasts } from "@/hooks/useLocalFasts";
+import { useAuth } from "@/contexts/AuthContext";
 import { db } from "@/lib/localDatabase";
 
 export default function Index() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const { profile } = useAuth();
   const [loading, setLoading] = useState(true);
   const [blocks, setBlocks] = useState<any[]>([]);
   const [completedDays, setCompletedDays] = useState<any[]>([]);
-  const [profile, setProfile] = useState<any>(null);
   
   // Use local database
   const { activeFast, createDay, getDaysForFast, getBlocksForFast } = useLocalFasts();
@@ -37,9 +37,6 @@ export default function Index() {
         return ptBR;
     }
   };
-  useEffect(() => {
-    checkAuth();
-  }, []);
 
   // Reload data when activeFast changes
   useEffect(() => {
@@ -49,32 +46,10 @@ export default function Index() {
       setLoading(false);
     }
   }, [activeFast?.id]);
-  const checkAuth = async () => {
-    const {
-      data: {
-        session
-      }
-    } = await supabase.auth.getSession();
-    if (!session) {
-      navigate("/auth");
-      return;
-    }
-    loadActiveFast();
-  };
+
   const loadActiveFast = async () => {
     try {
       setLoading(true);
-
-      // Load user profile
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profileData } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .maybeSingle();
-        if (profileData) setProfile(profileData);
-      }
 
       // activeFast comes from useLocalFasts hook
       if (!activeFast) {

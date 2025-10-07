@@ -12,60 +12,26 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { User, Camera, Loader2, LogOut, Settings, Languages } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Perfil() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
-  const [loading, setLoading] = useState(true);
+  const { user, profile: authProfile, refreshProfile } = useAuth();
+  const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [profile, setProfile] = useState<any>(null);
   const [fullName, setFullName] = useState("");
   const [church, setChurch] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
 
   useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      navigate("/auth");
-      return;
+    if (authProfile) {
+      setFullName(authProfile.full_name || "");
+      setChurch(authProfile.church || "");
+      setAvatarUrl(authProfile.avatar_url || "");
     }
-    loadProfile();
-  };
-
-  const loadProfile = async () => {
-    try {
-      setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) throw new Error("Usuário não encontrado");
-
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-
-      if (error) throw error;
-
-      setProfile(data);
-      setFullName(data.full_name || "");
-      setChurch(data.church || "");
-      setAvatarUrl(data.avatar_url || "");
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("common.error"),
-        description: error.message,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [authProfile]);
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -102,6 +68,7 @@ export default function Perfil() {
       if (updateError) throw updateError;
 
       setAvatarUrl(publicUrl);
+      await refreshProfile();
 
       toast({
         title: t("profile.photoUpdated"),
@@ -136,6 +103,8 @@ export default function Perfil() {
 
       if (error) throw error;
 
+      await refreshProfile();
+
       toast({
         title: t("profile.success"),
         description: t("profile.successMessage"),
@@ -163,16 +132,6 @@ export default function Perfil() {
       navigate("/auth");
     }
   };
-
-  if (loading) {
-    return (
-      <Layout>
-        <div className="flex items-center justify-center min-h-screen">
-          <p className="text-muted-foreground">{t("common.loading")}</p>
-        </div>
-      </Layout>
-    );
-  }
 
   const handleLanguageChange = (lang: string) => {
     i18n.changeLanguage(lang);

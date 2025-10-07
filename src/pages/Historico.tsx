@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { CheckCircle, XCircle, Circle, Calendar as CalendarIcon } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from "date-fns";
@@ -37,25 +36,12 @@ export default function Historico() {
   };
 
   useEffect(() => {
-    checkAuth();
-  }, []);
-
-  useEffect(() => {
     if (activeFast) {
       loadData();
     } else {
       setLoading(false);
     }
   }, [activeFast]);
-
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      navigate("/auth");
-      return;
-    }
-    loadData();
-  };
 
   const loadData = async () => {
     try {
