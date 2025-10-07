@@ -12,10 +12,16 @@
   "theme_color": "#8B5CF6",
   "lang": "pt-BR",
   "dir": "ltr",
-  "categories": ["lifestyle", "health", "productivity", "utilities"],
+  "categories": ["lifestyle", "health", "productivity", "utilities", "spirituality", "wellness"],
   "prefer_related_applications": false,
   "related_applications": [],
   "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "500x500",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "/favicon.png",
       "sizes": "192x192",
@@ -36,6 +42,13 @@
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Tela principal do FastTrack mostrando progresso do jejum"
+    },
+    {
+      "src": "/screenshot-desktop.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Visão desktop do FastTrack com estatísticas completas"
     }
   ],
   "shortcuts": [
@@ -44,44 +57,52 @@
       "short_name": "Novo",
       "description": "Iniciar um novo período de jejum",
       "url": "/novo-jejum",
-      "icons": [{ 
-        "src": "/favicon.png", 
-        "sizes": "192x192",
-        "type": "image/png"
-      }]
+      "icons": [
+        { 
+          "src": "/favicon.png", 
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "Histórico",
       "short_name": "Histórico",
       "description": "Ver histórico de jejuns completos",
       "url": "/historico",
-      "icons": [{ 
-        "src": "/favicon.png", 
-        "sizes": "192x192",
-        "type": "image/png"
-      }]
+      "icons": [
+        { 
+          "src": "/favicon.png", 
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "Lembretes",
       "short_name": "Lembretes",
       "description": "Configurar lembretes personalizados",
       "url": "/lembretes",
-      "icons": [{ 
-        "src": "/favicon.png", 
-        "sizes": "192x192",
-        "type": "image/png"
-      }]
+      "icons": [
+        { 
+          "src": "/favicon.png", 
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "Perfil",
       "short_name": "Perfil",
       "description": "Gerenciar perfil e configurações",
       "url": "/perfil",
-      "icons": [{ 
-        "src": "/favicon.png", 
-        "sizes": "192x192",
-        "type": "image/png"
-      }]
+      "icons": [
+        { 
+          "src": "/favicon.png", 
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ],
   "share_target": {
@@ -120,7 +141,8 @@
   },
   "scope_extensions": [
     {
-      "origin": "*.fasttrack.app"
+      "origin": "*.lovable.app"
     }
-  ]
+  ],
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7"
 }
