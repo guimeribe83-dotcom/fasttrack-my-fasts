@@ -118,11 +118,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Handle API calls - Network First strategy
+  // Handle API calls - Network First with timeout
   if (url.hostname.includes('supabase.co')) {
     event.respondWith(
-      fetch(request, { timeout: 10000 })
-        .then((response) => {
+      Promise.race([
+        fetch(request).then((response) => {
           if (response.ok) {
             const responseClone = response.clone();
             caches.open(CACHE_NAME).then((cache) => {
@@ -130,10 +130,23 @@ self.addEventListener('fetch', (event) => {
             });
           }
           return response;
-        })
-        .catch(() => {
-          return caches.match(request);
-        })
+        }),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('timeout')), 10000)
+        )
+      ])
+      .catch(async () => {
+        console.log('[SW] Using cached response for:', request.url);
+        const cachedResponse = await caches.match(request);
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        // Return empty response to prevent app crashes
+        return new Response(JSON.stringify({ error: 'offline' }), {
+          status: 503,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      })
     );
     return;
   }
@@ -159,6 +172,14 @@ self.addEventListener('sync', (event) => {
   console.log('[SW] Background sync:', event.tag);
   if (event.tag === 'sync-fasts') {
     event.waitUntil(syncFastsData());
+  }
+});
+
+// Handle periodic sync
+self.addEventListener('periodicsync', (event) => {
+  console.log('[SW] Periodic sync:', event.tag);
+  if (event.tag === 'check-updates') {
+    event.waitUntil(checkForUpdates());
   }
 });
 
@@ -204,6 +225,25 @@ async function syncFastsData() {
   } catch (error) {
     console.error('[SW] Sync failed:', error);
     return Promise.reject(error);
+  }
+}
+
+// Check for app updates
+async function checkForUpdates() {
+  try {
+    console.log('[SW] Checking for updates...');
+    const cache = await caches.open(CACHE_NAME);
+    const cachedResponse = await cache.match('/');
+    const networkResponse = await fetch('/');
+    
+    if (cachedResponse && networkResponse.ok) {
+      await cache.put('/', networkResponse);
+      console.log('[SW] Updated cached version');
+    }
+    return Promise.resolve();
+  } catch (error) {
+    console.error('[SW] Update check failed:', error);
+    return Promise.resolve(); // Don't fail the periodic sync
   }
 }
 
