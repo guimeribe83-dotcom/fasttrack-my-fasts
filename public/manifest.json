@@ -18,12 +18,6 @@
   "icons": [
     {
       "src": "/favicon.png",
-      "sizes": "500x500",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/favicon.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
@@ -33,22 +27,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshot-mobile.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Tela principal do FastTrack mostrando progresso do jejum"
-    },
-    {
-      "src": "/screenshot-desktop.png",
-      "sizes": "1920x1080",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Visão desktop do FastTrack com estatísticas completas"
     }
   ],
   "shortcuts": [
@@ -117,32 +95,5 @@
   },
   "launch_handler": {
     "client_mode": ["navigate-existing", "auto"]
-  },
-  "file_handlers": [
-    {
-      "action": "/",
-      "accept": {
-        "text/calendar": [".ics"],
-        "application/json": [".json"]
-      }
-    }
-  ],
-  "protocol_handlers": [
-    {
-      "protocol": "web+fasttrack",
-      "url": "/?action=%s"
-    }
-  ],
-  "note_taking": {
-    "new_note_url": "/novo-jejum"
-  },
-  "edge_side_panel": {
-    "preferred_width": 400
-  },
-  "scope_extensions": [
-    {
-      "origin": "*.lovable.app"
-    }
-  ],
-  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7"
+  }
 }
