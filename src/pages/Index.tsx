@@ -174,12 +174,30 @@ export default function Index() {
   }
   if (!activeFast) {
     return <Layout>
-        <div className="flex flex-col items-center justify-center min-h-screen p-8">
-          <h2 className="text-2xl font-bold mb-4 text-foreground">{t("home.noActiveFast")}</h2>
-          <p className="text-muted-foreground mb-6 text-center">
-            {t("home.noActiveFastMessage")}
-          </p>
-          <Button onClick={() => navigate("/novo-jejum")}>{t("home.createFast")}</Button>
+        <div className="p-4 md:p-6 max-w-5xl mx-auto">
+          {/* Header - Mobile Only */}
+          <div className="flex items-center gap-3 md:hidden mb-6">
+            <Avatar className="w-8 h-8 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate("/perfil")}>
+              <AvatarImage src={profile?.avatar_url} alt={profile?.full_name} />
+              <AvatarFallback className="bg-primary/10 text-primary text-sm">
+                {profile?.full_name ? profile.full_name.charAt(0).toUpperCase() : <User className="w-4 h-4" />}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <h1 className="text-base font-semibold text-foreground">
+                {profile?.full_name || t("profile.guest")}
+              </h1>
+              <p className="text-xs text-muted-foreground">{t("home.noActiveFast")}</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center justify-center min-h-[60vh]">
+            <h2 className="text-2xl font-bold mb-4 text-foreground">{t("home.noActiveFast")}</h2>
+            <p className="text-muted-foreground mb-6 text-center">
+              {t("home.noActiveFastMessage")}
+            </p>
+            <Button onClick={() => navigate("/novo-jejum")}>{t("home.createFast")}</Button>
+          </div>
         </div>
       </Layout>;
   }
