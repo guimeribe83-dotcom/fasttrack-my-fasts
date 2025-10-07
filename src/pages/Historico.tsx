@@ -9,12 +9,13 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from "
 import { ptBR, enUS, es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import { useLocalFasts } from "@/hooks/useLocalFasts";
 
 export default function Historico() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const { activeFast, getDaysForFast } = useLocalFasts();
   const [loading, setLoading] = useState(true);
-  const [activeFast, setActiveFast] = useState<any>(null);
   const [completedDays, setCompletedDays] = useState<any[]>([]);
   const [failedDays, setFailedDays] = useState<any[]>([]);
   const [currentMonth] = useState(new Date());
@@ -39,6 +40,14 @@ export default function Historico() {
     checkAuth();
   }, []);
 
+  useEffect(() => {
+    if (activeFast) {
+      loadData();
+    } else {
+      setLoading(false);
+    }
+  }, [activeFast]);
+
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
@@ -52,27 +61,12 @@ export default function Historico() {
     try {
       setLoading(true);
 
-      const { data: fast, error: fastError } = await supabase
-        .from("fasts")
-        .select("*")
-        .eq("is_active", true)
-        .maybeSingle();
-
-      if (fastError) throw fastError;
-      setActiveFast(fast);
-
-      if (!fast) {
+      if (!activeFast) {
         setLoading(false);
         return;
       }
 
-      const { data: allDays, error: daysError } = await supabase
-        .from("fast_days")
-        .select("*")
-        .eq("fast_id", fast.id)
-        .order("date", { ascending: false });
-
-      if (daysError) throw daysError;
+      const allDays = await getDaysForFast(activeFast.id);
 
       // Remove duplicates by keeping only the most recent entry for each date
       const uniqueDays = allDays?.reduce((acc: any[], day: any) => {
