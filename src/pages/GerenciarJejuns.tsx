@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Star, Edit, Trash2, Plus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useLocalFasts } from "@/hooks/useLocalFasts";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,7 +22,8 @@ import {
 
 export default function GerenciarJejuns() {
   const navigate = useNavigate();
-  const [fasts, setFasts] = useState<any[]>([]);
+  const { fasts, deleteFast, setActiveFast, getDaysForFast } = useLocalFasts();
+  const [fastsData, setFastsData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
@@ -38,19 +40,23 @@ export default function GerenciarJejuns() {
     loadFasts();
   };
 
+  // Load fasts from local database
   const loadFasts = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from("fasts")
-        .select(`
-          *,
-          fast_days(count)
-        `)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setFasts(data || []);
+      if (fasts) {
+        const fastsWithDays = await Promise.all(
+          fasts.map(async (fast) => {
+            const days = await getDaysForFast(fast.id);
+            const completedDays = days.filter(day => day.completed).length;
+            return {
+              ...fast,
+              fast_days: [{ count: completedDays }]
+            };
+          })
+        );
+        setFastsData(fastsWithDays);
+      }
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -62,28 +68,22 @@ export default function GerenciarJejuns() {
     }
   };
 
+  // Update fasts when the local data changes
+  useEffect(() => {
+    if (fasts) {
+      loadFasts();
+    } else {
+      setLoading(false);
+    }
+  }, [fasts]);
+
   const handleSetActive = async (id: string) => {
     try {
-      // Deactivate all fasts
-      await supabase
-        .from("fasts")
-        .update({ is_active: false })
-        .neq("id", "00000000-0000-0000-0000-000000000000");
-
-      // Activate selected fast
-      const { error } = await supabase
-        .from("fasts")
-        .update({ is_active: true })
-        .eq("id", id);
-
-      if (error) throw error;
-
+      await setActiveFast(id);
       toast({
         title: "Jejum ativado!",
         description: "Este jejum agora está ativo.",
       });
-
-      loadFasts();
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -97,19 +97,11 @@ export default function GerenciarJejuns() {
     if (!deleteId) return;
 
     try {
-      const { error } = await supabase
-        .from("fasts")
-        .delete()
-        .eq("id", deleteId);
-
-      if (error) throw error;
-
+      await deleteFast(deleteId);
       toast({
         title: "Jejum excluído",
         description: "O jejum foi removido com sucesso.",
       });
-
-      loadFasts();
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -148,7 +140,7 @@ export default function GerenciarJejuns() {
           </Button>
         </div>
 
-        {fasts.length === 0 ? (
+        {fastsData.length === 0 ? (
           <Card className="p-12 text-center border-dashed">
             <div className="flex flex-col items-center">
               <div className="w-20 h-20 rounded-full bg-muted/50 flex items-center justify-center mb-4">
@@ -164,7 +156,7 @@ export default function GerenciarJejuns() {
           </Card>
         ) : (
           <div className="grid gap-4">
-            {fasts.map((fast) => {
+            {fastsData.map((fast) => {
               const completedDays = fast.fast_days?.[0]?.count || 0;
               const totalCompleted = completedDays + (fast.days_completed_before_app || 0);
               const percentage = Math.round((totalCompleted / fast.total_days) * 100);
