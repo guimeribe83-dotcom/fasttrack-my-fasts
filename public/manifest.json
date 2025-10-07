@@ -29,6 +29,22 @@
       "purpose": "any maskable"
     }
   ],
+  "screenshots": [
+    {
+      "src": "/screenshot-login.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Tela de entrada do FastTrack - Seu companheiro de jejum espiritual"
+    },
+    {
+      "src": "/screenshot-novo-jejum.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Criar novo jejum com blocos personalizados e acompanhamento diário"
+    }
+  ],
   "shortcuts": [
     {
       "name": "Novo Jejum",
