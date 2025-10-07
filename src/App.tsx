@@ -20,8 +20,8 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <Toaster />
     <Sonner />
-    <PWAFeatures />
     <BrowserRouter>
+      <PWAFeatures />
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
