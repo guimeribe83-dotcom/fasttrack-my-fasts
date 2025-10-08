@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import logo from "@/assets/logo.png";
 import { useTranslation } from "react-i18next";
 import { UserHeader } from "./UserHeader";
+import { PWAFeatures } from "./PWAFeatures";
 
 interface LayoutProps {
   children: ReactNode;
@@ -40,6 +41,7 @@ export const Layout = ({ children }: LayoutProps) => {
 
   return (
     <div className="flex min-h-screen bg-background">
+      <PWAFeatures />
       {/* Sidebar - Desktop only */}
       <aside className="hidden md:flex w-60 bg-sidebar border-r border-sidebar-border flex-col">
         <div className="p-6 border-b border-sidebar-border">
