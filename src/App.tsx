@@ -42,36 +42,36 @@ const AppContent = () => {
   }, [setTheme]);
 
   return (
-    <>
-      <Toaster />
-      <Sonner />
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/gerenciar" element={<GerenciarJejuns />} />
-        <Route path="/novo-jejum" element={<NovoJejum />} />
-        <Route path="/editar-jejum/:id" element={<EditarJejum />} />
-        <Route path="/historico" element={<Historico />} />
-        <Route path="/lembretes" element={<Lembretes />} />
-        <Route path="/notificacoes" element={<Notificacoes />} />
-        <Route path="/configuracoes" element={<Configuracoes />} />
-        <Route path="/perfil" element={<Perfil />} />
-        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </>
+    <Routes>
+      <Route path="/" element={<Index />} />
+      <Route path="/auth" element={<Auth />} />
+      <Route path="/gerenciar" element={<GerenciarJejuns />} />
+      <Route path="/novo-jejum" element={<NovoJejum />} />
+      <Route path="/editar-jejum/:id" element={<EditarJejum />} />
+      <Route path="/historico" element={<Historico />} />
+      <Route path="/lembretes" element={<Lembretes />} />
+      <Route path="/notificacoes" element={<Notificacoes />} />
+      <Route path="/configuracoes" element={<Configuracoes />} />
+      <Route path="/perfil" element={<Perfil />} />
+      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 };
 
 const App = () => {
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <BrowserRouter>
-        <QueryClientProvider client={queryClient}>
-          <AppContent />
-        </QueryClientProvider>
-      </BrowserRouter>
-    </ThemeProvider>
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <BrowserRouter>
+            <AppContent />
+            <Toaster />
+            <Sonner />
+          </BrowserRouter>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </React.StrictMode>
   );
 };
 
