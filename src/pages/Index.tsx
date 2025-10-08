@@ -213,19 +213,23 @@ export default function Index() {
       <PWAUpdatePrompt />
       <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-4 md:space-y-6">
         {/* Header - Mobile Only */}
-        <div className="flex items-center gap-3 md:hidden">
-          <Avatar className="w-8 h-8 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate("/perfil")}>
+        <div 
+          className="flex items-center gap-3 md:hidden bg-card/50 p-3 rounded-lg border border-border/50 cursor-pointer hover:bg-card hover:border-border transition-all active:scale-[0.98]"
+          onClick={() => navigate("/perfil")}
+        >
+          <Avatar className="w-10 h-10 ring-2 ring-primary/20">
             <AvatarImage src={profile?.avatar_url} alt={profile?.full_name} />
             <AvatarFallback className="bg-primary/10 text-primary text-sm">
               {profile?.full_name ? profile.full_name.charAt(0).toUpperCase() : <User className="w-4 h-4" />}
             </AvatarFallback>
           </Avatar>
-          <div>
+          <div className="flex-1">
             <h1 className="text-base font-semibold text-foreground">
               {profile?.full_name || t("profile.guest")}
             </h1>
             <p className="text-xs text-muted-foreground capitalize">{today}</p>
           </div>
+          <User className="w-4 h-4 text-muted-foreground" />
         </div>
 
         {/* Fast Title - Desktop */}
