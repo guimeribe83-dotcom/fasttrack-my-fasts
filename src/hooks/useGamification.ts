@@ -197,9 +197,47 @@ export const useGamification = () => {
 
         // Check for new badges
         await checkAndAwardBadges(user.id, updatedStats, fastCompleted);
+        
+        // Send push notification for achievement
+        if (fastCompleted || dayCompleted) {
+          await sendAchievementNotification(updatedStats, fastCompleted);
+        }
       }
     } catch (error) {
       console.error("Error updating stats:", error);
+    }
+  };
+
+  const sendAchievementNotification = async (stats: UserStats, fastCompleted: boolean) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      let title = "🎉 Conquista Desbloqueada!";
+      let body = "";
+
+      if (fastCompleted) {
+        body = `Parabéns! Você completou um jejum e ganhou ${stats.points} pontos!`;
+      } else if (stats.current_streak > 1) {
+        body = `Sequência de ${stats.current_streak} dias! Continue assim! 🔥`;
+      } else {
+        body = `Dia completado! +10 pontos. Continue firme! 💪`;
+      }
+
+      await supabase.functions.invoke('send-push-notification', {
+        body: {
+          title,
+          body,
+          icon: '/icon-512x512.png',
+          url: '/',
+          data: { type: 'achievement', stats }
+        },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
+        }
+      });
+    } catch (error) {
+      console.error('Error sending achievement notification:', error);
     }
   };
 

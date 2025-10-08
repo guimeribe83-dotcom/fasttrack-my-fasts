@@ -10,6 +10,7 @@ import NovoJejum from "./pages/NovoJejum";
 import EditarJejum from "./pages/EditarJejum";
 import Historico from "./pages/Historico";
 import Lembretes from "./pages/Lembretes";
+import Notificacoes from "./pages/Notificacoes";
 import Configuracoes from "./pages/Configuracoes";
 import Perfil from "./pages/Perfil";
 import NotFound from "./pages/NotFound";
@@ -30,6 +31,7 @@ const App = () => {
             <Route path="/editar-jejum/:id" element={<EditarJejum />} />
             <Route path="/historico" element={<Historico />} />
             <Route path="/lembretes" element={<Lembretes />} />
+            <Route path="/notificacoes" element={<Notificacoes />} />
             <Route path="/configuracoes" element={<Configuracoes />} />
             <Route path="/perfil" element={<Perfil />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

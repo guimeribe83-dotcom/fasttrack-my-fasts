@@ -1,4 +1,10 @@
 project_id = "vaynvghwdiaviglqkadu"
 
+[functions.send-push-notification]
+verify_jwt = true
+
+[functions.generate-vapid-keys]
+verify_jwt = false
+
 [functions.generate-daily-content]
 verify_jwt = false
