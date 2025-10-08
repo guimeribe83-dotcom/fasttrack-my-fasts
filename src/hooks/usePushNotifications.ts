@@ -61,10 +61,23 @@ export const usePushNotifications = () => {
       let sub = await registration.pushManager.getSubscription();
       
       if (!sub) {
-        // Get VAPID public key from edge function or use default
-        const vapidPublicKey = 'BNxzKzgN9C0QZQxzCQxzCQxzCQxzCQxzCQxzCQxzCQxzCQxzCQxzCQxzCQxzCQxzCQxzCQxzCQxzCQxzCQxzCQxzCQxzCQ';
-        
         try {
+          // Get VAPID public key from edge function
+          const { data: keyData, error: keyError } = await supabase.functions.invoke('get-vapid-public-key');
+          
+          if (keyError || !keyData?.publicKey) {
+            console.error('Failed to get VAPID public key:', keyError);
+            toast({
+              title: "Erro ao configurar notificações",
+              description: "Não foi possível obter a chave pública VAPID.",
+              variant: "destructive"
+            });
+            return;
+          }
+
+          const vapidPublicKey = keyData.publicKey;
+          console.log('Got VAPID public key, length:', vapidPublicKey.length);
+          
           const appServerKey = urlBase64ToUint8Array(vapidPublicKey);
           sub = await registration.pushManager.subscribe({
             userVisibleOnly: true,
