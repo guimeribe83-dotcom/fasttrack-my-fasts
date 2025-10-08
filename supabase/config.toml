@@ -1,1 +1,4 @@
 project_id = "vaynvghwdiaviglqkadu"
+
+[functions.generate-daily-content]
+verify_jwt = false
