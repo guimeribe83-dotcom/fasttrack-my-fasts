@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      badges: {
+        Row: {
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          name: string
+          requirement_type: string
+          requirement_value: number
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          icon: string
+          id?: string
+          name: string
+          requirement_type: string
+          requirement_value: number
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          name?: string
+          requirement_type?: string
+          requirement_value?: number
+        }
+        Relationships: []
+      }
+      daily_content: {
+        Row: {
+          created_at: string
+          date: string
+          health_tip: string
+          id: string
+          motivation: string
+          reflection: string
+          verse_reference: string
+          verse_text: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          health_tip: string
+          id?: string
+          motivation: string
+          reflection: string
+          verse_reference: string
+          verse_text: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          health_tip?: string
+          id?: string
+          motivation?: string
+          reflection?: string
+          verse_reference?: string
+          verse_text?: string
+        }
+        Relationships: []
+      }
       fast_blocks: {
         Row: {
           created_at: string | null
@@ -145,6 +208,7 @@ export type Database = {
           created_at: string | null
           full_name: string | null
           id: string
+          onboarding_completed: boolean | null
           updated_at: string | null
         }
         Insert: {
@@ -153,6 +217,7 @@ export type Database = {
           created_at?: string | null
           full_name?: string | null
           id: string
+          onboarding_completed?: boolean | null
           updated_at?: string | null
         }
         Update: {
@@ -161,6 +226,7 @@ export type Database = {
           created_at?: string | null
           full_name?: string | null
           id?: string
+          onboarding_completed?: boolean | null
           updated_at?: string | null
         }
         Relationships: []
@@ -199,6 +265,74 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_stats: {
+        Row: {
+          best_streak: number
+          created_at: string
+          current_streak: number
+          id: string
+          last_check_in: string | null
+          level: number
+          points: number
+          total_days_completed: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          best_streak?: number
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_check_in?: string | null
+          level?: number
+          points?: number
+          total_days_completed?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          best_streak?: number
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_check_in?: string | null
+          level?: number
+          points?: number
+          total_days_completed?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {

@@ -5,12 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { FastTemplates } from "@/components/onboarding/FastTemplates";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Trash2, Calendar, Layers } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useOfflineQueue } from "@/hooks/useOfflineQueue";
 import { useBackgroundSync } from "@/hooks/useBackgroundSync";
+import { Separator } from "@/components/ui/separator";
 
 interface Block {
   id: string;
@@ -22,6 +24,7 @@ interface Block {
 export default function NovoJejum() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(true);
   const [name, setName] = useState("");
   const [totalDays, setTotalDays] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -29,6 +32,24 @@ export default function NovoJejum() {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const { queueCreateFast, processQueue } = useOfflineQueue();
   const { registerSync } = useBackgroundSync();
+
+  const handleTemplateSelect = (template: any) => {
+    setName(template.name);
+    setTotalDays(template.totalDays.toString());
+    setBlocks(
+      template.blocks.map((block: any, index: number) => ({
+        id: Date.now().toString() + index,
+        name: block.name,
+        totalDays: block.days,
+        manuallyCompleted: false
+      }))
+    );
+    setShowTemplates(false);
+    toast({
+      title: "Template Carregado! ✨",
+      description: "Você pode personalizar os campos antes de criar.",
+    });
+  };
 
   const addBlock = () => {
     setBlocks([
@@ -172,7 +193,36 @@ export default function NovoJejum() {
           <p className="text-sm md:text-base text-muted-foreground">Configure seu propósito espiritual</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        {showTemplates && (
+          <div className="mb-8">
+            <FastTemplates onSelect={handleTemplateSelect} />
+            <div className="flex items-center gap-4 my-6">
+              <Separator className="flex-1" />
+              <span className="text-sm text-muted-foreground">ou crie do zero</span>
+              <Separator className="flex-1" />
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowTemplates(false)}
+              className="w-full"
+            >
+              Criar Jejum Personalizado
+            </Button>
+          </div>
+        )}
+
+        {!showTemplates && (
+          <>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setShowTemplates(true)}
+              className="mb-4"
+            >
+              ← Ver Templates
+            </Button>
+            <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Info */}
           <Card className="p-4 md:p-6 border-2">
             <div className="flex items-center gap-2 mb-4 md:mb-6">
@@ -339,6 +389,8 @@ export default function NovoJejum() {
             </Button>
           </div>
         </form>
+        </>
+        )}
       </div>
     </Layout>
   );

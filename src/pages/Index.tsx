@@ -5,12 +5,17 @@ import { ProgressCircle } from "@/components/ProgressCircle";
 import { BlockCard } from "@/components/BlockCard";
 import { InstallPWA } from "@/components/InstallPWA";
 import { PWAUpdatePrompt } from "@/components/PWAUpdatePrompt";
+import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
+import { DailyContentCard } from "@/components/gamification/DailyContentCard";
+import { StreakDisplay } from "@/components/gamification/StreakDisplay";
+import { BadgesDisplay } from "@/components/gamification/BadgesDisplay";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { CheckCircle, Calendar, User } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useGamification } from "@/hooks/useGamification";
 import { format } from "date-fns";
 import { ptBR, enUS, es } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
@@ -20,11 +25,13 @@ export default function Index() {
     t,
     i18n
   } = useTranslation();
+  const { stats, updateStats, reloadStats } = useGamification();
   const [loading, setLoading] = useState(true);
   const [activeFast, setActiveFast] = useState<any>(null);
   const [blocks, setBlocks] = useState<any[]>([]);
   const [completedDays, setCompletedDays] = useState<any[]>([]);
   const [profile, setProfile] = useState<any>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const getDateFnsLocale = () => {
     switch (i18n.language) {
       case 'en':
@@ -64,7 +71,13 @@ export default function Index() {
         const {
           data: profileData
         } = await supabase.from("profiles").select("*").eq("id", user.id).single();
-        if (profileData) setProfile(profileData);
+        if (profileData) {
+          setProfile(profileData);
+          // Check if needs onboarding
+          if (!profileData.onboarding_completed) {
+            setShowOnboarding(true);
+          }
+        }
       }
 
       // Load active fast
@@ -152,11 +165,20 @@ export default function Index() {
         block_id: activeBlockId
       });
       if (error) throw error;
+      // Check if fast is completed
+      const newTotalCompleted = totalCompleted + 1;
+      const fastCompleted = newTotalCompleted >= activeFast.total_days;
+
+      // Update gamification stats
+      await updateStats(true, fastCompleted);
+      
       toast({
         title: t("common.success"),
         description: t("home.successMarked")
       });
+      
       loadActiveFast();
+      reloadStats();
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -208,7 +230,14 @@ export default function Index() {
     locale: getDateFnsLocale()
   });
   const dayAlreadyCompleted = completedDays.some(day => day.date === format(new Date(), "yyyy-MM-dd"));
+  
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+    loadActiveFast();
+  };
+
   return <Layout>
+      {showOnboarding && <OnboardingFlow onComplete={handleOnboardingComplete} />}
       <InstallPWA />
       <PWAUpdatePrompt />
       <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-4 md:space-y-6">
@@ -234,9 +263,20 @@ export default function Index() {
 
         {/* Fast Title - Desktop */}
         <div className="hidden md:block">
-          
           <p className="text-sm text-muted-foreground capitalize">{today}</p>
         </div>
+
+        {/* Streak Display */}
+        {stats && (
+          <StreakDisplay 
+            currentStreak={stats.current_streak}
+            bestStreak={stats.best_streak}
+            totalDays={stats.total_days_completed}
+          />
+        )}
+
+        {/* Daily Content */}
+        <DailyContentCard />
 
         {/* Progress Section */}
         <Card className="p-4 md:p-6 bg-card border-border shadow-none">
@@ -326,6 +366,9 @@ export default function Index() {
           })}
             </div>
           </div>}
+
+        {/* Badges Display */}
+        <BadgesDisplay />
 
         {/* Action Buttons */}
         <div className="flex gap-2.5 pt-2">
