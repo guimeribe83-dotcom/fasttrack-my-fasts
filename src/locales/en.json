@@ -187,6 +187,14 @@
   },
   "settings": {
     "title": "Settings",
+    "theme": "Theme",
+    "themeDescription": "Choose the app's appearance theme",
+    "themes": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System (Auto)"
+    },
+    "themeSuccess": "Theme updated successfully!",
     "language": "Language",
     "languageDescription": "Choose the app language",
     "selectLanguage": "Select language",

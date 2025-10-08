@@ -140,37 +140,37 @@ export default function Historico() {
         {/* Header */}
         <div className="space-y-1">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t("history.title")}</h1>
-          <p className="text-sm text-[#6b7280]">{t("history.subtitle")}</p>
+          <p className="text-sm text-muted-foreground">{t("history.subtitle")}</p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-3 gap-3 md:gap-4">
-          <Card className="p-4 bg-white border-l-4 border-l-[#10b981] shadow-sm">
+          <Card className="p-4 border-l-4 border-l-success shadow-sm">
             <div className="flex flex-col items-center gap-2 text-center">
-              <CheckCircle className="w-6 h-6 text-[#10b981]" />
+              <CheckCircle className="w-6 h-6 text-success" />
               <div>
-                <p className="text-2xl font-bold text-[#10b981]">{totalCompleted}</p>
-                <p className="text-xs text-[#6b7280] mt-1">{t("history.completed")}</p>
+                <p className="text-2xl font-bold text-success">{totalCompleted}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t("history.completed")}</p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-4 bg-white border-l-4 border-l-[#ef4444] shadow-sm">
+          <Card className="p-4 border-l-4 border-l-destructive shadow-sm">
             <div className="flex flex-col items-center gap-2 text-center">
-              <XCircle className="w-6 h-6 text-[#ef4444]" />
+              <XCircle className="w-6 h-6 text-destructive" />
               <div>
-                <p className="text-2xl font-bold text-[#ef4444]">{totalFailed}</p>
-                <p className="text-xs text-[#6b7280] mt-1">{t("history.notCompleted")}</p>
+                <p className="text-2xl font-bold text-destructive">{totalFailed}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t("history.notCompleted")}</p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-4 bg-white border-l-4 border-l-[#9ca3af] shadow-sm">
+          <Card className="p-4 border-l-4 border-l-muted shadow-sm">
             <div className="flex flex-col items-center gap-2 text-center">
-              <Circle className="w-6 h-6 text-[#9ca3af]" />
+              <Circle className="w-6 h-6 text-muted-foreground" />
               <div>
-                <p className="text-2xl font-bold text-[#9ca3af]">{totalPending}</p>
-                <p className="text-xs text-[#6b7280] mt-1">{t("history.pending")}</p>
+                <p className="text-2xl font-bold text-muted-foreground">{totalPending}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t("history.pending")}</p>
               </div>
             </div>
           </Card>
@@ -188,7 +188,7 @@ export default function Historico() {
           {/* Chip - Days completed before app */}
           {activeFast.days_completed_before_app > 0 && (
             <div className="mb-4 flex justify-center">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#dbeafe] text-[#1e40af] rounded-full text-xs font-medium">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-medium">
                 <CheckCircle className="w-3.5 h-3.5" />
                 <span>{activeFast.days_completed_before_app} {t("history.daysBeforeApp")}</span>
               </div>
@@ -204,7 +204,7 @@ export default function Historico() {
           {/* Weekday headers */}
           <div className="grid grid-cols-7 gap-3 mb-3">
             {getWeekDays().map((day) => (
-              <div key={day} className="text-center text-sm font-medium text-[#6b7280]">
+              <div key={day} className="text-center text-sm font-medium text-muted-foreground">
                 {day}
               </div>
             ))}
@@ -227,24 +227,24 @@ export default function Historico() {
                   key={date.toISOString()}
                   className={cn(
                     "aspect-square flex flex-col items-center justify-center rounded-lg transition-all",
-                    status === "completed" && "bg-[#d1fae5]",
-                    status === "failed" && "bg-[#fee2e2]",
-                    status === "pending" && "bg-[#f3f4f6]",
+                    status === "completed" && "bg-success/20",
+                    status === "failed" && "bg-destructive/20",
+                    status === "pending" && "bg-muted",
                     isToday && "ring-2 ring-primary/30"
                   )}
                 >
                   <span className={cn(
                     "text-sm font-medium mb-1",
-                    status === "completed" && "text-[#059669]",
-                    status === "failed" && "text-[#dc2626]",
-                    status === "pending" && "text-[#6b7280]"
+                    status === "completed" && "text-success",
+                    status === "failed" && "text-destructive",
+                    status === "pending" && "text-muted-foreground"
                   )}>
                     {format(date, "d")}
                   </span>
                   <div>
-                    {status === "completed" && <div className="w-1.5 h-1.5 rounded-full bg-[#059669]" />}
-                    {status === "failed" && <div className="w-1.5 h-1.5 rounded-full bg-[#dc2626]" />}
-                    {status === "pending" && <div className="w-1.5 h-1.5 rounded-full bg-[#9ca3af]" />}
+                    {status === "completed" && <div className="w-1.5 h-1.5 rounded-full bg-success" />}
+                    {status === "failed" && <div className="w-1.5 h-1.5 rounded-full bg-destructive" />}
+                    {status === "pending" && <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground" />}
                   </div>
                 </div>
               );
@@ -254,16 +254,16 @@ export default function Historico() {
           {/* Legend */}
           <div className="flex items-center justify-center gap-6 mt-6 pt-6 border-t">
             <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded-full bg-[#10b981]" />
-              <span className="text-xs text-[#6b7280]">{t("history.legendCompleted")}</span>
+              <div className="w-3 h-3 rounded-full bg-success" />
+              <span className="text-xs text-muted-foreground">{t("history.legendCompleted")}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded-full bg-[#ef4444]" />
-              <span className="text-xs text-[#6b7280]">{t("history.legendNotCompleted")}</span>
+              <div className="w-3 h-3 rounded-full bg-destructive" />
+              <span className="text-xs text-muted-foreground">{t("history.legendNotCompleted")}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded-full bg-[#9ca3af]" />
-              <span className="text-xs text-[#6b7280]">{t("history.legendPending")}</span>
+              <div className="w-3 h-3 rounded-full bg-muted-foreground" />
+              <span className="text-xs text-muted-foreground">{t("history.legendPending")}</span>
             </div>
           </div>
         </Card>

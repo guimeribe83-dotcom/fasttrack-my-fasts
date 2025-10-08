@@ -187,6 +187,14 @@
   },
   "settings": {
     "title": "Configurações",
+    "theme": "Tema",
+    "themeDescription": "Escolha o tema de aparência do aplicativo",
+    "themes": {
+      "light": "Claro",
+      "dark": "Escuro",
+      "system": "Automático (Sistema)"
+    },
+    "themeSuccess": "Tema atualizado com sucesso!",
     "language": "Idioma",
     "languageDescription": "Escolha o idioma do aplicativo",
     "selectLanguage": "Selecionar idioma",
