@@ -15,7 +15,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useNotifications } from "@/hooks/useNotifications";
-import { Bell, Plus, Trash2, BellRing, BellOff, Filter, Clock, Sparkles, Edit2, Volume2, VolumeX, Vibrate, Heart, BookOpen, Sun, Moon } from "lucide-react";
+import { Bell, Plus, Trash2, BellRing, BellOff, Filter, Clock, Sparkles, Edit2, Volume2, VolumeX, Vibrate, Heart, BookOpen, Sun, Moon, History } from "lucide-react";
+import { WeekdaySelector } from "@/components/reminders/WeekdaySelector";
+import { DateRangePicker } from "@/components/reminders/DateRangePicker";
+import { NotificationHistory } from "@/components/reminders/NotificationHistory";
 
 interface Reminder {
   id: string;
@@ -24,6 +27,9 @@ interface Reminder {
   enabled: boolean;
   notification_style?: string;
   snooze_minutes?: number;
+  repeat_days?: number[];
+  start_date?: string | null;
+  end_date?: string | null;
 }
 
 export default function Lembretes() {
@@ -46,6 +52,12 @@ export default function Lembretes() {
   const [editTimeError, setEditTimeError] = useState("");
   const [newNotificationStyle, setNewNotificationStyle] = useState("default");
   const [newSnoozeMinutes, setNewSnoozeMinutes] = useState<string>("");
+  const [newRepeatDays, setNewRepeatDays] = useState<number[]>([]);
+  const [newStartDate, setNewStartDate] = useState<Date | null>(null);
+  const [newEndDate, setNewEndDate] = useState<Date | null>(null);
+  const [editRepeatDays, setEditRepeatDays] = useState<number[]>([]);
+  const [editStartDate, setEditStartDate] = useState<Date | null>(null);
+  const [editEndDate, setEditEndDate] = useState<Date | null>(null);
 
   useEffect(() => {
     checkAuth();
@@ -69,7 +81,23 @@ export default function Lembretes() {
         .order("time");
 
       if (error) throw error;
-      setReminders(data || []);
+      
+      // Map data to ensure repeat_days is properly typed as number[]
+      const mappedData: Reminder[] = (data || []).map(reminder => ({
+        id: reminder.id,
+        label: reminder.label,
+        time: reminder.time,
+        enabled: reminder.enabled,
+        notification_style: reminder.notification_style,
+        snooze_minutes: reminder.snooze_minutes,
+        repeat_days: Array.isArray(reminder.repeat_days) 
+          ? (reminder.repeat_days as number[])
+          : [],
+        start_date: reminder.start_date,
+        end_date: reminder.end_date,
+      }));
+      
+      setReminders(mappedData);
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -134,6 +162,9 @@ export default function Lembretes() {
         enabled: true,
         notification_style: newNotificationStyle,
         snooze_minutes: newSnoozeMinutes ? parseInt(newSnoozeMinutes) : null,
+        repeat_days: newRepeatDays,
+        start_date: newStartDate ? newStartDate.toISOString().split('T')[0] : null,
+        end_date: newEndDate ? newEndDate.toISOString().split('T')[0] : null,
       });
 
       if (error) throw error;
@@ -147,6 +178,9 @@ export default function Lembretes() {
       setNewTime("");
       setNewNotificationStyle("default");
       setNewSnoozeMinutes("");
+      setNewRepeatDays([]);
+      setNewStartDate(null);
+      setNewEndDate(null);
       loadReminders();
     } catch (error: any) {
       toast({
@@ -205,6 +239,9 @@ export default function Lembretes() {
     setEditTime(reminder.time);
     setEditNotificationStyle(reminder.notification_style || "default");
     setEditSnoozeMinutes(reminder.snooze_minutes?.toString() || "");
+    setEditRepeatDays(reminder.repeat_days || []);
+    setEditStartDate(reminder.start_date ? new Date(reminder.start_date) : null);
+    setEditEndDate(reminder.end_date ? new Date(reminder.end_date) : null);
     setEditTimeError("");
   };
 
@@ -240,6 +277,9 @@ export default function Lembretes() {
           time: editTime,
           notification_style: editNotificationStyle,
           snooze_minutes: editSnoozeMinutes ? parseInt(editSnoozeMinutes) : null,
+          repeat_days: editRepeatDays,
+          start_date: editStartDate ? editStartDate.toISOString().split('T')[0] : null,
+          end_date: editEndDate ? editEndDate.toISOString().split('T')[0] : null,
         })
         .eq("id", editingReminder!.id);
 
@@ -321,7 +361,7 @@ export default function Lembretes() {
         </div>
 
         <Tabs defaultValue="manage" className="space-y-6">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
+          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3">
             <TabsTrigger value="manage" className="gap-2">
               <Bell className="w-4 h-4" />
               {t("reminders.manageTab")}
@@ -329,6 +369,10 @@ export default function Lembretes() {
             <TabsTrigger value="create" className="gap-2">
               <Plus className="w-4 h-4" />
               {t("reminders.createTab")}
+            </TabsTrigger>
+            <TabsTrigger value="history" className="gap-2">
+              <History className="w-4 h-4" />
+              {t("reminders.historyTab")}
             </TabsTrigger>
           </TabsList>
 
@@ -626,6 +670,18 @@ export default function Lembretes() {
                   <p className="text-xs text-muted-foreground">{t("reminders.snoozeHint")}</p>
                 </div>
 
+                <WeekdaySelector
+                  selectedDays={newRepeatDays}
+                  onChange={setNewRepeatDays}
+                />
+
+                <DateRangePicker
+                  startDate={newStartDate}
+                  endDate={newEndDate}
+                  onStartDateChange={setNewStartDate}
+                  onEndDateChange={setNewEndDate}
+                />
+
                 <Button
                   type="submit" 
                   className="w-full h-11 bg-gradient-primary hover:opacity-90"
@@ -654,6 +710,11 @@ export default function Lembretes() {
                 </p>
               </div>
             </Card>
+          </TabsContent>
+
+          {/* History Tab */}
+          <TabsContent value="history">
+            <NotificationHistory />
           </TabsContent>
         </Tabs>
 
@@ -740,6 +801,18 @@ export default function Lembretes() {
                 />
                 <p className="text-xs text-muted-foreground">{t("reminders.snoozeHint")}</p>
               </div>
+
+              <WeekdaySelector
+                selectedDays={editRepeatDays}
+                onChange={setEditRepeatDays}
+              />
+
+              <DateRangePicker
+                startDate={editStartDate}
+                endDate={editEndDate}
+                onStartDateChange={setEditStartDate}
+                onEndDateChange={setEditEndDate}
+              />
             </div>
 
             <DialogFooter>

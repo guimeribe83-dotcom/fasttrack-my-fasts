@@ -183,7 +183,40 @@
     },
     "snoozeMinutes": "Repeat after (minutes)",
     "snoozePlaceholder": "E.g.: 5, 10, 15...",
-    "snoozeHint": "Leave empty to not repeat the notification"
+    "snoozeHint": "Leave empty to not repeat the notification",
+    "manageTab": "Manage",
+    "createTab": "Create",
+    "historyTab": "History",
+    "repeatDays": "Repeat on days",
+    "weekdays": {
+      "sunday": "Sun",
+      "monday": "Mon",
+      "tuesday": "Tue",
+      "wednesday": "Wed",
+      "thursday": "Thu",
+      "friday": "Fri",
+      "saturday": "Sat"
+    },
+    "selectAll": "All",
+    "clearAll": "Clear",
+    "emptyDaysWarning": "Select at least one day of the week",
+    "dateRange": "Active period (optional)",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "selectDate": "Select date",
+    "clear": "Clear",
+    "invalidDateRange": "End date must be after start date",
+    "notificationHistory": "Notification History",
+    "noNotificationsSent": "No notifications sent yet",
+    "totalSent": "Total Sent",
+    "sentToday": "Sent Today",
+    "sentThisWeek": "Last 7 Days",
+    "unknownReminder": "Unknown reminder",
+    "status": {
+      "sent": "Sent",
+      "delivered": "Delivered",
+      "clicked": "Viewed"
+    }
   },
   "settings": {
     "title": "Settings",

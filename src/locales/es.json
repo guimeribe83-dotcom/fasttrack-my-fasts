@@ -183,7 +183,40 @@
     },
     "snoozeMinutes": "Repetir después de (minutos)",
     "snoozePlaceholder": "Ej: 5, 10, 15...",
-    "snoozeHint": "Dejar vacío para no repetir la notificación"
+    "snoozeHint": "Dejar vacío para no repetir la notificación",
+    "manageTab": "Administrar",
+    "createTab": "Crear",
+    "historyTab": "Historial",
+    "repeatDays": "Repetir en días",
+    "weekdays": {
+      "sunday": "Dom",
+      "monday": "Lun",
+      "tuesday": "Mar",
+      "wednesday": "Mié",
+      "thursday": "Jue",
+      "friday": "Vie",
+      "saturday": "Sáb"
+    },
+    "selectAll": "Todos",
+    "clearAll": "Limpiar",
+    "emptyDaysWarning": "Seleccione al menos un día de la semana",
+    "dateRange": "Período activo (opcional)",
+    "startDate": "Fecha de inicio",
+    "endDate": "Fecha de término",
+    "selectDate": "Seleccionar fecha",
+    "clear": "Limpiar",
+    "invalidDateRange": "La fecha de término debe ser posterior a la fecha de inicio",
+    "notificationHistory": "Historial de Notificaciones",
+    "noNotificationsSent": "Ninguna notificación enviada aún",
+    "totalSent": "Total Enviadas",
+    "sentToday": "Enviadas Hoy",
+    "sentThisWeek": "Últimos 7 Días",
+    "unknownReminder": "Recordatorio desconocido",
+    "status": {
+      "sent": "Enviado",
+      "delivered": "Entregado",
+      "clicked": "Visto"
+    }
   },
   "settings": {
     "title": "Configuración",

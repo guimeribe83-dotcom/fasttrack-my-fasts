@@ -11,6 +11,10 @@ interface Reminder {
   enabled: boolean;
   notification_style?: string;
   snooze_minutes?: number;
+  repeat_days?: number[];
+  start_date?: string | null;
+  end_date?: string | null;
+  user_id?: string;
 }
 
 export const useNotifications = () => {
@@ -57,9 +61,43 @@ export const useNotifications = () => {
         .order('time');
 
       if (error) throw error;
-      setReminders(data || []);
+      
+      // Map data and properly type repeat_days
+      const mappedData: Reminder[] = (data || []).map(reminder => ({
+        id: reminder.id,
+        label: reminder.label,
+        time: reminder.time,
+        enabled: reminder.enabled,
+        notification_style: reminder.notification_style,
+        snooze_minutes: reminder.snooze_minutes,
+        repeat_days: Array.isArray(reminder.repeat_days) 
+          ? (reminder.repeat_days as number[])
+          : [],
+        start_date: reminder.start_date,
+        end_date: reminder.end_date,
+        user_id: reminder.user_id,
+      }));
+      
+      setReminders(mappedData);
     } catch (error) {
       console.error('Error loading reminders:', error);
+    }
+  };
+
+  // Log notification to database
+  const logNotification = async (reminderId: string, deviceType: 'web' | 'native') => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      await supabase.from('notification_logs').insert({
+        user_id: user.id,
+        reminder_id: reminderId,
+        status: 'sent',
+        device_type: deviceType,
+      });
+    } catch (error) {
+      console.error('Error logging notification:', error);
     }
   };
 
@@ -71,41 +109,68 @@ export const useNotifications = () => {
       // Cancel all existing notifications
       await LocalNotifications.cancel({ notifications: reminders.map((r, idx) => ({ id: idx + 1 })) });
 
+      const now = new Date();
+      const currentDayOfWeek = now.getDay();
+
       // Schedule new notifications
-      const notifications = reminders.map((reminder, index) => {
-        const [hours, minutes] = reminder.time.split(':').map(Number);
-        const now = new Date();
-        const scheduledTime = new Date();
-        scheduledTime.setHours(hours, minutes, 0, 0);
+      const notifications = reminders
+        .filter(reminder => {
+          // Filter by weekdays
+          if (reminder.repeat_days && reminder.repeat_days.length > 0) {
+            if (!reminder.repeat_days.includes(currentDayOfWeek)) {
+              return false;
+            }
+          }
+          
+          // Filter by date range
+          if (reminder.start_date) {
+            const startDate = new Date(reminder.start_date);
+            if (now < startDate) return false;
+          }
+          if (reminder.end_date) {
+            const endDate = new Date(reminder.end_date);
+            endDate.setHours(23, 59, 59, 999);
+            if (now > endDate) return false;
+          }
+          
+          return true;
+        })
+        .map((reminder, index) => {
+          const [hours, minutes] = reminder.time.split(':').map(Number);
+          const scheduledTime = new Date();
+          scheduledTime.setHours(hours, minutes, 0, 0);
 
-        // If the time has passed today, schedule for tomorrow
-        if (scheduledTime <= now) {
-          scheduledTime.setDate(scheduledTime.getDate() + 1);
-        }
+          // If the time has passed today, schedule for tomorrow
+          if (scheduledTime <= now) {
+            scheduledTime.setDate(scheduledTime.getDate() + 1);
+          }
 
-        const notificationConfig: any = {
-          id: index + 1,
-          title: t('reminders.notificationTitle'),
-          body: reminder.label,
-          schedule: {
-            at: scheduledTime,
-            repeats: true,
-            every: 'day' as const,
-          },
-          smallIcon: 'ic_stat_icon_config_sample',
-        };
+          const notificationConfig: any = {
+            id: index + 1,
+            title: t('reminders.notificationTitle'),
+            body: reminder.label,
+            schedule: {
+              at: scheduledTime,
+              repeats: true,
+              every: 'day' as const,
+            },
+            smallIcon: 'ic_stat_icon_config_sample',
+          };
 
-        // Apply notification style
-        if (reminder.notification_style === 'silent') {
-          notificationConfig.sound = undefined;
-        } else if (reminder.notification_style === 'vibrate') {
-          notificationConfig.sound = undefined;
-        } else {
-          notificationConfig.sound = 'beep.wav';
-        }
+          // Apply notification style
+          if (reminder.notification_style === 'silent') {
+            notificationConfig.sound = undefined;
+          } else if (reminder.notification_style === 'vibrate') {
+            notificationConfig.sound = undefined;
+          } else {
+            notificationConfig.sound = 'beep.wav';
+          }
 
-        return notificationConfig;
-      });
+          // Log notification when scheduled
+          logNotification(reminder.id, 'native');
+
+          return notificationConfig;
+        });
 
       if (notifications.length > 0) {
         await LocalNotifications.schedule({ notifications });
@@ -122,6 +187,7 @@ export const useNotifications = () => {
     const now = new Date();
     const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     const today = now.toDateString();
+    const currentDayOfWeek = now.getDay(); // 0 = Sunday, 6 = Saturday
 
     reminders.forEach((reminder) => {
       const reminderKey = `${reminder.id}-${today}`;
@@ -131,10 +197,33 @@ export const useNotifications = () => {
         return;
       }
 
+      // Check weekday filter
+      if (reminder.repeat_days && reminder.repeat_days.length > 0) {
+        if (!reminder.repeat_days.includes(currentDayOfWeek)) {
+          return; // Skip if today is not in the allowed days
+        }
+      }
+
+      // Check date range
+      if (reminder.start_date) {
+        const startDate = new Date(reminder.start_date);
+        if (now < startDate) {
+          return; // Skip if before start date
+        }
+      }
+      if (reminder.end_date) {
+        const endDate = new Date(reminder.end_date);
+        endDate.setHours(23, 59, 59, 999); // End of day
+        if (now > endDate) {
+          return; // Skip if after end date
+        }
+      }
+
       // Check if current time matches reminder time
       if (reminder.time === currentTime) {
         showWebNotification(reminder);
         lastNotificationTime.current[reminderKey] = currentTime;
+        logNotification(reminder.id, 'web');
       }
     });
   };

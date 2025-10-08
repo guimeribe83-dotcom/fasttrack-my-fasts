@@ -201,6 +201,44 @@ export type Database = {
           },
         ]
       }
+      notification_logs: {
+        Row: {
+          created_at: string
+          device_type: string | null
+          id: string
+          reminder_id: string
+          sent_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_type?: string | null
+          id?: string
+          reminder_id: string
+          sent_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_type?: string | null
+          id?: string
+          reminder_id?: string
+          sent_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_logs_reminder_id_fkey"
+            columns: ["reminder_id"]
+            isOneToOne: false
+            referencedRelation: "reminders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -265,30 +303,39 @@ export type Database = {
         Row: {
           created_at: string | null
           enabled: boolean | null
+          end_date: string | null
           id: string
           label: string
           notification_style: string | null
+          repeat_days: Json | null
           snooze_minutes: number | null
+          start_date: string | null
           time: string
           user_id: string
         }
         Insert: {
           created_at?: string | null
           enabled?: boolean | null
+          end_date?: string | null
           id?: string
           label: string
           notification_style?: string | null
+          repeat_days?: Json | null
           snooze_minutes?: number | null
+          start_date?: string | null
           time: string
           user_id: string
         }
         Update: {
           created_at?: string | null
           enabled?: boolean | null
+          end_date?: string | null
           id?: string
           label?: string
           notification_style?: string | null
+          repeat_days?: Json | null
           snooze_minutes?: number | null
+          start_date?: string | null
           time?: string
           user_id?: string
         }
