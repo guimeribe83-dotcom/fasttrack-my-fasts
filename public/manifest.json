@@ -36,32 +36,46 @@
   ],
   "screenshots": [
     {
-      "src": "/screenshot-mobile-login.png",
-      "sizes": "540x1200",
+      "src": "/screenshot-mobile-home.png",
+      "sizes": "750x1624",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Tela de entrada do FastTrack - Seu companheiro de jejum espiritual"
+      "label": "Dashboard principal com sequência de jejum e conteúdo diário inspiracional"
     },
     {
-      "src": "/screenshot-mobile-novo-jejum.png",
-      "sizes": "540x1200",
+      "src": "/screenshot-mobile-templates.png",
+      "sizes": "750x1624",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Criar novo jejum com blocos personalizados e acompanhamento diário"
+      "label": "Templates prontos - Escolha jejum de 21, 40 dias, Daniel ou semanal"
     },
     {
-      "src": "/screenshot-login.png",
-      "sizes": "1280x720",
+      "src": "/screenshot-mobile-gerenciar.png",
+      "sizes": "750x1624",
       "type": "image/png",
-      "form_factor": "wide",
-      "label": "Tela de entrada do FastTrack - Seu companheiro de jejum espiritual"
+      "form_factor": "narrow",
+      "label": "Gerenciar jejuns ativos com acompanhamento de progresso em tempo real"
     },
     {
-      "src": "/screenshot-novo-jejum.png",
-      "sizes": "1280x720",
+      "src": "/screenshot-mobile-progresso.png",
+      "sizes": "750x1624",
       "type": "image/png",
-      "form_factor": "wide",
-      "label": "Criar novo jejum com blocos personalizados e acompanhamento diário"
+      "form_factor": "narrow",
+      "label": "Etapas do jejum divididas em blocos e sistema de conquistas"
+    },
+    {
+      "src": "/screenshot-mobile-historico.png",
+      "sizes": "750x1624",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Histórico completo - Calendário visual com dias concluídos e estatísticas"
+    },
+    {
+      "src": "/screenshot-mobile-lembretes.png",
+      "sizes": "750x1624",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Lembretes personalizados - Configure notificações para manter a disciplina"
     }
   ],
   "shortcuts": [
