@@ -264,6 +264,8 @@ export type Database = {
           enabled: boolean | null
           id: string
           label: string
+          notification_style: string | null
+          snooze_minutes: number | null
           time: string
           user_id: string
         }
@@ -272,6 +274,8 @@ export type Database = {
           enabled?: boolean | null
           id?: string
           label: string
+          notification_style?: string | null
+          snooze_minutes?: number | null
           time: string
           user_id: string
         }
@@ -280,6 +284,8 @@ export type Database = {
           enabled?: boolean | null
           id?: string
           label?: string
+          notification_style?: string | null
+          snooze_minutes?: number | null
           time?: string
           user_id?: string
         }

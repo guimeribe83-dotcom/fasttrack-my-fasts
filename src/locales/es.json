@@ -165,8 +165,25 @@
       "morningPrayer": "Oración Matutina",
       "bibleReading": "Lectura Bíblica",
       "lunchFast": "Ayuno del Almuerzo",
-      "eveningPrayer": "Oración de la Noche"
-    }
+      "eveningPrayer": "Oración de la Noche",
+      "gratitude": "Momento de Gratitud",
+      "meditation": "Meditación",
+      "dailyReflection": "Reflexión Diaria",
+      "devotionalReading": "Lectura Devocional"
+    },
+    "editTitle": "Editar Recordatorio",
+    "editDescription": "Cambia los detalles de tu recordatorio",
+    "editSuccess": "¡Recordatorio actualizado!",
+    "editSuccessMessage": "Tus cambios se han guardado con éxito",
+    "notificationStyle": "Estilo de Notificación",
+    "styles": {
+      "default": "Predeterminado (con sonido)",
+      "silent": "Silencioso",
+      "vibrate": "Solo Vibración"
+    },
+    "snoozeMinutes": "Repetir después de (minutos)",
+    "snoozePlaceholder": "Ej: 5, 10, 15...",
+    "snoozeHint": "Dejar vacío para no repetir la notificación"
   },
   "settings": {
     "title": "Configuración",

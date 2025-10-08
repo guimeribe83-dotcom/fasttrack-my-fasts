@@ -10,16 +10,20 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useNotifications } from "@/hooks/useNotifications";
-import { Bell, Plus, Trash2, BellRing, BellOff, Filter, Clock, Sparkles } from "lucide-react";
+import { Bell, Plus, Trash2, BellRing, BellOff, Filter, Clock, Sparkles, Edit2, Volume2, VolumeX, Vibrate, Heart, BookOpen, Sun, Moon } from "lucide-react";
 
 interface Reminder {
   id: string;
   label: string;
   time: string;
   enabled: boolean;
+  notification_style?: string;
+  snooze_minutes?: number;
 }
 
 export default function Lembretes() {
@@ -34,6 +38,14 @@ export default function Lembretes() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [timeError, setTimeError] = useState("");
+  const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
+  const [editLabel, setEditLabel] = useState("");
+  const [editTime, setEditTime] = useState("");
+  const [editNotificationStyle, setEditNotificationStyle] = useState("default");
+  const [editSnoozeMinutes, setEditSnoozeMinutes] = useState<string>("");
+  const [editTimeError, setEditTimeError] = useState("");
+  const [newNotificationStyle, setNewNotificationStyle] = useState("default");
+  const [newSnoozeMinutes, setNewSnoozeMinutes] = useState<string>("");
 
   useEffect(() => {
     checkAuth();
@@ -120,6 +132,8 @@ export default function Lembretes() {
         label: newLabel,
         time: newTime,
         enabled: true,
+        notification_style: newNotificationStyle,
+        snooze_minutes: newSnoozeMinutes ? parseInt(newSnoozeMinutes) : null,
       });
 
       if (error) throw error;
@@ -131,6 +145,8 @@ export default function Lembretes() {
 
       setNewLabel("");
       setNewTime("");
+      setNewNotificationStyle("default");
+      setNewSnoozeMinutes("");
       loadReminders();
     } catch (error: any) {
       toast({
@@ -144,10 +160,14 @@ export default function Lembretes() {
   };
 
   const quickTemplates = [
-    { label: t("reminders.templates.morningPrayer"), time: "06:00" },
-    { label: t("reminders.templates.bibleReading"), time: "08:00" },
-    { label: t("reminders.templates.lunchFast"), time: "12:00" },
-    { label: t("reminders.templates.eveningPrayer"), time: "18:00" },
+    { label: t("reminders.templates.morningPrayer"), time: "06:00", icon: Sun, category: "prayer" },
+    { label: t("reminders.templates.bibleReading"), time: "08:00", icon: BookOpen, category: "reading" },
+    { label: t("reminders.templates.lunchFast"), time: "12:00", icon: Clock, category: "fasting" },
+    { label: t("reminders.templates.eveningPrayer"), time: "18:00", icon: Moon, category: "prayer" },
+    { label: t("reminders.templates.gratitude"), time: "20:00", icon: Heart, category: "reflection" },
+    { label: t("reminders.templates.meditation"), time: "09:00", icon: Sparkles, category: "reflection" },
+    { label: t("reminders.templates.dailyReflection"), time: "21:00", icon: BookOpen, category: "reflection" },
+    { label: t("reminders.templates.devotionalReading"), time: "07:00", icon: BookOpen, category: "reading" },
   ];
 
   const handleQuickTemplate = (label: string, time: string) => {
@@ -170,6 +190,68 @@ export default function Lembretes() {
       toast({
         title: enabled ? t("reminders.enabled") : t("reminders.disabled"),
       });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: t("reminders.error"),
+        description: error.message,
+      });
+    }
+  };
+
+  const handleEditReminder = (reminder: Reminder) => {
+    setEditingReminder(reminder);
+    setEditLabel(reminder.label);
+    setEditTime(reminder.time);
+    setEditNotificationStyle(reminder.notification_style || "default");
+    setEditSnoozeMinutes(reminder.snooze_minutes?.toString() || "");
+    setEditTimeError("");
+  };
+
+  const handleSaveEdit = async () => {
+    setEditTimeError("");
+
+    if (!editLabel || !editTime) {
+      toast({
+        variant: "destructive",
+        title: t("reminders.requiredFields"),
+        description: t("reminders.requiredFieldsMessage"),
+      });
+      return;
+    }
+
+    // Check for duplicate time (excluding the current reminder being edited)
+    const duplicateTime = reminders.some(r => r.time === editTime && r.id !== editingReminder?.id);
+    if (duplicateTime) {
+      setEditTimeError(t("reminders.duplicateTime"));
+      toast({
+        variant: "destructive",
+        title: t("reminders.duplicateTime"),
+        description: t("reminders.duplicateTimeMessage"),
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("reminders")
+        .update({
+          label: editLabel,
+          time: editTime,
+          notification_style: editNotificationStyle,
+          snooze_minutes: editSnoozeMinutes ? parseInt(editSnoozeMinutes) : null,
+        })
+        .eq("id", editingReminder!.id);
+
+      if (error) throw error;
+
+      toast({
+        title: t("reminders.editSuccess"),
+        description: t("reminders.editSuccessMessage"),
+      });
+
+      setEditingReminder(null);
+      loadReminders();
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -406,6 +488,14 @@ export default function Lembretes() {
                           <Button
                             variant="ghost"
                             size="icon"
+                            onClick={() => handleEditReminder(reminder)}
+                            className="h-9 w-9 hover:bg-primary/10"
+                          >
+                            <Edit2 className="w-4 h-4 text-muted-foreground hover:text-primary transition-colors" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => setDeleteId(reminder.id)}
                             className="h-9 w-9 hover:bg-destructive/10"
                           >
@@ -431,20 +521,28 @@ export default function Lembretes() {
                 <h3 className="text-base md:text-lg font-semibold text-foreground">{t("reminders.quickTemplates")}</h3>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {quickTemplates.map((template, idx) => (
-                  <Button
-                    key={idx}
-                    variant="outline"
-                    className="h-auto py-3 px-4 flex flex-col items-start gap-1 hover:bg-primary/10 hover:border-primary transition-all"
-                    onClick={() => handleQuickTemplate(template.label, template.time)}
-                  >
-                    <span className="text-sm font-medium text-foreground">{template.label}</span>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Clock className="w-3 h-3" />
-                      <span>{template.time}</span>
-                    </div>
-                  </Button>
-                ))}
+                {quickTemplates.map((template, idx) => {
+                  const Icon = template.icon;
+                  return (
+                    <Button
+                      key={idx}
+                      variant="outline"
+                      className="h-auto py-3 px-4 flex items-center gap-3 hover:bg-primary/10 hover:border-primary transition-all"
+                      onClick={() => handleQuickTemplate(template.label, template.time)}
+                    >
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Icon className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="flex-1 text-left">
+                        <span className="text-sm font-medium text-foreground block">{template.label}</span>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+                          <Clock className="w-3 h-3" />
+                          <span>{template.time}</span>
+                        </div>
+                      </div>
+                    </Button>
+                  );
+                })}
               </div>
             </Card>
 
@@ -484,7 +582,51 @@ export default function Lembretes() {
                   )}
                 </div>
 
-                <Button 
+                <div className="space-y-2">
+                  <Label htmlFor="notificationStyle" className="text-sm font-medium">{t("reminders.notificationStyle")}</Label>
+                  <Select value={newNotificationStyle} onValueChange={setNewNotificationStyle}>
+                    <SelectTrigger className="h-11">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="default">
+                        <div className="flex items-center gap-2">
+                          <Volume2 className="w-4 h-4" />
+                          <span>{t("reminders.styles.default")}</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="silent">
+                        <div className="flex items-center gap-2">
+                          <VolumeX className="w-4 h-4" />
+                          <span>{t("reminders.styles.silent")}</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="vibrate">
+                        <div className="flex items-center gap-2">
+                          <Vibrate className="w-4 h-4" />
+                          <span>{t("reminders.styles.vibrate")}</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="snooze" className="text-sm font-medium">{t("reminders.snoozeMinutes")}</Label>
+                  <Input
+                    id="snooze"
+                    type="number"
+                    placeholder={t("reminders.snoozePlaceholder")}
+                    value={newSnoozeMinutes}
+                    onChange={(e) => setNewSnoozeMinutes(e.target.value)}
+                    min="0"
+                    max="60"
+                    className="h-11"
+                  />
+                  <p className="text-xs text-muted-foreground">{t("reminders.snoozeHint")}</p>
+                </div>
+
+                <Button
                   type="submit" 
                   className="w-full h-11 bg-gradient-primary hover:opacity-90"
                   disabled={isSubmitting}
@@ -514,6 +656,102 @@ export default function Lembretes() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Edit Dialog */}
+        <Dialog open={editingReminder !== null} onOpenChange={(open) => !open && setEditingReminder(null)}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Edit2 className="w-5 h-5 text-primary" />
+                {t("reminders.editTitle")}
+              </DialogTitle>
+              <DialogDescription>
+                {t("reminders.editDescription")}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-label">{t("reminders.label")}</Label>
+                <Input
+                  id="edit-label"
+                  value={editLabel}
+                  onChange={(e) => setEditLabel(e.target.value)}
+                  placeholder={t("reminders.labelPlaceholder")}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-time">{t("reminders.time")}</Label>
+                <Input
+                  id="edit-time"
+                  type="time"
+                  value={editTime}
+                  onChange={(e) => {
+                    setEditTime(e.target.value);
+                    setEditTimeError("");
+                  }}
+                  className={editTimeError ? "border-destructive" : ""}
+                />
+                {editTimeError && (
+                  <p className="text-xs text-destructive">{editTimeError}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-style">{t("reminders.notificationStyle")}</Label>
+                <Select value={editNotificationStyle} onValueChange={setEditNotificationStyle}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="default">
+                      <div className="flex items-center gap-2">
+                        <Volume2 className="w-4 h-4" />
+                        <span>{t("reminders.styles.default")}</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="silent">
+                      <div className="flex items-center gap-2">
+                        <VolumeX className="w-4 h-4" />
+                        <span>{t("reminders.styles.silent")}</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="vibrate">
+                      <div className="flex items-center gap-2">
+                        <Vibrate className="w-4 h-4" />
+                        <span>{t("reminders.styles.vibrate")}</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-snooze">{t("reminders.snoozeMinutes")}</Label>
+                <Input
+                  id="edit-snooze"
+                  type="number"
+                  placeholder={t("reminders.snoozePlaceholder")}
+                  value={editSnoozeMinutes}
+                  onChange={(e) => setEditSnoozeMinutes(e.target.value)}
+                  min="0"
+                  max="60"
+                />
+                <p className="text-xs text-muted-foreground">{t("reminders.snoozeHint")}</p>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditingReminder(null)}>
+                {t("common.cancel")}
+              </Button>
+              <Button onClick={handleSaveEdit} className="bg-primary hover:bg-primary/90">
+                {t("common.save")}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Delete Confirmation Dialog */}
         <AlertDialog open={deleteId !== null} onOpenChange={(open) => !open && setDeleteId(null)}>

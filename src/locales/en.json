@@ -165,8 +165,25 @@
       "morningPrayer": "Morning Prayer",
       "bibleReading": "Bible Reading",
       "lunchFast": "Lunch Fast",
-      "eveningPrayer": "Evening Prayer"
-    }
+      "eveningPrayer": "Evening Prayer",
+      "gratitude": "Gratitude Moment",
+      "meditation": "Meditation",
+      "dailyReflection": "Daily Reflection",
+      "devotionalReading": "Devotional Reading"
+    },
+    "editTitle": "Edit Reminder",
+    "editDescription": "Change your reminder details",
+    "editSuccess": "Reminder updated!",
+    "editSuccessMessage": "Your changes have been saved successfully",
+    "notificationStyle": "Notification Style",
+    "styles": {
+      "default": "Default (with sound)",
+      "silent": "Silent",
+      "vibrate": "Vibrate Only"
+    },
+    "snoozeMinutes": "Repeat after (minutes)",
+    "snoozePlaceholder": "E.g.: 5, 10, 15...",
+    "snoozeHint": "Leave empty to not repeat the notification"
   },
   "settings": {
     "title": "Settings",

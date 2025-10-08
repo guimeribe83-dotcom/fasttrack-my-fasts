@@ -9,6 +9,8 @@ interface Reminder {
   label: string;
   time: string;
   enabled: boolean;
+  notification_style?: string;
+  snooze_minutes?: number;
 }
 
 export const useNotifications = () => {
@@ -81,7 +83,7 @@ export const useNotifications = () => {
           scheduledTime.setDate(scheduledTime.getDate() + 1);
         }
 
-        return {
+        const notificationConfig: any = {
           id: index + 1,
           title: t('reminders.notificationTitle'),
           body: reminder.label,
@@ -90,9 +92,19 @@ export const useNotifications = () => {
             repeats: true,
             every: 'day' as const,
           },
-          sound: 'beep.wav',
           smallIcon: 'ic_stat_icon_config_sample',
         };
+
+        // Apply notification style
+        if (reminder.notification_style === 'silent') {
+          notificationConfig.sound = undefined;
+        } else if (reminder.notification_style === 'vibrate') {
+          notificationConfig.sound = undefined;
+        } else {
+          notificationConfig.sound = 'beep.wav';
+        }
+
+        return notificationConfig;
       });
 
       if (notifications.length > 0) {
@@ -131,13 +143,15 @@ export const useNotifications = () => {
   const showWebNotification = (reminder: Reminder) => {
     if (isNative || permission !== 'granted') return;
 
+    const isSilent = reminder.notification_style === 'silent';
+
     const notification = new Notification(t('reminders.notificationTitle'), {
       body: reminder.label,
       icon: '/favicon.png',
       badge: '/favicon.png',
       tag: reminder.id,
       requireInteraction: false,
-      silent: false,
+      silent: isSilent,
     });
 
     notification.onclick = () => {
@@ -145,10 +159,19 @@ export const useNotifications = () => {
       notification.close();
     };
 
-    // Auto close after 10 seconds
+    // Implement snooze: if snooze_minutes is set, show notification again after that time
+    const closeTimeout = reminder.snooze_minutes 
+      ? reminder.snooze_minutes * 60 * 1000 
+      : 10000;
+
     setTimeout(() => {
       notification.close();
-    }, 10000);
+      
+      // If snooze is enabled, show notification again
+      if (reminder.snooze_minutes && reminder.snooze_minutes > 0) {
+        showWebNotification(reminder);
+      }
+    }, closeTimeout);
   };
 
   // Initialize notification system
