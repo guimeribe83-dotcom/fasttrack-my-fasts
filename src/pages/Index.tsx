@@ -42,6 +42,17 @@ export default function Index() {
         return ptBR;
     }
   };
+
+  const getDateFormat = () => {
+    switch (i18n.language) {
+      case 'en':
+        return "EEEE, MMMM d";
+      case 'es':
+        return "EEEE, d 'de' MMMM";
+      default:
+        return "EEEE, d 'de' MMMM";
+    }
+  };
   useEffect(() => {
     checkAuth();
   }, []);
@@ -226,7 +237,7 @@ export default function Index() {
   const totalCompleted = completedDays.length + (activeFast.days_completed_before_app || 0);
   const daysRemaining = activeFast.total_days - totalCompleted;
   const percentage = Math.round(totalCompleted / activeFast.total_days * 100);
-  const today = format(new Date(), "EEEE, d 'de' MMMM", {
+  const today = format(new Date(), getDateFormat(), {
     locale: getDateFnsLocale()
   });
   const dayAlreadyCompleted = completedDays.some(day => day.date === format(new Date(), "yyyy-MM-dd"));
@@ -291,7 +302,11 @@ export default function Index() {
                   {activeFast.name}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {totalCompleted} de {activeFast.total_days} dias · {daysRemaining} restantes
+                  {t("home.progressDetails", { 
+                    completed: totalCompleted, 
+                    total: activeFast.total_days, 
+                    remaining: daysRemaining 
+                  })}
                 </p>
               </div>
 

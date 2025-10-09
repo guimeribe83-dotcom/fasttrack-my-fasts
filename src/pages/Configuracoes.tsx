@@ -45,6 +45,7 @@ const Configuracoes = () => {
 
   const handleLanguageChange = (lang: string) => {
     i18n.changeLanguage(lang);
+    localStorage.setItem('i18nextLng', lang);
     toast({
       title: t("settings.success"),
     });

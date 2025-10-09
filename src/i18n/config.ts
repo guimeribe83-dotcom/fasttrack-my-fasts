@@ -6,6 +6,9 @@ import pt from '@/locales/pt.json';
 import en from '@/locales/en.json';
 import es from '@/locales/es.json';
 
+// Carregar preferência de idioma do localStorage
+const savedLanguage = localStorage.getItem('i18nextLng');
+
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
@@ -16,12 +19,14 @@ i18n
       es: { translation: es },
     },
     fallbackLng: 'pt',
+    lng: savedLanguage || undefined,
     interpolation: {
       escapeValue: false,
     },
     detection: {
       order: ['localStorage', 'navigator'],
       caches: ['localStorage'],
+      lookupLocalStorage: 'i18nextLng',
     },
   });
 
