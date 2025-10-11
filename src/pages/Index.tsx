@@ -290,15 +290,19 @@ export default function Index() {
         <DailyContentCard />
 
         {/* Progress Section */}
-        <Card className="p-4 md:p-6 bg-card border-border shadow-none">
-          <div className="flex flex-col md:flex-row items-center gap-6">
+        <Card className="p-4 md:p-6 bg-gradient-to-br from-card to-card/50 border-border shadow-sm">
+          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
             <div className="flex-shrink-0">
-              <ProgressCircle percentage={percentage} size={140} strokeWidth={10} />
+              <ProgressCircle 
+                percentage={percentage} 
+                size={120} 
+                strokeWidth={8} 
+              />
             </div>
             
-            <div className="flex-1 w-full">
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold text-foreground mb-1">
+            <div className="flex-1 w-full space-y-4">
+              <div className="text-center md:text-left">
+                <h3 className="text-lg md:text-xl font-bold text-foreground mb-1">
                   {activeFast.name}
                 </h3>
                 <p className="text-sm text-muted-foreground">
@@ -311,20 +315,32 @@ export default function Index() {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-primary/5 rounded-lg p-3 border border-primary/10">
-                  <div className="flex items-center gap-2 mb-1">
-                    <CheckCircle className="w-4 h-4 text-primary" />
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide">{t("home.completed")}</p>
+                <div className="bg-primary/5 rounded-xl p-3 border border-primary/10">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div className="p-1 rounded-md bg-primary/10">
+                      <CheckCircle className="w-3.5 h-3.5 text-primary" />
+                    </div>
+                    <p className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-wide font-medium">
+                      {t("home.completed")}
+                    </p>
                   </div>
-                  <p className="text-2xl font-bold text-primary">{totalCompleted}</p>
+                  <p className="text-xl md:text-2xl font-bold text-primary">
+                    {totalCompleted}
+                  </p>
                 </div>
 
-                <div className="bg-success/5 rounded-lg p-3 border border-success/10">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Calendar className="w-4 h-4 text-success" />
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide">{t("history.pending")}</p>
+                <div className="bg-success/5 rounded-xl p-3 border border-success/10">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div className="p-1 rounded-md bg-success/10">
+                      <Calendar className="w-3.5 h-3.5 text-success" />
+                    </div>
+                    <p className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-wide font-medium">
+                      {t("history.pending")}
+                    </p>
                   </div>
-                  <p className="text-2xl font-bold text-success">{daysRemaining}</p>
+                  <p className="text-xl md:text-2xl font-bold text-success">
+                    {daysRemaining}
+                  </p>
                 </div>
               </div>
             </div>
@@ -332,11 +348,31 @@ export default function Index() {
         </Card>
 
         {/* Blocks Section */}
-        {blocks.length > 0 && <div className="space-y-3">
-            <h3 className="text-base md:text-lg font-semibold text-foreground">
-              {t("home.stages")}
-            </h3>
-            <div className="grid gap-2.5">
+        {blocks.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base md:text-lg font-bold text-foreground">
+                {t("home.stages")}
+              </h3>
+              <span className="text-xs text-muted-foreground">
+                {blocks.filter(b => {
+                  const blockDays = completedDays.filter(day => day.block_id === b.id);
+                  let daysFromBeforeApp = 0;
+                  let remainingDaysFromBeforeApp = activeFast.days_completed_before_app || 0;
+                  for (let i = 0; i < blocks.length; i++) {
+                    if (i < blocks.indexOf(b)) {
+                      remainingDaysFromBeforeApp -= blocks[i].total_days;
+                    } else if (i === blocks.indexOf(b)) {
+                      daysFromBeforeApp = Math.min(Math.max(0, remainingDaysFromBeforeApp), b.total_days);
+                    }
+                  }
+                  const totalBlockCompleted = blockDays.length + daysFromBeforeApp;
+                  return b.manually_completed || totalBlockCompleted >= b.total_days;
+                }).length} / {blocks.length} {t("home.completed")}
+              </span>
+            </div>
+            
+            <div className="grid gap-3">
               {blocks.map((block, blockIndex) => {
             const blockDays = completedDays.filter(day => day.block_id === block.id);
 
@@ -380,20 +416,34 @@ export default function Index() {
             return <BlockCard key={block.id} name={block.name} totalDays={block.total_days} completedDays={totalBlockCompleted} isCompleted={isCompleted} isActive={isActive} />;
           })}
             </div>
-          </div>}
+          </div>
+        )}
 
         {/* Badges Display */}
         <BadgesDisplay />
 
         {/* Action Buttons */}
-        <div className="flex gap-2.5 pt-2">
-          <Button size="lg" className="flex-1 h-11 md:h-12 text-sm font-medium bg-gradient-success hover:opacity-90 shadow-none" onClick={handleCompleteDay} disabled={dayAlreadyCompleted}>
-            <CheckCircle className="mr-2 w-4 h-4" />
-            {dayAlreadyCompleted ? t("home.completed") : t("home.markAsCompleted")}
+        <div className="flex gap-3 pt-2">
+          <Button 
+            size="lg" 
+            className="flex-1 h-12 text-sm font-semibold bg-gradient-success hover:opacity-90 shadow-sm transition-all active:scale-[0.98]" 
+            onClick={handleCompleteDay} 
+            disabled={dayAlreadyCompleted}
+          >
+            <CheckCircle className="mr-2 w-4 h-4 flex-shrink-0" />
+            <span className="truncate">
+              {dayAlreadyCompleted ? t("home.completed") : t("home.markAsCompleted")}
+            </span>
           </Button>
-          <Button size="lg" variant="outline" className="h-11 md:h-12 px-4 shadow-none" onClick={() => navigate("/historico")}>
-            <Calendar className="mr-0 md:mr-2 w-4 h-4" />
-            <span className="hidden md:inline">{t("menu.history")}</span>
+          
+          <Button 
+            size="lg" 
+            variant="outline" 
+            className="h-12 px-4 md:px-6 shadow-sm transition-all active:scale-[0.98]" 
+            onClick={() => navigate("/historico")}
+          >
+            <Calendar className="w-4 h-4 md:mr-2 flex-shrink-0" />
+            <span className="hidden sm:inline ml-2">{t("menu.history")}</span>
           </Button>
         </div>
       </div>

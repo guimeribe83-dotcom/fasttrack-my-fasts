@@ -242,8 +242,10 @@
   },
   "settings": {
     "title": "Configurações",
+    "description": "Personalize sua experiência no FastTrack",
     "theme": "Tema",
     "themeDescription": "Escolha o tema de aparência do aplicativo",
+    "selectTheme": "Selecionar tema",
     "themes": {
       "light": "Claro",
       "dark": "Escuro",
