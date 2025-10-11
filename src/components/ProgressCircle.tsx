@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 interface ProgressCircleProps {
   percentage: number;
   size?: number;
@@ -9,6 +11,7 @@ export const ProgressCircle = ({
   size = 140, 
   strokeWidth = 10 
 }: ProgressCircleProps) => {
+  const { t } = useTranslation();
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
   const offset = circumference - (percentage / 100) * circumference;
@@ -42,7 +45,7 @@ export const ProgressCircle = ({
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-3xl font-bold text-foreground">{percentage}%</span>
-        <span className="text-xs text-muted-foreground">concluído</span>
+        <span className="text-xs text-muted-foreground">{t("home.completed")}</span>
       </div>
     </div>
   );

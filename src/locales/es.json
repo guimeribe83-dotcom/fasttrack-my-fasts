@@ -266,6 +266,7 @@
   "profile": {
     "title": "Mi Perfil",
     "subtitle": "Gestiona tu información personal",
+    "badges": "Logros",
     "fullName": "Nombre Completo",
     "fullNamePlaceholder": "Ingresa tu nombre completo",
     "church": "Iglesia",

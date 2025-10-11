@@ -183,7 +183,7 @@ export default function Perfil() {
 
   return (
     <Layout>
-      <div className="p-4 md:p-8 max-w-4xl mx-auto">
+      <div className="p-4 md:p-6 lg:p-8 max-w-4xl mx-auto">
         <div className="mb-6 md:mb-8">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">{t("profile.title")}</h1>
           <p className="text-sm md:text-base text-muted-foreground">
@@ -192,37 +192,39 @@ export default function Perfil() {
         </div>
 
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="profile" className="flex items-center gap-2">
+          <TabsList className="grid w-full grid-cols-2 mb-6 h-11">
+            <TabsTrigger value="profile" className="flex items-center gap-2 text-sm">
               <User className="w-4 h-4" />
-              {t("profile.title")}
+              <span className="hidden sm:inline">{t("profile.title")}</span>
+              <span className="sm:hidden">Perfil</span>
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
+            <TabsTrigger value="settings" className="flex items-center gap-2 text-sm">
               <Settings className="w-4 h-4" />
-              {t("settings.title")}
+              <span className="hidden sm:inline">{t("settings.title")}</span>
+              <span className="sm:hidden">Config</span>
             </TabsTrigger>
           </TabsList>
 
           {/* Profile Tab */}
-          <TabsContent value="profile" className="space-y-6">
+          <TabsContent value="profile" className="space-y-4 md:space-y-6">
             {/* Avatar Section */}
-            <Card className="p-6">
+            <Card className="p-4 md:p-6 shadow-sm">
               <div className="flex flex-col items-center space-y-4">
                 <div className="relative">
-                  <Avatar className="w-32 h-32 border-4 border-border">
+                  <Avatar className="w-24 h-24 md:w-32 md:h-32 border-4 border-border">
                     <AvatarImage src={avatarUrl} alt={fullName} />
-                    <AvatarFallback className="text-3xl bg-primary/10 text-primary">
-                      {fullName ? fullName.charAt(0).toUpperCase() : <User className="w-12 h-12" />}
+                    <AvatarFallback className="text-2xl md:text-3xl bg-primary/10 text-primary">
+                      {fullName ? fullName.charAt(0).toUpperCase() : <User className="w-10 h-10 md:w-12 md:h-12" />}
                     </AvatarFallback>
                   </Avatar>
                   <label
                     htmlFor="avatar-upload"
-                    className="absolute bottom-0 right-0 w-10 h-10 bg-primary hover:bg-primary/90 rounded-full flex items-center justify-center cursor-pointer transition-colors border-4 border-background"
+                    className="absolute bottom-0 right-0 w-8 h-8 md:w-10 md:h-10 bg-primary hover:bg-primary/90 rounded-full flex items-center justify-center cursor-pointer transition-colors border-4 border-background"
                   >
                     {uploading ? (
-                      <Loader2 className="w-5 h-5 text-white animate-spin" />
+                      <Loader2 className="w-4 h-4 md:w-5 md:h-5 text-white animate-spin" />
                     ) : (
-                      <Camera className="w-5 h-5 text-white" />
+                      <Camera className="w-4 h-4 md:w-5 md:h-5 text-white" />
                     )}
                   </label>
                   <input
@@ -241,7 +243,7 @@ export default function Perfil() {
             </Card>
 
             {/* Profile Info */}
-            <Card className="p-6">
+            <Card className="p-4 md:p-6 shadow-sm">
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="fullName" className="text-sm font-medium">
@@ -276,7 +278,7 @@ export default function Perfil() {
               <Button
                 onClick={handleSave}
                 disabled={saving}
-                className="w-full h-11 bg-gradient-primary hover:opacity-90"
+                className="w-full h-11 bg-gradient-primary hover:opacity-90 shadow-sm transition-all active:scale-[0.98]"
               >
                 {saving ? (
                   <>
@@ -291,7 +293,7 @@ export default function Perfil() {
               <Button
                 onClick={handleLogout}
                 variant="outline"
-                className="w-full h-11 border-destructive/30 text-destructive hover:bg-destructive/10"
+                className="w-full h-11 border-destructive/30 text-destructive hover:bg-destructive/10 shadow-sm transition-all active:scale-[0.98]"
               >
                 <LogOut className="mr-2 w-4 h-4" />
                 {t("profile.logout")}
@@ -300,27 +302,29 @@ export default function Perfil() {
           </TabsContent>
 
           {/* Settings Tab */}
-          <TabsContent value="settings" className="space-y-6">
-            <Card className="p-6">
+          <TabsContent value="settings" className="space-y-4 md:space-y-6">
+            <Card className="p-4 md:p-6 shadow-sm">
               <div className="space-y-4">
                 <div className="flex items-center gap-3 mb-4">
-                  <Languages className="w-5 h-5 text-primary" />
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Languages className="w-5 h-5 text-primary" />
+                  </div>
                   <div>
-                    <h3 className="font-semibold text-lg">{t("settings.language")}</h3>
-                    <p className="text-sm text-muted-foreground">{t("settings.languageDescription")}</p>
+                    <h3 className="font-semibold text-base md:text-lg">{t("settings.language")}</h3>
+                    <p className="text-xs md:text-sm text-muted-foreground">{t("settings.languageDescription")}</p>
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="language">{t("settings.selectLanguage")}</Label>
+                  <Label htmlFor="language" className="text-sm font-medium">{t("settings.selectLanguage")}</Label>
                   <Select value={i18n.language} onValueChange={handleLanguageChange}>
                     <SelectTrigger id="language" className="h-11">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="pt">{t("settings.languages.pt")}</SelectItem>
-                      <SelectItem value="en">{t("settings.languages.en")}</SelectItem>
-                      <SelectItem value="es">{t("settings.languages.es")}</SelectItem>
+                      <SelectItem value="pt">🇧🇷 {t("settings.languages.pt")}</SelectItem>
+                      <SelectItem value="en">🇺🇸 {t("settings.languages.en")}</SelectItem>
+                      <SelectItem value="es">🇪🇸 {t("settings.languages.es")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

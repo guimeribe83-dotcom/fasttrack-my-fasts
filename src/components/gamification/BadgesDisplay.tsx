@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { Trophy } from "lucide-react";
 import { Badge as BadgeUI } from "@/components/ui/badge";
+import { useTranslation } from "react-i18next";
 
 interface Badge {
   id: string;
@@ -18,6 +19,7 @@ interface UserBadge {
 }
 
 export const BadgesDisplay = () => {
+  const { t } = useTranslation();
   const [allBadges, setAllBadges] = useState<Badge[]>([]);
   const [earnedBadges, setEarnedBadges] = useState<UserBadge[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,11 +60,11 @@ export const BadgesDisplay = () => {
 
   if (loading) {
     return (
-      <Card>
+      <Card className="shadow-sm">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
             <Trophy className="w-5 h-5" />
-            Conquistas
+            {t("profile.badges")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -76,34 +78,34 @@ export const BadgesDisplay = () => {
   const totalCount = allBadges.length;
 
   return (
-    <Card>
+    <Card className="shadow-sm">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
             <Trophy className="w-5 h-5 text-yellow-500" />
-            Conquistas
+            {t("profile.badges")}
           </CardTitle>
-          <BadgeUI variant="secondary">
+          <BadgeUI variant="secondary" className="text-xs">
             {earnedCount}/{totalCount}
           </BadgeUI>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-4 md:grid-cols-8 gap-4">
+        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-3 md:gap-4">
           {allBadges.map((badge) => {
             const earned = isBadgeEarned(badge.id);
             return (
               <div
                 key={badge.id}
-                className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${
+                className={`flex flex-col items-center gap-1.5 md:gap-2 p-2 md:p-3 rounded-lg border-2 transition-all ${
                   earned
                     ? "border-primary bg-primary/5 scale-105"
                     : "border-muted bg-muted/5 opacity-50 grayscale"
                 }`}
                 title={`${badge.name}: ${badge.description}`}
               >
-                <span className="text-3xl">{badge.icon}</span>
-                <span className="text-xs text-center font-medium line-clamp-2">
+                <span className="text-2xl md:text-3xl">{badge.icon}</span>
+                <span className="text-[10px] md:text-xs text-center font-medium line-clamp-2 leading-tight">
                   {badge.name}
                 </span>
               </div>
