@@ -18,7 +18,7 @@ interface UserBadge {
   earned_at: string;
 }
 
-export const BadgesDisplay = () => {
+const BadgesDisplay = () => {
   const { t } = useTranslation();
   const [allBadges, setAllBadges] = useState<Badge[]>([]);
   const [earnedBadges, setEarnedBadges] = useState<UserBadge[]>([]);
@@ -116,3 +116,5 @@ export const BadgesDisplay = () => {
     </Card>
   );
 };
+
+export { BadgesDisplay };
