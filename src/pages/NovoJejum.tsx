@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { FastTemplates } from "@/components/onboarding/FastTemplates";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Trash2, Calendar, Layers } from "lucide-react";
+import { Plus, Trash2, Calendar, Layers, CheckCircle } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useOfflineQueue } from "@/hooks/useOfflineQueue";
 import { useBackgroundSync } from "@/hooks/useBackgroundSync";
@@ -28,8 +28,33 @@ export default function NovoJejum() {
   const [name, setName] = useState("");
   const [totalDays, setTotalDays] = useState("");
   const [startDate, setStartDate] = useState("");
-  const [daysCompletedBefore, setDaysCompletedBefore] = useState("");
   const [blocks, setBlocks] = useState<Block[]>([]);
+
+  // Calculate days completed automatically based on start date
+  const calculateDaysCompleted = (startDateStr: string): number => {
+    if (!startDateStr) return 0;
+    const start = new Date(startDateStr);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    start.setHours(0, 0, 0, 0);
+    
+    if (start > today) return 0; // Future date
+    
+    const diffTime = today.getTime() - start.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  const calculateEndDate = (startDateStr: string, totalDays: number): Date | null => {
+    if (!startDateStr || !totalDays) return null;
+    const start = new Date(startDateStr);
+    const end = new Date(start);
+    end.setDate(end.getDate() + totalDays);
+    return end;
+  };
+
+  const daysCompletedAuto = calculateDaysCompleted(startDate);
+  const endDate = calculateEndDate(startDate, parseInt(totalDays) || 0);
   const { queueCreateFast, processQueue } = useOfflineQueue();
   const { registerSync } = useBackgroundSync();
 
@@ -82,7 +107,7 @@ export default function NovoJejum() {
       name,
       total_days: parseInt(totalDays),
       start_date: startDate,
-      days_completed_before_app: parseInt(daysCompletedBefore || "0"),
+      days_completed_before_app: daysCompletedAuto,
       is_active: true,
       blocks: blocks.map((block, index) => ({
         name: block.name,
@@ -273,23 +298,31 @@ export default function NovoJejum() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="daysCompletedBefore" className="text-sm font-medium">
-                  Dias Já Concluídos (antes do app)
-                </Label>
-                <Input
-                  id="daysCompletedBefore"
-                  type="number"
-                  min="0"
-                  placeholder="0"
-                  value={daysCompletedBefore}
-                  onChange={(e) => setDaysCompletedBefore(e.target.value)}
-                  className="h-11"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Se você já estava em jejum antes de usar o app, informe quantos dias já completou
-                </p>
-              </div>
+              {/* Preview of end date and auto-calculated days */}
+              {startDate && totalDays && (
+                <div className="space-y-3 p-4 bg-primary/5 rounded-lg border border-primary/10">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium text-foreground">
+                        Término previsto
+                      </span>
+                    </div>
+                    <span className="text-sm font-bold text-primary">
+                      {endDate?.toLocaleDateString('pt-BR')}
+                    </span>
+                  </div>
+                  
+                  {daysCompletedAuto > 0 && (
+                    <div className="flex items-center gap-2 pt-2 border-t border-primary/10">
+                      <CheckCircle className="w-4 h-4 text-success" />
+                      <span className="text-xs text-muted-foreground">
+                        {daysCompletedAuto} {daysCompletedAuto === 1 ? 'dia já completado' : 'dias já completados'} desde o início
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </Card>
 

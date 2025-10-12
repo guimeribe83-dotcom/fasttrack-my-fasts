@@ -185,12 +185,12 @@ export default function Historico() {
             </h2>
           </div>
 
-          {/* Chip - Days completed before app */}
+          {/* Chip - Days from start */}
           {activeFast.days_completed_before_app > 0 && (
             <div className="mb-4 flex justify-center">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-medium">
                 <CheckCircle className="w-3.5 h-3.5" />
-                <span>{activeFast.days_completed_before_app} {t("history.daysBeforeApp")}</span>
+                <span>{activeFast.days_completed_before_app} {t("home.daysFromStart")}</span>
               </div>
             </div>
           )}

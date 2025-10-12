@@ -25,7 +25,7 @@ export default function EditarJejum() {
   const [saving, setSaving] = useState(false);
   const [fastName, setFastName] = useState("");
   const [totalDays, setTotalDays] = useState<number>(0);
-  const [daysCompletedBefore, setDaysCompletedBefore] = useState<number>(0);
+  const [startDate, setStartDate] = useState("");
   const [blocks, setBlocks] = useState<Block[]>([]);
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export default function EditarJejum() {
 
       setFastName(fast.name);
       setTotalDays(fast.total_days);
-      setDaysCompletedBefore(fast.days_completed_before_app || 0);
+      setStartDate(fast.start_date);
 
       const { data: blocksData, error: blocksError } = await supabase
         .from("fast_blocks")
@@ -107,6 +107,21 @@ export default function EditarJejum() {
     setBlocks(newBlocks);
   };
 
+  // Calculate days completed automatically based on start date
+  const calculateDaysCompleted = (startDateStr: string): number => {
+    if (!startDateStr) return 0;
+    const start = new Date(startDateStr);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    start.setHours(0, 0, 0, 0);
+    
+    if (start > today) return 0;
+    
+    const diffTime = today.getTime() - start.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -119,15 +134,6 @@ export default function EditarJejum() {
 
       if (totalDays <= 0) {
         throw new Error("Total de dias deve ser maior que zero");
-      }
-
-      // Validar days_completed_before
-      if (daysCompletedBefore < 0) {
-        throw new Error("Dias já concluídos não pode ser negativo");
-      }
-
-      if (daysCompletedBefore > totalDays) {
-        throw new Error("Dias já concluídos não pode ser maior que o total de dias");
       }
 
       // Validar blocos
@@ -157,13 +163,17 @@ export default function EditarJejum() {
         }
       }
 
+      // Calculate days_completed_before_app automatically
+      const daysCompletedAuto = calculateDaysCompleted(startDate);
+
       // Update fast
       const { error: fastError } = await supabase
         .from("fasts")
         .update({
           name: fastName.trim(),
           total_days: totalDays,
-          days_completed_before_app: daysCompletedBefore,
+          start_date: startDate,
+          days_completed_before_app: daysCompletedAuto,
           updated_at: new Date().toISOString(),
         })
         .eq("id", id);
@@ -273,20 +283,16 @@ export default function EditarJejum() {
               </div>
 
               <div>
-                <Label htmlFor="daysCompleted">
-                  Dias já concluídos antes do app
-                </Label>
+                <Label htmlFor="startDate">Data de Início *</Label>
                 <Input
-                  id="daysCompleted"
-                  type="number"
-                  min="0"
-                  max={totalDays}
-                  value={daysCompletedBefore || ""}
-                  onChange={(e) => setDaysCompletedBefore(Number(e.target.value))}
-                  placeholder="Ex: 5"
+                  id="startDate"
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  required
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  Quantos dias você já completou antes de usar o app?
+                  Os dias já completados serão calculados automaticamente
                 </p>
               </div>
             </Card>

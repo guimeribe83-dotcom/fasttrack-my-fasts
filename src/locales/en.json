@@ -61,7 +61,9 @@
     "markAsNotCompleted": "Mark as Not Completed",
     "successMarked": "Day marked successfully!",
     "errorMarking": "Error marking the day",
-    "dayAlreadyMarked": "This day has already been marked"
+    "dayAlreadyMarked": "This day has already been marked",
+    "fastEnds": "Expected end",
+    "daysFromStart": "days since start"
   },
   "manage": {
     "title": "Manage Fasts",

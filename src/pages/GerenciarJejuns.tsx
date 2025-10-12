@@ -190,7 +190,12 @@ export default function GerenciarJejuns() {
                           )}
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          {fast.total_days} dias • Iniciado em {new Date(fast.start_date).toLocaleDateString('pt-BR')}
+                          {fast.total_days} dias • {new Date(fast.start_date).toLocaleDateString('pt-BR')} → {(() => {
+                            const start = new Date(fast.start_date);
+                            const end = new Date(start);
+                            end.setDate(end.getDate() + fast.total_days);
+                            return end.toLocaleDateString('pt-BR');
+                          })()}
                         </p>
                       </div>
 

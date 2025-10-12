@@ -61,7 +61,9 @@
     "markAsNotCompleted": "Marcar como Não Concluído",
     "successMarked": "Dia marcado com sucesso!",
     "errorMarking": "Erro ao marcar o dia",
-    "dayAlreadyMarked": "Este dia já foi marcado"
+    "dayAlreadyMarked": "Este dia já foi marcado",
+    "fastEnds": "Término previsto",
+    "daysFromStart": "dias desde o início"
   },
   "manage": {
     "title": "Gerenciar Jejuns",

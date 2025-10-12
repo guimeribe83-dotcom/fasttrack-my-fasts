@@ -343,6 +343,36 @@ export default function Index() {
                   </p>
                 </div>
               </div>
+
+              {/* End Date Display */}
+              {activeFast.start_date && (
+                <div className="mt-3 p-3 bg-primary/5 rounded-lg border border-primary/10">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium text-foreground">
+                        {t("home.fastEnds")}
+                      </span>
+                    </div>
+                    <span className="text-sm font-bold text-primary">
+                      {(() => {
+                        const start = new Date(activeFast.start_date);
+                        const end = new Date(start);
+                        end.setDate(end.getDate() + activeFast.total_days);
+                        return format(end, "dd/MM/yyyy");
+                      })()}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {(() => {
+                      const start = new Date(activeFast.start_date);
+                      const end = new Date(start);
+                      end.setDate(end.getDate() + activeFast.total_days);
+                      return format(end, "EEEE", { locale: getDateFnsLocale() });
+                    })()}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </Card>
