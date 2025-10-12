@@ -91,21 +91,21 @@ export const BadgesDisplay = () => {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-3 md:gap-4">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 sm:gap-3 md:gap-4">
           {allBadges.map((badge) => {
             const earned = isBadgeEarned(badge.id);
             return (
               <div
                 key={badge.id}
-                className={`flex flex-col items-center gap-1.5 md:gap-2 p-2 md:p-3 rounded-lg border-2 transition-all ${
+                className={`w-full aspect-square relative flex flex-col items-center justify-center gap-1.5 md:gap-2 p-2 md:p-3 rounded-lg border-2 transition-all overflow-hidden ${
                   earned
-                    ? "border-primary bg-primary/5 scale-105"
-                    : "border-muted bg-muted/5 opacity-50 grayscale"
+                    ? "border-primary bg-primary/5 ring-1 ring-primary/10"
+                    : "border-muted bg-muted/5 opacity-60 grayscale"
                 }`}
                 title={`${badge.name}: ${badge.description}`}
               >
-                <span className="text-2xl md:text-3xl">{badge.icon}</span>
-                <span className="text-[10px] md:text-xs text-center font-medium line-clamp-2 leading-tight">
+                <span className="text-2xl md:text-3xl pointer-events-none">{badge.icon}</span>
+                <span className="hidden sm:block w-full px-1 text-[10px] md:text-xs text-center font-medium leading-tight break-words overflow-hidden max-h-8 md:max-h-10">
                   {badge.name}
                 </span>
               </div>
