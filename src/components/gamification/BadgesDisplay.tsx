@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { Trophy } from "lucide-react";
 import { Badge as BadgeUI } from "@/components/ui/badge";
-import { useTranslation } from "react-i18next";
+import i18n from "@/i18n/config";
 
 interface Badge {
   id: string;
@@ -19,7 +19,7 @@ interface UserBadge {
 }
 
 const BadgesDisplay = () => {
-  const { t } = useTranslation();
+  const t = i18n.t.bind(i18n);
   const [allBadges, setAllBadges] = useState<Badge[]>([]);
   const [earnedBadges, setEarnedBadges] = useState<UserBadge[]>([]);
   const [loading, setLoading] = useState(true);
