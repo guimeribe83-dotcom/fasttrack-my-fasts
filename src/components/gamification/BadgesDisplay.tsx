@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { Trophy } from "lucide-react";
@@ -20,11 +20,11 @@ interface UserBadge {
 
 const BadgesDisplay = () => {
   const t = i18n.t.bind(i18n);
-  const [allBadges, setAllBadges] = useState<Badge[]>([]);
-  const [earnedBadges, setEarnedBadges] = useState<UserBadge[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [allBadges, setAllBadges] = React.useState<Badge[]>([]);
+  const [earnedBadges, setEarnedBadges] = React.useState<UserBadge[]>([]);
+  const [loading, setLoading] = React.useState(true);
 
-  useEffect(() => {
+  React.useEffect(() => {
     loadBadges();
   }, []);
 
