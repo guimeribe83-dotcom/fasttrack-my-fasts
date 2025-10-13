@@ -10,12 +10,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { User, Camera, Loader2, LogOut, Settings, Languages } from "lucide-react";
+import { User, Camera, Loader2, LogOut, Settings, Languages, Palette, Sun, Moon, Monitor } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "next-themes";
 
 export default function Perfil() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const { theme, setTheme } = useTheme();
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -23,6 +25,7 @@ export default function Perfil() {
   const [fullName, setFullName] = useState("");
   const [church, setChurch] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [userTheme, setUserTheme] = useState<string>("system");
 
   useEffect(() => {
     checkAuth();
@@ -56,6 +59,12 @@ export default function Perfil() {
       setFullName(data.full_name || "");
       setChurch(data.church || "");
       setAvatarUrl(data.avatar_url || "");
+      
+      // Load theme preference
+      if (data.theme_preference) {
+        setUserTheme(data.theme_preference);
+        setTheme(data.theme_preference);
+      }
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -181,6 +190,24 @@ export default function Perfil() {
     });
   };
 
+  const handleThemeChange = async (newTheme: string) => {
+    setTheme(newTheme);
+    setUserTheme(newTheme);
+    
+    // Save to database
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase
+        .from("profiles")
+        .update({ theme_preference: newTheme })
+        .eq("id", user.id);
+    }
+    
+    toast({
+      title: t("settings.themeSuccess"),
+    });
+  };
+
   return (
     <Layout>
       <div className="p-4 md:p-6 lg:p-8 max-w-4xl mx-auto">
@@ -303,6 +330,51 @@ export default function Perfil() {
 
           {/* Settings Tab */}
           <TabsContent value="settings" className="space-y-4 md:space-y-6">
+            {/* Theme Card */}
+            <Card className="p-4 md:p-6 shadow-sm">
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Palette className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-base md:text-lg">{t("settings.theme")}</h3>
+                    <p className="text-xs md:text-sm text-muted-foreground">{t("settings.themeDescription")}</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="theme" className="text-sm font-medium">{t("settings.selectTheme")}</Label>
+                  <Select value={userTheme} onValueChange={handleThemeChange}>
+                    <SelectTrigger id="theme" className="h-11">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="light">
+                        <div className="flex items-center gap-2">
+                          <Sun className="w-4 h-4" />
+                          <span>{t("settings.themes.light")}</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="dark">
+                        <div className="flex items-center gap-2">
+                          <Moon className="w-4 h-4" />
+                          <span>{t("settings.themes.dark")}</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="system">
+                        <div className="flex items-center gap-2">
+                          <Monitor className="w-4 h-4" />
+                          <span>{t("settings.themes.system")}</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </Card>
+
+            {/* Language Card */}
             <Card className="p-4 md:p-6 shadow-sm">
               <div className="space-y-4">
                 <div className="flex items-center gap-3 mb-4">
