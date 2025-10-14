@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { FastTemplates } from "@/components/onboarding/FastTemplates";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Trash2, Calendar, Layers, CheckCircle } from "lucide-react";
+import { Plus, Trash2, Calendar, Layers, CheckCircle, Heart } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useOfflineQueue } from "@/hooks/useOfflineQueue";
 import { useBackgroundSync } from "@/hooks/useBackgroundSync";
@@ -21,6 +23,8 @@ interface Block {
   manuallyCompleted: boolean;
 }
 
+type PurposeCategory = 'healing' | 'guidance' | 'gratitude' | 'intercession' | 'deliverance' | 'breakthrough' | 'other';
+
 export default function NovoJejum() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -29,6 +33,8 @@ export default function NovoJejum() {
   const [totalDays, setTotalDays] = useState("");
   const [startDate, setStartDate] = useState("");
   const [blocks, setBlocks] = useState<Block[]>([]);
+  const [purposeCategory, setPurposeCategory] = useState<PurposeCategory>('guidance');
+  const [purposeDescription, setPurposeDescription] = useState('');
 
   // Calculate days completed automatically based on start date
   const calculateDaysCompleted = (startDateStr: string): number => {
@@ -103,6 +109,15 @@ export default function NovoJejum() {
       return;
     }
 
+    if (!purposeDescription.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Propósito obrigatório",
+        description: "Por favor, descreva o propósito do seu jejum.",
+      });
+      return;
+    }
+
     const payload = {
       name,
       total_days: parseInt(totalDays),
@@ -154,6 +169,17 @@ export default function NovoJejum() {
         .single();
 
       if (fastError) throw fastError;
+
+      // Create fast purpose
+      const { error: purposeError } = await supabase
+        .from("fast_purposes")
+        .insert({
+          fast_id: fast.id,
+          category: purposeCategory,
+          description: purposeDescription,
+        });
+
+      if (purposeError) throw purposeError;
 
       // Deactivate other fasts
       await supabase
@@ -268,6 +294,45 @@ export default function NovoJejum() {
                   required
                   className="h-11"
                 />
+              </div>
+
+              {/* Purpose Section */}
+              <div className="space-y-4 p-4 bg-primary/5 rounded-lg border border-primary/10">
+                <div className="flex items-center gap-2">
+                  <Heart className="w-5 h-5 text-primary" />
+                  <h3 className="font-semibold text-lg">Propósito do Jejum *</h3>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="purposeCategory" className="text-sm font-medium">Por que você está jejuando?</Label>
+                  <Select value={purposeCategory} onValueChange={(value) => setPurposeCategory(value as PurposeCategory)}>
+                    <SelectTrigger id="purposeCategory" className="h-11">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="healing">❤️ Cura física ou emocional</SelectItem>
+                      <SelectItem value="guidance">🧭 Direção e sabedoria</SelectItem>
+                      <SelectItem value="gratitude">🙏 Gratidão e adoração</SelectItem>
+                      <SelectItem value="intercession">🤲 Intercessão por alguém</SelectItem>
+                      <SelectItem value="deliverance">⛓️ Libertação espiritual</SelectItem>
+                      <SelectItem value="breakthrough">⚡ Breakthrough e milagres</SelectItem>
+                      <SelectItem value="other">✨ Outro propósito</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="purposeDescription" className="text-sm font-medium">Descreva seu propósito *</Label>
+                  <Textarea
+                    id="purposeDescription"
+                    value={purposeDescription}
+                    onChange={(e) => setPurposeDescription(e.target.value)}
+                    placeholder="Por exemplo: 'Busco cura para minha ansiedade' ou 'Jejuando por sabedoria na decisão de mudança de carreira'"
+                    className="min-h-[100px] resize-none"
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">Esse propósito ajudará a personalizar seu conteúdo diário</p>
+                </div>
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">

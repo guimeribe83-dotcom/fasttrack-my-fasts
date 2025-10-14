@@ -15,6 +15,7 @@ import Lembretes from "./pages/Lembretes";
 import Notificacoes from "./pages/Notificacoes";
 import Configuracoes from "./pages/Configuracoes";
 import Perfil from "./pages/Perfil";
+import DiarioEspiritual from "./pages/DiarioEspiritual";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -53,6 +54,7 @@ const AppContent = () => {
       <Route path="/notificacoes" element={<Notificacoes />} />
       <Route path="/configuracoes" element={<Configuracoes />} />
       <Route path="/perfil" element={<Perfil />} />
+      <Route path="/diario" element={<DiarioEspiritual />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>

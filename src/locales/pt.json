@@ -298,5 +298,73 @@
     "confirm": "Confirmar",
     "yes": "Sim",
     "no": "Não"
+  },
+  "journal": {
+    "title": "Diário Espiritual",
+    "subtitle": "Registre sua jornada com Deus",
+    "cardTitle": "Diário Espiritual",
+    "cardDescription": "Registre sua jornada e crescimento espiritual",
+    "selectDate": "Selecionar Data",
+    "newEntry": "Nova Entrada",
+    "editEntry": "Editar Entrada",
+    "feelingRating": "Como está sua conexão com Deus hoje?",
+    "distant": "Distante",
+    "close": "Próximo",
+    "emotionalTags": "Como você está se sentindo?",
+    "whatGodSaid": "O que Deus te falou hoje?",
+    "whatGodSaidPlaceholder": "Compartilhe o que você sentiu que Deus falou ao seu coração...",
+    "prayers": "Suas Orações",
+    "prayersPlaceholder": "Escreva suas orações e pedidos...",
+    "answeredPrayers": "Orações Respondidas",
+    "answeredPrayersPlaceholder": "Registre as orações que Deus respondeu...",
+    "learnings": "O que você aprendeu?",
+    "learningsPlaceholder": "Reflexões e aprendizados...",
+    "save": "Salvar",
+    "saving": "Salvando...",
+    "createSuccess": "Entrada criada com sucesso!",
+    "updateSuccess": "Entrada atualizada com sucesso!",
+    "deleteSuccess": "Entrada excluída com sucesso!",
+    "deleteConfirm": "Tem certeza que deseja excluir esta entrada?",
+    "error": "Erro ao processar sua solicitação",
+    "recentEntries": "Entradas Recentes",
+    "tags": {
+      "grateful": "Grato",
+      "renewed": "Renovado",
+      "tired": "Cansado",
+      "tempted": "Tentado",
+      "peaceful": "Em Paz",
+      "hopeful": "Esperançoso"
+    }
+  },
+  "checkIn": {
+    "title": "Como foi seu dia?",
+    "description": "Antes de marcar como completo, compartilhe como você está",
+    "feelingRating": "Como você se sente espiritualmente?",
+    "weak": "Fraco",
+    "strong": "Forte",
+    "howAreYouFeeling": "Como você está se sentindo?",
+    "notes": "Notas (opcional)",
+    "notesPlaceholder": "Como foi seu dia de jejum? Alguma dificuldade ou vitória?",
+    "skip": "Pular",
+    "complete": "Completar Dia"
+  },
+  "createFast": {
+    "purposeRequired": "Por favor, descreva o propósito do seu jejum",
+    "purpose": {
+      "title": "Propósito do Jejum",
+      "category": "Por que você está jejuando?",
+      "description": "Descreva seu propósito",
+      "placeholder": "Por exemplo: 'Busco cura para minha ansiedade' ou 'Jejuando por sabedoria'",
+      "hint": "Esse propósito ajudará a personalizar seu conteúdo diário",
+      "categories": {
+        "healing": "Cura física ou emocional",
+        "guidance": "Direção e sabedoria",
+        "gratitude": "Gratidão e adoração",
+        "intercession": "Intercessão por alguém",
+        "deliverance": "Libertação espiritual",
+        "breakthrough": "Breakthrough e milagres",
+        "other": "Outro propósito"
+      }
+    }
   }
 }

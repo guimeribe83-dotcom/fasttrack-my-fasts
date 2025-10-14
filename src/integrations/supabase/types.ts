@@ -120,24 +120,33 @@ export type Database = {
           block_id: string | null
           completed: boolean
           created_at: string | null
+          daily_note: string | null
           date: string
+          emotional_tags: Json | null
           fast_id: string
+          feeling_rating: number | null
           id: string
         }
         Insert: {
           block_id?: string | null
           completed?: boolean
           created_at?: string | null
+          daily_note?: string | null
           date: string
+          emotional_tags?: Json | null
           fast_id: string
+          feeling_rating?: number | null
           id?: string
         }
         Update: {
           block_id?: string | null
           completed?: boolean
           created_at?: string | null
+          daily_note?: string | null
           date?: string
+          emotional_tags?: Json | null
           fast_id?: string
+          feeling_rating?: number | null
           id?: string
         }
         Relationships: [
@@ -150,6 +159,38 @@ export type Database = {
           },
           {
             foreignKeyName: "fast_days_fast_id_fkey"
+            columns: ["fast_id"]
+            isOneToOne: false
+            referencedRelation: "fasts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fast_purposes: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          fast_id: string
+          id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          fast_id: string
+          id?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          fast_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fast_purposes_fast_id_fkey"
             columns: ["fast_id"]
             isOneToOne: false
             referencedRelation: "fasts"
@@ -345,6 +386,59 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      spiritual_journal: {
+        Row: {
+          answered_prayers: string | null
+          created_at: string
+          entry_date: string
+          fast_id: string | null
+          feeling_rating: number | null
+          id: string
+          learnings: string | null
+          prayers: string | null
+          tags: Json | null
+          updated_at: string
+          user_id: string
+          what_god_said: string | null
+        }
+        Insert: {
+          answered_prayers?: string | null
+          created_at?: string
+          entry_date?: string
+          fast_id?: string | null
+          feeling_rating?: number | null
+          id?: string
+          learnings?: string | null
+          prayers?: string | null
+          tags?: Json | null
+          updated_at?: string
+          user_id: string
+          what_god_said?: string | null
+        }
+        Update: {
+          answered_prayers?: string | null
+          created_at?: string
+          entry_date?: string
+          fast_id?: string | null
+          feeling_rating?: number | null
+          id?: string
+          learnings?: string | null
+          prayers?: string | null
+          tags?: Json | null
+          updated_at?: string
+          user_id?: string
+          what_god_said?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spiritual_journal_fast_id_fkey"
+            columns: ["fast_id"]
+            isOneToOne: false
+            referencedRelation: "fasts"
             referencedColumns: ["id"]
           },
         ]

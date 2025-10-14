@@ -298,5 +298,73 @@
     "confirm": "Confirmar",
     "yes": "Sí",
     "no": "No"
+  },
+  "journal": {
+    "title": "Diario Espiritual",
+    "subtitle": "Registra tu camino con Dios",
+    "cardTitle": "Diario Espiritual",
+    "cardDescription": "Registra tu camino y crecimiento espiritual",
+    "selectDate": "Seleccionar Fecha",
+    "newEntry": "Nueva Entrada",
+    "editEntry": "Editar Entrada",
+    "feelingRating": "¿Cómo está tu conexión con Dios hoy?",
+    "distant": "Distante",
+    "close": "Cerca",
+    "emotionalTags": "¿Cómo te sientes?",
+    "whatGodSaid": "¿Qué te dijo Dios hoy?",
+    "whatGodSaidPlaceholder": "Comparte lo que sentiste que Dios habló a tu corazón...",
+    "prayers": "Tus Oraciones",
+    "prayersPlaceholder": "Escribe tus oraciones y peticiones...",
+    "answeredPrayers": "Oraciones Respondidas",
+    "answeredPrayersPlaceholder": "Registra las oraciones que Dios respondió...",
+    "learnings": "¿Qué aprendiste?",
+    "learningsPlaceholder": "Reflexiones y aprendizajes...",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "createSuccess": "¡Entrada creada con éxito!",
+    "updateSuccess": "¡Entrada actualizada con éxito!",
+    "deleteSuccess": "¡Entrada eliminada con éxito!",
+    "deleteConfirm": "¿Estás seguro de que quieres eliminar esta entrada?",
+    "error": "Error al procesar tu solicitud",
+    "recentEntries": "Entradas Recientes",
+    "tags": {
+      "grateful": "Agradecido",
+      "renewed": "Renovado",
+      "tired": "Cansado",
+      "tempted": "Tentado",
+      "peaceful": "En Paz",
+      "hopeful": "Esperanzado"
+    }
+  },
+  "checkIn": {
+    "title": "¿Cómo fue tu día?",
+    "description": "Antes de marcar como completo, comparte cómo estás",
+    "feelingRating": "¿Cómo te sientes espiritualmente?",
+    "weak": "Débil",
+    "strong": "Fuerte",
+    "howAreYouFeeling": "¿Cómo te sientes?",
+    "notes": "Notas (opcional)",
+    "notesPlaceholder": "¿Cómo fue tu día de ayuno? ¿Alguna dificultad o victoria?",
+    "skip": "Saltar",
+    "complete": "Completar Día"
+  },
+  "createFast": {
+    "purposeRequired": "Por favor, describe el propósito de tu ayuno",
+    "purpose": {
+      "title": "Propósito del Ayuno",
+      "category": "¿Por qué estás ayunando?",
+      "description": "Describe tu propósito",
+      "placeholder": "Por ejemplo: 'Busco sanación para mi ansiedad' o 'Ayunando por sabiduría'",
+      "hint": "Este propósito ayudará a personalizar tu contenido diario",
+      "categories": {
+        "healing": "Sanación física o emocional",
+        "guidance": "Dirección y sabiduría",
+        "gratitude": "Gratitud y adoración",
+        "intercession": "Intercesión por alguien",
+        "deliverance": "Liberación espiritual",
+        "breakthrough": "Avance y milagros",
+        "other": "Otro propósito"
+      }
+    }
   }
 }

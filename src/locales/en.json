@@ -298,5 +298,73 @@
     "confirm": "Confirm",
     "yes": "Yes",
     "no": "No"
+  },
+  "journal": {
+    "title": "Spiritual Journal",
+    "subtitle": "Record your journey with God",
+    "cardTitle": "Spiritual Journal",
+    "cardDescription": "Record your spiritual journey and growth",
+    "selectDate": "Select Date",
+    "newEntry": "New Entry",
+    "editEntry": "Edit Entry",
+    "feelingRating": "How is your connection with God today?",
+    "distant": "Distant",
+    "close": "Close",
+    "emotionalTags": "How are you feeling?",
+    "whatGodSaid": "What did God tell you today?",
+    "whatGodSaidPlaceholder": "Share what you felt God spoke to your heart...",
+    "prayers": "Your Prayers",
+    "prayersPlaceholder": "Write your prayers and requests...",
+    "answeredPrayers": "Answered Prayers",
+    "answeredPrayersPlaceholder": "Record the prayers God answered...",
+    "learnings": "What did you learn?",
+    "learningsPlaceholder": "Reflections and learnings...",
+    "save": "Save",
+    "saving": "Saving...",
+    "createSuccess": "Entry created successfully!",
+    "updateSuccess": "Entry updated successfully!",
+    "deleteSuccess": "Entry deleted successfully!",
+    "deleteConfirm": "Are you sure you want to delete this entry?",
+    "error": "Error processing your request",
+    "recentEntries": "Recent Entries",
+    "tags": {
+      "grateful": "Grateful",
+      "renewed": "Renewed",
+      "tired": "Tired",
+      "tempted": "Tempted",
+      "peaceful": "Peaceful",
+      "hopeful": "Hopeful"
+    }
+  },
+  "checkIn": {
+    "title": "How was your day?",
+    "description": "Before marking as complete, share how you are",
+    "feelingRating": "How do you feel spiritually?",
+    "weak": "Weak",
+    "strong": "Strong",
+    "howAreYouFeeling": "How are you feeling?",
+    "notes": "Notes (optional)",
+    "notesPlaceholder": "How was your fasting day? Any difficulties or victories?",
+    "skip": "Skip",
+    "complete": "Complete Day"
+  },
+  "createFast": {
+    "purposeRequired": "Please describe the purpose of your fast",
+    "purpose": {
+      "title": "Fast Purpose",
+      "category": "Why are you fasting?",
+      "description": "Describe your purpose",
+      "placeholder": "For example: 'Seeking healing for my anxiety' or 'Fasting for wisdom'",
+      "hint": "This purpose will help personalize your daily content",
+      "categories": {
+        "healing": "Physical or emotional healing",
+        "guidance": "Direction and wisdom",
+        "gratitude": "Gratitude and worship",
+        "intercession": "Intercession for someone",
+        "deliverance": "Spiritual deliverance",
+        "breakthrough": "Breakthrough and miracles",
+        "other": "Other purpose"
+      }
+    }
   }
 }

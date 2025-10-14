@@ -9,11 +9,12 @@ import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 import { DailyContentCard } from "@/components/gamification/DailyContentCard";
 import { StreakDisplay } from "@/components/gamification/StreakDisplay";
 import { BadgesDisplay } from "@/components/gamification/BadgesDisplay";
+import EmotionalCheckIn from "@/components/EmotionalCheckIn";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
-import { CheckCircle, Calendar, User } from "lucide-react";
+import { CheckCircle, Calendar, User, Book } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useGamification } from "@/hooks/useGamification";
 import { format } from "date-fns";
@@ -32,6 +33,9 @@ export default function Index() {
   const [completedDays, setCompletedDays] = useState<any[]>([]);
   const [profile, setProfile] = useState<any>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showCheckIn, setShowCheckIn] = useState(false);
+  const [checkInData, setCheckInData] = useState<any>(null);
+  
   const getDateFnsLocale = () => {
     switch (i18n.language) {
       case 'en':
@@ -130,21 +134,37 @@ export default function Index() {
   };
   const handleCompleteDay = async () => {
     if (!activeFast) return;
+    
+    const today = format(new Date(), "yyyy-MM-dd");
+    const { data: existingDay } = await supabase
+      .from("fast_days")
+      .select("id")
+      .eq("fast_id", activeFast.id)
+      .eq("date", today)
+      .maybeSingle();
+      
+    if (existingDay) {
+      toast({
+        variant: "destructive",
+        title: t("home.errorMarking"),
+        description: t("home.dayAlreadyMarked")
+      });
+      return;
+    }
+    
+    // Open check-in modal
+    setShowCheckIn(true);
+  };
+
+  const handleCheckInComplete = async (data: {
+    feeling_rating: number;
+    emotional_tags: string[];
+    daily_note: string;
+  }) => {
+    if (!activeFast) return;
+    
     try {
       const today = format(new Date(), "yyyy-MM-dd");
-
-      // Check if day already exists
-      const {
-        data: existingDay
-      } = await supabase.from("fast_days").select("id").eq("fast_id", activeFast.id).eq("date", today).maybeSingle();
-      if (existingDay) {
-        toast({
-          variant: "destructive",
-          title: t("home.errorMarking"),
-          description: t("home.dayAlreadyMarked")
-        });
-        return;
-      }
 
       // Find the active block to assign this day to
       let activeBlockId = null;
@@ -167,15 +187,19 @@ export default function Index() {
           break;
         }
       }
-      const {
-        error
-      } = await supabase.from("fast_days").insert({
+
+      const { error } = await supabase.from("fast_days").insert({
         fast_id: activeFast.id,
         date: today,
         completed: true,
-        block_id: activeBlockId
+        block_id: activeBlockId,
+        feeling_rating: data.feeling_rating || null,
+        emotional_tags: data.emotional_tags,
+        daily_note: data.daily_note || null,
       });
+
       if (error) throw error;
+
       // Check if fast is completed
       const newTotalCompleted = totalCompleted + 1;
       const fastCompleted = newTotalCompleted >= activeFast.total_days;
@@ -288,6 +312,26 @@ export default function Index() {
 
         {/* Daily Content */}
         <DailyContentCard />
+
+        {/* Spiritual Journal Card */}
+        <Card 
+          className="p-4 md:p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-sm cursor-pointer hover:shadow-md transition-all hover:-translate-y-1"
+          onClick={() => navigate("/diario")}
+        >
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-full bg-primary/10">
+              <Book className="w-6 h-6 text-primary" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-foreground mb-1">
+                {t("journal.cardTitle")}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {t("journal.cardDescription")}
+              </p>
+            </div>
+          </div>
+        </Card>
 
         {/* Progress Section */}
         <Card className="p-4 md:p-6 bg-gradient-to-br from-card to-card/50 border-border shadow-sm">
@@ -477,5 +521,12 @@ export default function Index() {
           </Button>
         </div>
       </div>
+      
+      {/* Emotional Check-In Modal */}
+      <EmotionalCheckIn 
+        open={showCheckIn}
+        onOpenChange={setShowCheckIn}
+        onComplete={handleCheckInComplete}
+      />
     </Layout>;
 }
