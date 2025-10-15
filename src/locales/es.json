@@ -327,6 +327,11 @@
     "deleteConfirm": "¿Estás seguro de que quieres eliminar esta entrada?",
     "error": "Error al procesar tu solicitud",
     "recentEntries": "Entradas Recientes",
+    "viewAll": "Ver todas",
+    "edit": "Editar",
+    "copied": "¡Copiado!",
+    "copiedMessage": "Entrada copiada al portapapeles",
+    "editingEntry": "Editando entrada",
     "tags": {
       "grateful": "Agradecido",
       "renewed": "Renovado",

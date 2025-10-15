@@ -327,6 +327,11 @@
     "deleteConfirm": "Are you sure you want to delete this entry?",
     "error": "Error processing your request",
     "recentEntries": "Recent Entries",
+    "viewAll": "View all",
+    "edit": "Edit",
+    "copied": "Copied!",
+    "copiedMessage": "Entry copied to clipboard",
+    "editingEntry": "Editing entry",
     "tags": {
       "grateful": "Grateful",
       "renewed": "Renewed",
