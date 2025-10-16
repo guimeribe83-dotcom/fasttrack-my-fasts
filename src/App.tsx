@@ -63,17 +63,15 @@ const AppContent = () => {
 
 const App = () => {
   return (
-    <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <BrowserRouter>
-            <AppContent />
-            <Toaster />
-            <Sonner />
-          </BrowserRouter>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <BrowserRouter>
+          <AppContent />
+          <Toaster />
+          <Sonner />
+        </BrowserRouter>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 };
 
