@@ -332,6 +332,12 @@
     "copied": "Copied!",
     "copiedMessage": "Entry copied to clipboard",
     "editingEntry": "Editing entry",
+    "statistics": "Spiritual Statistics",
+    "suggestions": "Reflection Suggestions",
+    "verseOfDay": "Verse of the Day",
+    "myReflection": "My Reflection",
+    "noEntries": "No entries recorded yet",
+    "startWriting": "Start writing your spiritual journal today!",
     "tags": {
       "grateful": "Grateful",
       "renewed": "Renewed",

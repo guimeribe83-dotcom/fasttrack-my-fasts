@@ -11,14 +11,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { Separator } from "@/components/ui/separator";
-import { Book, Heart, Sparkles, CalendarIcon, Plus, Edit, Trash2, Copy, ChevronRight } from "lucide-react";
+import { 
+  Book, Heart, Sparkles, CalendarIcon, Plus, Edit, Trash2, Copy, 
+  BarChart3, Lightbulb, Star, BookOpen, Check
+} from "lucide-react";
 import { format } from "date-fns";
 import { ptBR, enUS, es } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
@@ -294,361 +291,446 @@ ${entry.learnings ? `💡 ${t("journal.learnings")}:\n${entry.learnings}` : ''}
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-6 max-w-4xl space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-full bg-primary/10">
-              <Book className="w-6 h-6 text-primary" />
+      <div className="container mx-auto px-4 py-6 max-w-6xl">
+        {/* Header Moderno com Ações Rápidas */}
+        <div className="mb-8 bg-gradient-to-br from-primary/10 via-purple-500/10 to-primary/5 rounded-2xl p-6 border border-primary/20">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <div className="p-4 rounded-2xl bg-gradient-primary shadow-lg">
+                <BookOpen className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+                  {t("journal.title")}
+                </h1>
+                <p className="text-sm text-muted-foreground mt-1">{t("journal.subtitle")}</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold">{t("journal.title")}</h1>
-              <p className="text-sm text-muted-foreground">{t("journal.subtitle")}</p>
-            </div>
+          </div>
+
+          {/* Ações Rápidas */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <Button 
+              variant="outline" 
+              className="h-auto py-3 flex flex-col gap-2 hover:bg-primary/10 hover:border-primary transition-all"
+              onClick={() => window.scrollTo({ top: document.querySelector('#journal-form')?.getBoundingClientRect().top || 0, behavior: 'smooth' })}
+            >
+              <Plus className="w-5 h-5 text-primary" />
+              <span className="text-xs font-medium">{t("journal.newEntry")}</span>
+            </Button>
+            
+            <Button 
+              variant="outline"
+              className="h-auto py-3 flex flex-col gap-2 hover:bg-purple-500/10 hover:border-purple-500 transition-all"
+            >
+              <BarChart3 className="w-5 h-5 text-purple-600" />
+              <span className="text-xs font-medium">{t("journal.statistics")}</span>
+            </Button>
+            
+            <Button 
+              variant="outline"
+              className="h-auto py-3 flex flex-col gap-2 hover:bg-yellow-500/10 hover:border-yellow-500 transition-all"
+            >
+              <Lightbulb className="w-5 h-5 text-yellow-600" />
+              <span className="text-xs font-medium">{t("journal.suggestions")}</span>
+            </Button>
+            
+            <Button 
+              variant="outline"
+              className="h-auto py-3 flex flex-col gap-2 hover:bg-green-500/10 hover:border-green-500 transition-all"
+            >
+              <Sparkles className="w-5 h-5 text-green-600" />
+              <span className="text-xs font-medium">{t("journal.verseOfDay")}</span>
+            </Button>
           </div>
         </div>
 
-        {/* Date Selector */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <CalendarIcon className="w-5 h-5" />
-              {t("journal.selectDate")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full justify-start text-left font-normal">
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {format(selectedDate, "PPP", { locale: dateLocale })}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={(date) => date && setSelectedDate(date)}
-                  locale={dateLocale}
-                  modifiers={{
-                    hasEntry: (date) => hasEntryForDate(date)
-                  }}
-                  modifiersStyles={{
-                    hasEntry: {
-                      fontWeight: 'bold',
-                      textDecoration: 'underline',
-                    }
-                  }}
-                />
-              </PopoverContent>
-            </Popover>
-          </CardContent>
-        </Card>
+        <div className="grid lg:grid-cols-2 gap-6">
 
-        {/* Journal Entry Form */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              {currentEntry ? <Edit className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
-              {currentEntry ? t("journal.editEntry") : t("journal.newEntry")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Feeling Rating */}
-            <div className="space-y-3">
-              <Label className="flex items-center gap-2">
-                <Heart className="w-4 h-4 text-primary" />
-                {t("journal.feelingRating")}
-              </Label>
-              <div className="space-y-2">
-                <Slider
-                  value={[feelingRating]}
-                  onValueChange={(values) => setFeelingRating(values[0])}
-                  min={1}
-                  max={10}
-                  step={1}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>{t("journal.distant")}</span>
-                  <span className="font-bold text-lg text-primary">{feelingRating}/10</span>
-                  <span>{t("journal.close")}</span>
+          {/* Coluna Esquerda: Formulário */}
+          <div className="space-y-6">
+            {/* Seletor de Data */}
+            <Card className="border-primary/20 shadow-md">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <CalendarIcon className="w-4 h-4 text-primary" />
+                  {t("journal.selectDate")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start text-left font-normal hover:bg-primary/5">
+                      <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
+                      {format(selectedDate, "PPP", { locale: dateLocale })}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={(date) => date && setSelectedDate(date)}
+                      locale={dateLocale}
+                      modifiers={{
+                        hasEntry: (date) => hasEntryForDate(date)
+                      }}
+                      modifiersStyles={{
+                        hasEntry: {
+                          fontWeight: 'bold',
+                          textDecoration: 'underline',
+                        }
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </CardContent>
+            </Card>
+
+            {/* Formulário de Entrada */}
+            <Card id="journal-form" className="border-primary/20 shadow-md">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  {currentEntry ? (
+                    <>
+                      <Edit className="w-4 h-4 text-primary" />
+                      {t("journal.editEntry")}
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4 text-primary" />
+                      {t("journal.newEntry")}
+                    </>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-5">
+                {/* Conexão com Deus - Slider */}
+                <div className="space-y-3 bg-gradient-to-br from-primary/5 to-purple-500/5 p-4 rounded-xl border border-primary/10">
+                  <Label className="flex items-center gap-2 text-sm font-semibold">
+                    <Heart className="w-4 h-4 text-primary" />
+                    {t("journal.feelingRating")}
+                  </Label>
+                  <div className="space-y-3">
+                    <Slider
+                      value={[feelingRating]}
+                      onValueChange={(values) => setFeelingRating(values[0])}
+                      min={1}
+                      max={10}
+                      step={1}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-muted-foreground">{t("journal.distant")}</span>
+                      <div className="px-4 py-1 rounded-full bg-primary text-white font-bold text-lg shadow-md">
+                        {feelingRating}/10
+                      </div>
+                      <span className="text-muted-foreground">{t("journal.close")}</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            {/* Emotional Tags */}
-            <div className="space-y-3">
-              <Label className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-primary" />
-                {t("journal.emotionalTags")}
-              </Label>
-              <div className="flex flex-wrap gap-2">
-                {emotionalTags.map((tag) => (
-                  <Badge
-                    key={tag.value}
-                    variant={selectedTags.includes(tag.value) ? "default" : "outline"}
-                    className={cn(
-                      "cursor-pointer transition-all",
-                      selectedTags.includes(tag.value) ? tag.color : "hover:bg-accent"
+                {/* Ícones de Humor (Emotional Tags) */}
+                <div className="space-y-3">
+                  <Label className="flex items-center gap-2 text-sm font-semibold">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    {t("journal.emotionalTags")}
+                  </Label>
+                  <div className="flex flex-wrap gap-2">
+                    {emotionalTags.map((tag) => (
+                      <Badge
+                        key={tag.value}
+                        variant={selectedTags.includes(tag.value) ? "default" : "outline"}
+                        className={cn(
+                          "cursor-pointer transition-all text-sm py-1.5 px-3",
+                          selectedTags.includes(tag.value) 
+                            ? "bg-primary text-white shadow-md scale-105" 
+                            : "hover:bg-accent hover:scale-105"
+                        )}
+                        onClick={() => toggleTag(tag.value)}
+                      >
+                        <span className="mr-1.5 text-base">{tag.icon}</span>
+                        {t(`journal.tags.${tag.value}`)}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* O que Deus te falou */}
+                <div className="space-y-2">
+                  <Label htmlFor="whatGodSaid" className="flex items-center gap-2 text-sm font-semibold">
+                    <Sparkles className="w-3.5 h-3.5 text-yellow-600" />
+                    {t("journal.whatGodSaid")}
+                  </Label>
+                  <Textarea
+                    id="whatGodSaid"
+                    value={whatGodSaid}
+                    onChange={(e) => setWhatGodSaid(e.target.value)}
+                    placeholder={t("journal.whatGodSaidPlaceholder")}
+                    className="min-h-[90px] resize-none bg-yellow-500/5 border-yellow-500/20 focus:border-yellow-500/40"
+                  />
+                </div>
+
+                {/* Suas Orações */}
+                <div className="space-y-2">
+                  <Label htmlFor="prayers" className="flex items-center gap-2 text-sm font-semibold">
+                    🙏 {t("journal.prayers")}
+                  </Label>
+                  <Textarea
+                    id="prayers"
+                    value={prayers}
+                    onChange={(e) => setPrayers(e.target.value)}
+                    placeholder={t("journal.prayersPlaceholder")}
+                    className="min-h-[90px] resize-none bg-blue-500/5 border-blue-500/20 focus:border-blue-500/40"
+                  />
+                </div>
+
+                {/* Orações Respondidas */}
+                <div className="space-y-2">
+                  <Label htmlFor="answeredPrayers" className="flex items-center gap-2 text-sm font-semibold">
+                    ✅ {t("journal.answeredPrayers")}
+                  </Label>
+                  <Textarea
+                    id="answeredPrayers"
+                    value={answeredPrayers}
+                    onChange={(e) => setAnsweredPrayers(e.target.value)}
+                    placeholder={t("journal.answeredPrayersPlaceholder")}
+                    className="min-h-[90px] resize-none bg-green-500/5 border-green-500/20 focus:border-green-500/40"
+                  />
+                </div>
+
+                {/* Aprendizados */}
+                <div className="space-y-2">
+                  <Label htmlFor="learnings" className="flex items-center gap-2 text-sm font-semibold">
+                    💡 {t("journal.learnings")}
+                  </Label>
+                  <Textarea
+                    id="learnings"
+                    value={learnings}
+                    onChange={(e) => setLearnings(e.target.value)}
+                    placeholder={t("journal.learningsPlaceholder")}
+                    className="min-h-[90px] resize-none bg-purple-500/5 border-purple-500/20 focus:border-purple-500/40"
+                  />
+                </div>
+
+                {/* Botões de Ação */}
+                <div className="flex gap-3 pt-2">
+                  <Button
+                    onClick={handleSave}
+                    disabled={loading}
+                    className="flex-1 bg-gradient-primary shadow-lg hover:shadow-xl transition-all"
+                  >
+                    {loading ? (
+                      <span className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        {t("journal.saving")}
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <Check className="w-4 h-4" />
+                        {t("journal.save")}
+                      </span>
                     )}
-                    onClick={() => toggleTag(tag.value)}
-                  >
-                    <span className="mr-1">{tag.icon}</span>
-                    {t(`journal.tags.${tag.value}`)}
+                  </Button>
+                  {currentEntry && (
+                    <Button
+                      onClick={handleDelete}
+                      disabled={loading}
+                      variant="destructive"
+                      size="icon"
+                      className="shadow-md"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Coluna Direita: Entradas Recentes (Estilo Notas) */}
+          <div className="space-y-6">
+            {entries.length > 0 ? (
+              <>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-bold flex items-center gap-2">
+                    <Book className="w-5 h-5 text-primary" />
+                    {t("journal.recentEntries")}
+                  </h2>
+                  <Badge variant="secondary" className="text-xs">
+                    {entries.length} {entries.length === 1 ? 'entrada' : 'entradas'}
                   </Badge>
-                ))}
-              </div>
-            </div>
+                </div>
 
-            {/* What God Said */}
-            <div className="space-y-2">
-              <Label htmlFor="whatGodSaid">{t("journal.whatGodSaid")}</Label>
-              <Textarea
-                id="whatGodSaid"
-                value={whatGodSaid}
-                onChange={(e) => setWhatGodSaid(e.target.value)}
-                placeholder={t("journal.whatGodSaidPlaceholder")}
-                className="min-h-[100px] resize-none"
-              />
-            </div>
+                {/* Cards de Notas */}
+                <div className="space-y-4">
+                  {entries.slice(0, 10).map((entry, index) => {
+                    const noteColors = [
+                      'from-blue-50 to-blue-100/50 dark:from-blue-950/30 dark:to-blue-900/20 border-blue-200/50 dark:border-blue-800/30',
+                      'from-purple-50 to-purple-100/50 dark:from-purple-950/30 dark:to-purple-900/20 border-purple-200/50 dark:border-purple-800/30',
+                      'from-pink-50 to-pink-100/50 dark:from-pink-950/30 dark:to-pink-900/20 border-pink-200/50 dark:border-pink-800/30',
+                      'from-yellow-50 to-yellow-100/50 dark:from-yellow-950/30 dark:to-yellow-900/20 border-yellow-200/50 dark:border-yellow-800/30',
+                      'from-green-50 to-green-100/50 dark:from-green-950/30 dark:to-green-900/20 border-green-200/50 dark:border-green-800/30',
+                    ];
+                    const colorClass = noteColors[index % noteColors.length];
 
-            {/* Prayers */}
-            <div className="space-y-2">
-              <Label htmlFor="prayers">{t("journal.prayers")}</Label>
-              <Textarea
-                id="prayers"
-                value={prayers}
-                onChange={(e) => setPrayers(e.target.value)}
-                placeholder={t("journal.prayersPlaceholder")}
-                className="min-h-[100px] resize-none"
-              />
-            </div>
+                    const getEntryTitle = (entry: JournalEntry) => {
+                      if (entry.what_god_said) {
+                        const words = entry.what_god_said.split(' ').slice(0, 5).join(' ');
+                        return words + (entry.what_god_said.split(' ').length > 5 ? '...' : '');
+                      }
+                      const tagInfo = entry.tags[0] ? emotionalTags.find(t => t.value === entry.tags[0]) : null;
+                      return tagInfo ? `${tagInfo.icon} ${t(`journal.tags.${entry.tags[0]}`)}` : t("journal.myReflection");
+                    };
 
-            {/* Answered Prayers */}
-            <div className="space-y-2">
-              <Label htmlFor="answeredPrayers">{t("journal.answeredPrayers")}</Label>
-              <Textarea
-                id="answeredPrayers"
-                value={answeredPrayers}
-                onChange={(e) => setAnsweredPrayers(e.target.value)}
-                placeholder={t("journal.answeredPrayersPlaceholder")}
-                className="min-h-[100px] resize-none"
-              />
-            </div>
+                    const getEntrySummary = (entry: JournalEntry) => {
+                      const parts = [];
+                      if (entry.prayers) parts.push(entry.prayers);
+                      if (entry.answered_prayers) parts.push(entry.answered_prayers);
+                      if (entry.learnings) parts.push(entry.learnings);
+                      const summary = parts.join(' ').split(' ').slice(0, 15).join(' ');
+                      return summary ? summary + '...' : '';
+                    };
 
-            {/* Learnings */}
-            <div className="space-y-2">
-              <Label htmlFor="learnings">{t("journal.learnings")}</Label>
-              <Textarea
-                id="learnings"
-                value={learnings}
-                onChange={(e) => setLearnings(e.target.value)}
-                placeholder={t("journal.learningsPlaceholder")}
-                className="min-h-[100px] resize-none"
-              />
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-3">
-              <Button
-                onClick={handleSave}
-                disabled={loading}
-                className="flex-1"
-              >
-                {loading ? t("journal.saving") : t("journal.save")}
-              </Button>
-              {currentEntry && (
-                <Button
-                  onClick={handleDelete}
-                  disabled={loading}
-                  variant="destructive"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Recent Entries */}
-        {entries.length > 0 && (
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Book className="w-5 h-5" />
-                {t("journal.recentEntries")} ({entries.length})
-              </CardTitle>
-              {entries.length > 10 && (
-                <Button variant="link" size="sm" className="text-xs">
-                  {t("journal.viewAll")} <ChevronRight className="w-3 h-3 ml-1" />
-                </Button>
-              )}
-            </CardHeader>
-            <CardContent className="p-0">
-              <Accordion type="single" collapsible className="w-full">
-                {entries.slice(0, 10).map((entry) => (
-                  <AccordionItem 
-                    key={entry.id} 
-                    value={entry.id}
-                    className="border-none px-6"
-                  >
-                    <AccordionTrigger className="hover:no-underline py-4">
-                      <div className="flex items-center justify-between w-full pr-4">
-                        <div className="flex items-center gap-3">
-                          <div className={cn(
-                            "p-2 rounded-full transition-colors",
-                            entry.feeling_rating && entry.feeling_rating >= 8 
-                              ? "bg-green-500/10"
-                              : entry.feeling_rating && entry.feeling_rating >= 6
-                              ? "bg-blue-500/10"
-                              : entry.feeling_rating && entry.feeling_rating >= 4
-                              ? "bg-orange-500/10"
-                              : "bg-red-500/10"
-                          )}>
-                            <Heart className={cn("w-4 h-4", getFeelingColor(entry.feeling_rating))} />
+                    return (
+                      <Card 
+                        key={entry.id}
+                        className={cn(
+                          "bg-gradient-to-br border-2 shadow-md hover:shadow-xl transition-all cursor-pointer group",
+                          colorClass
+                        )}
+                        onClick={() => handleEditEntry(entry)}
+                      >
+                        <CardHeader className="pb-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <CardTitle className="text-base font-bold line-clamp-2 group-hover:text-primary transition-colors">
+                                {getEntryTitle(entry)}
+                              </CardTitle>
+                              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
+                                <CalendarIcon className="w-3 h-3" />
+                                {format(new Date(entry.entry_date + 'T00:00:00'), "dd MMM yyyy", { locale: dateLocale })}
+                              </p>
+                            </div>
+                            
+                            {/* Ícone de Sentimento */}
+                            {entry.feeling_rating && (
+                              <div className={cn(
+                                "p-2 rounded-full shadow-sm",
+                                entry.feeling_rating >= 8 
+                                  ? "bg-green-500/20"
+                                  : entry.feeling_rating >= 6
+                                  ? "bg-blue-500/20"
+                                  : entry.feeling_rating >= 4
+                                  ? "bg-orange-500/20"
+                                  : "bg-red-500/20"
+                              )}>
+                                <Heart className={cn("w-4 h-4", getFeelingColor(entry.feeling_rating))} fill="currentColor" />
+                              </div>
+                            )}
                           </div>
-                          
-                          <div className="text-left">
-                            <p className="font-medium">
-                              {format(new Date(entry.entry_date + 'T00:00:00'), "EEE, dd MMM yyyy", { locale: dateLocale })}
+                        </CardHeader>
+
+                        <CardContent className="space-y-3">
+                          {/* Resumo */}
+                          {getEntrySummary(entry) && (
+                            <p className="text-sm text-muted-foreground line-clamp-2">
+                              {getEntrySummary(entry)}
                             </p>
-                            <div className="flex items-center gap-2 mt-1">
-                              {entry.feeling_rating && (
-                                <span className={cn("text-xs font-semibold", getFeelingColor(entry.feeling_rating))}>
-                                  {entry.feeling_rating}/10
+                          )}
+
+                          {/* Tags e Rating */}
+                          <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                            <div className="flex items-center gap-1.5">
+                              {entry.tags.slice(0, 3).map((tag) => {
+                                const tagInfo = emotionalTags.find(t => t.value === tag);
+                                return tagInfo ? (
+                                  <span key={tag} className="text-base" title={t(`journal.tags.${tag}`)}>
+                                    {tagInfo.icon}
+                                  </span>
+                                ) : null;
+                              })}
+                              {entry.tags.length > 3 && (
+                                <span className="text-xs text-muted-foreground ml-1">
+                                  +{entry.tags.length - 3}
                                 </span>
                               )}
-                              {entry.tags.length > 0 && (
-                                <div className="flex gap-1">
-                                  {entry.tags.slice(0, 2).map((tag) => {
-                                    const tagInfo = emotionalTags.find(t => t.value === tag);
-                                    return tagInfo ? (
-                                      <span key={tag} className="text-xs">
-                                        {tagInfo.icon}
-                                      </span>
-                                    ) : null;
-                                  })}
-                                  {entry.tags.length > 2 && (
-                                    <span className="text-xs text-muted-foreground">
-                                      +{entry.tags.length - 2}
-                                    </span>
-                                  )}
-                                </div>
-                              )}
+                            </div>
+
+                            {/* Ações rápidas */}
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleCopyEntry(entry);
+                                }}
+                              >
+                                <Copy className="w-3 h-3" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // Adicionar funcionalidade de favorito
+                                }}
+                              >
+                                <Star className="w-3 h-3" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  if (!confirm(t("journal.deleteConfirm"))) return;
+                                  const { error } = await supabase
+                                    .from("spiritual_journal")
+                                    .delete()
+                                    .eq("id", entry.id);
+                                  
+                                  if (!error) {
+                                    toast({ title: t("journal.deleteSuccess") });
+                                    loadEntries();
+                                  }
+                                }}
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </Button>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                    </AccordionTrigger>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
 
-                    <AccordionContent className="pb-4">
-                      <div className="space-y-4 pl-11">
-                        {entry.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-2">
-                            {entry.tags.map((tag) => {
-                              const tagInfo = emotionalTags.find(t => t.value === tag);
-                              return tagInfo ? (
-                                <Badge key={tag} variant="secondary" className={cn("text-xs", tagInfo.color)}>
-                                  <span className="mr-1">{tagInfo.icon}</span>
-                                  {t(`journal.tags.${tag}`)}
-                                </Badge>
-                              ) : null;
-                            })}
-                          </div>
-                        )}
-
-                        {entry.what_god_said && (
-                          <div className="space-y-1">
-                            <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1">
-                              <Sparkles className="w-3 h-3" />
-                              {t("journal.whatGodSaid")}
-                            </p>
-                            <p className="text-sm bg-accent/50 p-3 rounded-md border border-border/50">
-                              {entry.what_god_said}
-                            </p>
-                          </div>
-                        )}
-
-                        {entry.prayers && (
-                          <div className="space-y-1">
-                            <p className="text-xs font-semibold text-muted-foreground">
-                              🙏 {t("journal.prayers")}
-                            </p>
-                            <p className="text-sm bg-accent/50 p-3 rounded-md border border-border/50">
-                              {entry.prayers}
-                            </p>
-                          </div>
-                        )}
-
-                        {entry.answered_prayers && (
-                          <div className="space-y-1">
-                            <p className="text-xs font-semibold text-muted-foreground">
-                              ✅ {t("journal.answeredPrayers")}
-                            </p>
-                            <p className="text-sm bg-accent/50 p-3 rounded-md border border-border/50">
-                              {entry.answered_prayers}
-                            </p>
-                          </div>
-                        )}
-
-                        {entry.learnings && (
-                          <div className="space-y-1">
-                            <p className="text-xs font-semibold text-muted-foreground">
-                              💡 {t("journal.learnings")}
-                            </p>
-                            <p className="text-sm bg-accent/50 p-3 rounded-md border border-border/50">
-                              {entry.learnings}
-                            </p>
-                          </div>
-                        )}
-
-                        <Separator className="my-3" />
-
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEditEntry(entry)}
-                            className="flex-1"
-                          >
-                            <Edit className="w-3 h-3 mr-2" />
-                            {t("journal.edit")}
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleCopyEntry(entry)}
-                          >
-                            <Copy className="w-3 h-3" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={async () => {
-                              if (!confirm(t("journal.deleteConfirm"))) return;
-                              const { error } = await supabase
-                                .from("spiritual_journal")
-                                .delete()
-                                .eq("id", entry.id);
-                              
-                              if (!error) {
-                                toast({ title: t("journal.deleteSuccess") });
-                                loadEntries();
-                              }
-                            }}
-                          >
-                            <Trash2 className="w-3 h-3 text-destructive" />
-                          </Button>
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </CardContent>
-          </Card>
-        )}
+                {entries.length > 10 && (
+                  <Button variant="outline" className="w-full">
+                    {t("journal.viewAll")} ({entries.length - 10} mais)
+                  </Button>
+                )}
+              </>
+            ) : (
+              <Card className="border-dashed">
+                <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                  <BookOpen className="w-12 h-12 text-muted-foreground mb-4 opacity-50" />
+                  <p className="text-muted-foreground text-sm">
+                    {t("journal.noEntries")}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {t("journal.startWriting")}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
       </div>
     </Layout>
   );

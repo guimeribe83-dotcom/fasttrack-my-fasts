@@ -332,6 +332,12 @@
     "copied": "¡Copiado!",
     "copiedMessage": "Entrada copiada al portapapeles",
     "editingEntry": "Editando entrada",
+    "statistics": "Estadísticas Espirituales",
+    "suggestions": "Sugerencias de Reflexión",
+    "verseOfDay": "Versículo del Día",
+    "myReflection": "Mi Reflexión",
+    "noEntries": "Aún no hay entradas registradas",
+    "startWriting": "¡Comienza a escribir tu diario espiritual hoy!",
     "tags": {
       "grateful": "Agradecido",
       "renewed": "Renovado",
