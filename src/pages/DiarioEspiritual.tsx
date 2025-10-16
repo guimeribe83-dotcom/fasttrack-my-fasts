@@ -291,77 +291,82 @@ ${entry.learnings ? `💡 ${t("journal.learnings")}:\n${entry.learnings}` : ''}
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-6 max-w-6xl">
-        {/* Header Moderno com Ações Rápidas */}
-        <div className="mb-8 bg-gradient-to-br from-primary/10 via-purple-500/10 to-primary/5 rounded-2xl p-6 border border-primary/20">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <div className="p-4 rounded-2xl bg-gradient-primary shadow-lg">
-                <BookOpen className="w-7 h-7 text-white" />
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-6xl pb-24">
+        {/* Header Moderno - Compacto em Mobile */}
+        <div className="mb-6 sm:mb-8 bg-gradient-to-br from-primary/10 via-purple-500/10 to-primary/5 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-primary/20">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-gradient-primary shadow-lg">
+                <BookOpen className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+                <h1 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
                   {t("journal.title")}
                 </h1>
-                <p className="text-sm text-muted-foreground mt-1">{t("journal.subtitle")}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">{t("journal.subtitle")}</p>
               </div>
             </div>
           </div>
 
-          {/* Ações Rápidas */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {/* Ações Rápidas - Compactas em Mobile */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
             <Button 
               variant="outline" 
-              className="h-auto py-3 flex flex-col gap-2 hover:bg-primary/10 hover:border-primary transition-all"
-              onClick={() => window.scrollTo({ top: document.querySelector('#journal-form')?.getBoundingClientRect().top || 0, behavior: 'smooth' })}
+              className="h-auto py-2 sm:py-3 flex flex-col gap-1 sm:gap-2 hover:bg-primary/10 hover:border-primary transition-all text-xs sm:text-sm"
+              onClick={() => {
+                const form = document.querySelector('#journal-form');
+                form?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
             >
-              <Plus className="w-5 h-5 text-primary" />
-              <span className="text-xs font-medium">{t("journal.newEntry")}</span>
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+              <span className="font-medium">{t("journal.newEntry")}</span>
             </Button>
             
             <Button 
               variant="outline"
-              className="h-auto py-3 flex flex-col gap-2 hover:bg-purple-500/10 hover:border-purple-500 transition-all"
+              className="h-auto py-2 sm:py-3 flex flex-col gap-1 sm:gap-2 hover:bg-purple-500/10 hover:border-purple-500 transition-all text-xs sm:text-sm"
             >
-              <BarChart3 className="w-5 h-5 text-purple-600" />
-              <span className="text-xs font-medium">{t("journal.statistics")}</span>
+              <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
+              <span className="font-medium">{t("journal.statistics")}</span>
             </Button>
             
             <Button 
               variant="outline"
-              className="h-auto py-3 flex flex-col gap-2 hover:bg-yellow-500/10 hover:border-yellow-500 transition-all"
+              className="h-auto py-2 sm:py-3 flex flex-col gap-1 sm:gap-2 hover:bg-yellow-500/10 hover:border-yellow-500 transition-all text-xs sm:text-sm"
             >
-              <Lightbulb className="w-5 h-5 text-yellow-600" />
-              <span className="text-xs font-medium">{t("journal.suggestions")}</span>
+              <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600" />
+              <span className="font-medium">{t("journal.suggestions")}</span>
             </Button>
             
             <Button 
               variant="outline"
-              className="h-auto py-3 flex flex-col gap-2 hover:bg-green-500/10 hover:border-green-500 transition-all"
+              className="h-auto py-2 sm:py-3 flex flex-col gap-1 sm:gap-2 hover:bg-green-500/10 hover:border-green-500 transition-all text-xs sm:text-sm"
             >
-              <Sparkles className="w-5 h-5 text-green-600" />
-              <span className="text-xs font-medium">{t("journal.verseOfDay")}</span>
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+              <span className="font-medium hidden sm:inline">{t("journal.verseOfDay")}</span>
+              <span className="font-medium sm:hidden">Versículo</span>
             </Button>
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-6">
+        {/* Layout Responsivo: 1 coluna em mobile, 2 em desktop */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
 
-          {/* Coluna Esquerda: Formulário */}
-          <div className="space-y-6">
-            {/* Seletor de Data */}
+          {/* Coluna 1: Formulário (Prioridade em Mobile) */}
+          <div className="space-y-4 sm:space-y-6 order-2 lg:order-1">
+            {/* Seletor de Data - Compacto */}
             <Card className="border-primary/20 shadow-md">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <CalendarIcon className="w-4 h-4 text-primary" />
+              <CardHeader className="pb-2 sm:pb-3">
+                <CardTitle className="text-sm sm:text-base flex items-center gap-2">
+                  <CalendarIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
                   {t("journal.selectDate")}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start text-left font-normal hover:bg-primary/5">
-                      <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
+                    <Button variant="outline" className="w-full justify-start text-left font-normal hover:bg-primary/5 text-sm">
+                      <CalendarIcon className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                       {format(selectedDate, "PPP", { locale: dateLocale })}
                     </Button>
                   </PopoverTrigger>
@@ -386,31 +391,31 @@ ${entry.learnings ? `💡 ${t("journal.learnings")}:\n${entry.learnings}` : ''}
               </CardContent>
             </Card>
 
-            {/* Formulário de Entrada */}
-            <Card id="journal-form" className="border-primary/20 shadow-md">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
+            {/* Formulário de Entrada - Otimizado para Mobile */}
+            <Card id="journal-form" className="border-primary/20 shadow-md scroll-mt-20">
+              <CardHeader className="pb-2 sm:pb-3">
+                <CardTitle className="text-sm sm:text-base flex items-center gap-2">
                   {currentEntry ? (
                     <>
-                      <Edit className="w-4 h-4 text-primary" />
+                      <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
                       {t("journal.editEntry")}
                     </>
                   ) : (
                     <>
-                      <Plus className="w-4 h-4 text-primary" />
+                      <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
                       {t("journal.newEntry")}
                     </>
                   )}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-5">
-                {/* Conexão com Deus - Slider */}
-                <div className="space-y-3 bg-gradient-to-br from-primary/5 to-purple-500/5 p-4 rounded-xl border border-primary/10">
-                  <Label className="flex items-center gap-2 text-sm font-semibold">
-                    <Heart className="w-4 h-4 text-primary" />
+              <CardContent className="space-y-4 sm:space-y-5">
+                {/* Conexão com Deus - Slider com Espaçamento para Polegar */}
+                <div className="space-y-3 bg-gradient-to-br from-primary/5 to-purple-500/5 p-3 sm:p-4 rounded-xl border border-primary/10">
+                  <Label className="flex items-center gap-2 text-xs sm:text-sm font-semibold">
+                    <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
                     {t("journal.feelingRating")}
                   </Label>
-                  <div className="space-y-3">
+                  <div className="space-y-3 sm:space-y-3 px-1 py-2">
                     <Slider
                       value={[feelingRating]}
                       onValueChange={(values) => setFeelingRating(values[0])}
@@ -420,19 +425,19 @@ ${entry.learnings ? `💡 ${t("journal.learnings")}:\n${entry.learnings}` : ''}
                       className="w-full"
                     />
                     <div className="flex justify-between items-center text-xs">
-                      <span className="text-muted-foreground">{t("journal.distant")}</span>
-                      <div className="px-4 py-1 rounded-full bg-primary text-white font-bold text-lg shadow-md">
+                      <span className="text-muted-foreground text-xs sm:text-sm">{t("journal.distant")}</span>
+                      <div className="px-3 sm:px-4 py-1 sm:py-1 rounded-full bg-primary text-white font-bold text-base sm:text-lg shadow-md">
                         {feelingRating}/10
                       </div>
-                      <span className="text-muted-foreground">{t("journal.close")}</span>
+                      <span className="text-muted-foreground text-xs sm:text-sm">{t("journal.close")}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Ícones de Humor (Emotional Tags) */}
+                {/* Ícones de Humor - Touch-Friendly */}
                 <div className="space-y-3">
-                  <Label className="flex items-center gap-2 text-sm font-semibold">
-                    <Sparkles className="w-4 h-4 text-primary" />
+                  <Label className="flex items-center gap-2 text-xs sm:text-sm font-semibold">
+                    <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
                     {t("journal.emotionalTags")}
                   </Label>
                   <div className="flex flex-wrap gap-2">
@@ -441,10 +446,10 @@ ${entry.learnings ? `💡 ${t("journal.learnings")}:\n${entry.learnings}` : ''}
                         key={tag.value}
                         variant={selectedTags.includes(tag.value) ? "default" : "outline"}
                         className={cn(
-                          "cursor-pointer transition-all text-sm py-1.5 px-3",
+                          "cursor-pointer transition-all py-2 px-3 sm:py-1.5 sm:px-3 text-xs sm:text-sm touch-manipulation",
                           selectedTags.includes(tag.value) 
                             ? "bg-primary text-white shadow-md scale-105" 
-                            : "hover:bg-accent hover:scale-105"
+                            : "hover:bg-accent hover:scale-105 active:scale-95"
                         )}
                         onClick={() => toggleTag(tag.value)}
                       >
@@ -455,12 +460,12 @@ ${entry.learnings ? `💡 ${t("journal.learnings")}:\n${entry.learnings}` : ''}
                   </div>
                 </div>
 
-                <Separator />
+                <Separator className="my-3 sm:my-4" />
 
-                {/* O que Deus te falou */}
+                {/* Campos de Texto - Otimizados para Digitação Mobile */}
                 <div className="space-y-2">
-                  <Label htmlFor="whatGodSaid" className="flex items-center gap-2 text-sm font-semibold">
-                    <Sparkles className="w-3.5 h-3.5 text-yellow-600" />
+                  <Label htmlFor="whatGodSaid" className="flex items-center gap-2 text-xs sm:text-sm font-semibold">
+                    <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-yellow-600" />
                     {t("journal.whatGodSaid")}
                   </Label>
                   <Textarea
@@ -468,13 +473,12 @@ ${entry.learnings ? `💡 ${t("journal.learnings")}:\n${entry.learnings}` : ''}
                     value={whatGodSaid}
                     onChange={(e) => setWhatGodSaid(e.target.value)}
                     placeholder={t("journal.whatGodSaidPlaceholder")}
-                    className="min-h-[90px] resize-none bg-yellow-500/5 border-yellow-500/20 focus:border-yellow-500/40"
+                    className="min-h-[100px] sm:min-h-[90px] resize-none bg-yellow-500/5 border-yellow-500/20 focus:border-yellow-500/40 text-sm sm:text-base p-3 sm:p-3"
                   />
                 </div>
 
-                {/* Suas Orações */}
                 <div className="space-y-2">
-                  <Label htmlFor="prayers" className="flex items-center gap-2 text-sm font-semibold">
+                  <Label htmlFor="prayers" className="flex items-center gap-2 text-xs sm:text-sm font-semibold">
                     🙏 {t("journal.prayers")}
                   </Label>
                   <Textarea
@@ -482,13 +486,12 @@ ${entry.learnings ? `💡 ${t("journal.learnings")}:\n${entry.learnings}` : ''}
                     value={prayers}
                     onChange={(e) => setPrayers(e.target.value)}
                     placeholder={t("journal.prayersPlaceholder")}
-                    className="min-h-[90px] resize-none bg-blue-500/5 border-blue-500/20 focus:border-blue-500/40"
+                    className="min-h-[100px] sm:min-h-[90px] resize-none bg-blue-500/5 border-blue-500/20 focus:border-blue-500/40 text-sm sm:text-base p-3 sm:p-3"
                   />
                 </div>
 
-                {/* Orações Respondidas */}
                 <div className="space-y-2">
-                  <Label htmlFor="answeredPrayers" className="flex items-center gap-2 text-sm font-semibold">
+                  <Label htmlFor="answeredPrayers" className="flex items-center gap-2 text-xs sm:text-sm font-semibold">
                     ✅ {t("journal.answeredPrayers")}
                   </Label>
                   <Textarea
@@ -496,13 +499,12 @@ ${entry.learnings ? `💡 ${t("journal.learnings")}:\n${entry.learnings}` : ''}
                     value={answeredPrayers}
                     onChange={(e) => setAnsweredPrayers(e.target.value)}
                     placeholder={t("journal.answeredPrayersPlaceholder")}
-                    className="min-h-[90px] resize-none bg-green-500/5 border-green-500/20 focus:border-green-500/40"
+                    className="min-h-[100px] sm:min-h-[90px] resize-none bg-green-500/5 border-green-500/20 focus:border-green-500/40 text-sm sm:text-base p-3 sm:p-3"
                   />
                 </div>
 
-                {/* Aprendizados */}
                 <div className="space-y-2">
-                  <Label htmlFor="learnings" className="flex items-center gap-2 text-sm font-semibold">
+                  <Label htmlFor="learnings" className="flex items-center gap-2 text-xs sm:text-sm font-semibold">
                     💡 {t("journal.learnings")}
                   </Label>
                   <Textarea
@@ -510,16 +512,16 @@ ${entry.learnings ? `💡 ${t("journal.learnings")}:\n${entry.learnings}` : ''}
                     value={learnings}
                     onChange={(e) => setLearnings(e.target.value)}
                     placeholder={t("journal.learningsPlaceholder")}
-                    className="min-h-[90px] resize-none bg-purple-500/5 border-purple-500/20 focus:border-purple-500/40"
+                    className="min-h-[100px] sm:min-h-[90px] resize-none bg-purple-500/5 border-purple-500/20 focus:border-purple-500/40 text-sm sm:text-base p-3 sm:p-3"
                   />
                 </div>
 
-                {/* Botões de Ação */}
-                <div className="flex gap-3 pt-2">
+                {/* Botões de Ação - Touch-Friendly */}
+                <div className="flex gap-2 sm:gap-3 pt-2">
                   <Button
                     onClick={handleSave}
                     disabled={loading}
-                    className="flex-1 bg-gradient-primary shadow-lg hover:shadow-xl transition-all"
+                    className="flex-1 bg-gradient-primary shadow-lg hover:shadow-xl transition-all h-11 sm:h-10 text-sm sm:text-base touch-manipulation"
                   >
                     {loading ? (
                       <span className="flex items-center gap-2">
@@ -539,7 +541,7 @@ ${entry.learnings ? `💡 ${t("journal.learnings")}:\n${entry.learnings}` : ''}
                       disabled={loading}
                       variant="destructive"
                       size="icon"
-                      className="shadow-md"
+                      className="shadow-md h-11 w-11 sm:h-10 sm:w-10 touch-manipulation"
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -549,22 +551,22 @@ ${entry.learnings ? `💡 ${t("journal.learnings")}:\n${entry.learnings}` : ''}
             </Card>
           </div>
 
-          {/* Coluna Direita: Entradas Recentes (Estilo Notas) */}
-          <div className="space-y-6">
+          {/* Coluna 2: Entradas Recentes - Ordem Invertida em Mobile */}
+          <div className="space-y-4 sm:space-y-6 order-1 lg:order-2">
             {entries.length > 0 ? (
               <>
-                <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-bold flex items-center gap-2">
-                    <Book className="w-5 h-5 text-primary" />
+                <div className="flex items-center justify-between sticky top-0 bg-background/95 backdrop-blur-sm z-10 py-2 -mx-3 px-3 sm:mx-0 sm:px-0 sm:static">
+                  <h2 className="text-lg sm:text-xl font-bold flex items-center gap-2">
+                    <Book className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                     {t("journal.recentEntries")}
                   </h2>
                   <Badge variant="secondary" className="text-xs">
-                    {entries.length} {entries.length === 1 ? 'entrada' : 'entradas'}
+                    {entries.length}
                   </Badge>
                 </div>
 
-                {/* Cards de Notas */}
-                <div className="space-y-4">
+                {/* Cards de Notas - 100% Width em Mobile */}
+                <div className="space-y-3 sm:space-y-4">
                   {entries.slice(0, 10).map((entry, index) => {
                     const noteColors = [
                       'from-blue-50 to-blue-100/50 dark:from-blue-950/30 dark:to-blue-900/20 border-blue-200/50 dark:border-blue-800/30',
@@ -597,18 +599,18 @@ ${entry.learnings ? `💡 ${t("journal.learnings")}:\n${entry.learnings}` : ''}
                       <Card 
                         key={entry.id}
                         className={cn(
-                          "bg-gradient-to-br border-2 shadow-md hover:shadow-xl transition-all cursor-pointer group",
+                          "bg-gradient-to-br border-2 shadow-md hover:shadow-xl transition-all cursor-pointer group touch-manipulation active:scale-[0.98]",
                           colorClass
                         )}
                         onClick={() => handleEditEntry(entry)}
                       >
-                        <CardHeader className="pb-3">
+                        <CardHeader className="pb-2 sm:pb-3 px-4 sm:px-6">
                           <div className="flex items-start justify-between gap-3">
                             <div className="flex-1 min-w-0">
-                              <CardTitle className="text-base font-bold line-clamp-2 group-hover:text-primary transition-colors">
+                              <CardTitle className="text-sm sm:text-base font-bold line-clamp-2 group-hover:text-primary transition-colors">
                                 {getEntryTitle(entry)}
                               </CardTitle>
-                              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
+                              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1.5">
                                 <CalendarIcon className="w-3 h-3" />
                                 {format(new Date(entry.entry_date + 'T00:00:00'), "dd MMM yyyy", { locale: dateLocale })}
                               </p>
@@ -617,7 +619,7 @@ ${entry.learnings ? `💡 ${t("journal.learnings")}:\n${entry.learnings}` : ''}
                             {/* Ícone de Sentimento */}
                             {entry.feeling_rating && (
                               <div className={cn(
-                                "p-2 rounded-full shadow-sm",
+                                "p-1.5 sm:p-2 rounded-full shadow-sm shrink-0",
                                 entry.feeling_rating >= 8 
                                   ? "bg-green-500/20"
                                   : entry.feeling_rating >= 6
@@ -626,66 +628,65 @@ ${entry.learnings ? `💡 ${t("journal.learnings")}:\n${entry.learnings}` : ''}
                                   ? "bg-orange-500/20"
                                   : "bg-red-500/20"
                               )}>
-                                <Heart className={cn("w-4 h-4", getFeelingColor(entry.feeling_rating))} fill="currentColor" />
+                                <Heart className={cn("w-3.5 h-3.5 sm:w-4 sm:h-4", getFeelingColor(entry.feeling_rating))} fill="currentColor" />
                               </div>
                             )}
                           </div>
                         </CardHeader>
 
-                        <CardContent className="space-y-3">
+                        <CardContent className="space-y-3 px-4 sm:px-6 pb-4 sm:pb-6">
                           {/* Resumo */}
                           {getEntrySummary(entry) && (
-                            <p className="text-sm text-muted-foreground line-clamp-2">
+                            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
                               {getEntrySummary(entry)}
                             </p>
                           )}
 
-                          {/* Tags e Rating */}
+                          {/* Tags e Ações */}
                           <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-1 sm:gap-1.5">
                               {entry.tags.slice(0, 3).map((tag) => {
                                 const tagInfo = emotionalTags.find(t => t.value === tag);
                                 return tagInfo ? (
-                                  <span key={tag} className="text-base" title={t(`journal.tags.${tag}`)}>
+                                  <span key={tag} className="text-sm sm:text-base" title={t(`journal.tags.${tag}`)}>
                                     {tagInfo.icon}
                                   </span>
                                 ) : null;
                               })}
                               {entry.tags.length > 3 && (
-                                <span className="text-xs text-muted-foreground ml-1">
+                                <span className="text-xs text-muted-foreground ml-0.5 sm:ml-1">
                                   +{entry.tags.length - 3}
                                 </span>
                               )}
                             </div>
 
-                            {/* Ações rápidas */}
-                            <div className="flex items-center gap-1">
+                            {/* Ações rápidas - Touch Friendly */}
+                            <div className="flex items-center gap-0.5 sm:gap-1">
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                                className="h-8 w-8 sm:h-7 sm:w-7 opacity-70 group-hover:opacity-100 transition-opacity touch-manipulation active:scale-90"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleCopyEntry(entry);
                                 }}
                               >
-                                <Copy className="w-3 h-3" />
+                                <Copy className="w-3.5 h-3.5 sm:w-3 sm:h-3" />
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                                className="h-8 w-8 sm:h-7 sm:w-7 opacity-70 group-hover:opacity-100 transition-opacity touch-manipulation active:scale-90"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  // Adicionar funcionalidade de favorito
                                 }}
                               >
-                                <Star className="w-3 h-3" />
+                                <Star className="w-3.5 h-3.5 sm:w-3 sm:h-3" />
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive"
+                                className="h-8 w-8 sm:h-7 sm:w-7 opacity-70 group-hover:opacity-100 transition-opacity hover:text-destructive touch-manipulation active:scale-90"
                                 onClick={async (e) => {
                                   e.stopPropagation();
                                   if (!confirm(t("journal.deleteConfirm"))) return;
@@ -700,26 +701,26 @@ ${entry.learnings ? `💡 ${t("journal.learnings")}:\n${entry.learnings}` : ''}
                                   }
                                 }}
                               >
-                                <Trash2 className="w-3 h-3" />
+                                <Trash2 className="w-3.5 h-3.5 sm:w-3 sm:h-3" />
                               </Button>
                             </div>
                           </div>
                         </CardContent>
                       </Card>
                     );
-                  })}
+                })}
                 </div>
 
                 {entries.length > 10 && (
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full text-sm touch-manipulation">
                     {t("journal.viewAll")} ({entries.length - 10} mais)
                   </Button>
                 )}
               </>
             ) : (
               <Card className="border-dashed">
-                <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-                  <BookOpen className="w-12 h-12 text-muted-foreground mb-4 opacity-50" />
+                <CardContent className="flex flex-col items-center justify-center py-8 sm:py-12 text-center px-4">
+                  <BookOpen className="w-10 h-10 sm:w-12 sm:h-12 text-muted-foreground mb-3 sm:mb-4 opacity-50" />
                   <p className="text-muted-foreground text-sm">
                     {t("journal.noEntries")}
                   </p>
@@ -731,6 +732,19 @@ ${entry.learnings ? `💡 ${t("journal.learnings")}:\n${entry.learnings}` : ''}
             )}
           </div>
         </div>
+
+        {/* Botão Flutuante Fixo - Mobile First */}
+        <Button
+          onClick={() => {
+            setSelectedDate(new Date());
+            const form = document.querySelector('#journal-form');
+            form?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }}
+          size="icon"
+          className="fixed bottom-6 right-6 h-14 w-14 sm:h-12 sm:w-12 rounded-full shadow-2xl bg-gradient-primary hover:scale-110 transition-transform z-50 touch-manipulation"
+        >
+          <Plus className="w-6 h-6 sm:w-5 sm:h-5" />
+        </Button>
       </div>
     </Layout>
   );
