@@ -328,6 +328,7 @@
     "error": "Error processing your request",
     "recentEntries": "Recent Entries",
     "viewAll": "View all",
+    "viewComplete": "View complete",
     "edit": "Edit",
     "copied": "Copied!",
     "copiedMessage": "Entry copied to clipboard",

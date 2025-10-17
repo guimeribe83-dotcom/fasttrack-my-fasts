@@ -14,8 +14,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Separator } from "@/components/ui/separator";
 import { 
   Book, Heart, Sparkles, CalendarIcon, Plus, Edit, Trash2, Copy, 
-  BarChart3, Lightbulb, Star, BookOpen, Check
+  BookOpen, Check, Eye
 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { ptBR, enUS, es } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
@@ -55,6 +56,7 @@ export default function DiarioEspiritual() {
   const [learnings, setLearnings] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [activeFastId, setActiveFastId] = useState<string | null>(null);
+  const [viewingEntry, setViewingEntry] = useState<JournalEntry | null>(null);
 
   const dateLocale = i18n.language === 'pt' ? ptBR : i18n.language === 'es' ? es : enUS;
 
@@ -292,68 +294,22 @@ ${entry.learnings ? `💡 ${t("journal.learnings")}:\n${entry.learnings}` : ''}
   return (
     <Layout>
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-6xl pb-24">
-        {/* Header Moderno - Compacto em Mobile */}
-        <div className="mb-6 sm:mb-8 bg-gradient-to-br from-primary/10 via-purple-500/10 to-primary/5 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-primary/20">
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-gradient-primary shadow-lg">
-                <BookOpen className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-                  {t("journal.title")}
-                </h1>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">{t("journal.subtitle")}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Ações Rápidas - Compactas em Mobile */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-            <Button 
-              variant="outline" 
-              className="h-auto py-2 sm:py-3 flex flex-col gap-1 sm:gap-2 hover:bg-primary/10 hover:border-primary transition-all text-xs sm:text-sm"
-              onClick={() => {
-                const form = document.querySelector('#journal-form');
-                form?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }}
-            >
-              <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-              <span className="font-medium">{t("journal.newEntry")}</span>
-            </Button>
-            
-            <Button 
-              variant="outline"
-              className="h-auto py-2 sm:py-3 flex flex-col gap-1 sm:gap-2 hover:bg-purple-500/10 hover:border-purple-500 transition-all text-xs sm:text-sm"
-            >
-              <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
-              <span className="font-medium">{t("journal.statistics")}</span>
-            </Button>
-            
-            <Button 
-              variant="outline"
-              className="h-auto py-2 sm:py-3 flex flex-col gap-1 sm:gap-2 hover:bg-yellow-500/10 hover:border-yellow-500 transition-all text-xs sm:text-sm"
-            >
-              <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600" />
-              <span className="font-medium">{t("journal.suggestions")}</span>
-            </Button>
-            
-            <Button 
-              variant="outline"
-              className="h-auto py-2 sm:py-3 flex flex-col gap-1 sm:gap-2 hover:bg-green-500/10 hover:border-green-500 transition-all text-xs sm:text-sm"
-            >
-              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
-              <span className="font-medium hidden sm:inline">{t("journal.verseOfDay")}</span>
-              <span className="font-medium sm:hidden">Versículo</span>
-            </Button>
-          </div>
+        {/* Header Simplificado */}
+        <div className="mb-6 border-b pb-4">
+          <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
+            <Book className="w-6 h-6 text-primary" />
+            {t("journal.title")}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {t("journal.subtitle")}
+          </p>
         </div>
 
         {/* Layout Responsivo: 1 coluna em mobile, 2 em desktop */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
 
-          {/* Coluna 1: Formulário (Prioridade em Mobile) */}
-          <div className="space-y-4 sm:space-y-6 order-2 lg:order-1">
+          {/* Coluna 1: Formulário */}
+          <div className="space-y-4 sm:space-y-6">
             {/* Seletor de Data - Compacto */}
             <Card className="border-primary/20 shadow-md">
               <CardHeader className="pb-2 sm:pb-3">
@@ -551,8 +507,8 @@ ${entry.learnings ? `💡 ${t("journal.learnings")}:\n${entry.learnings}` : ''}
             </Card>
           </div>
 
-          {/* Coluna 2: Entradas Recentes - Ordem Invertida em Mobile */}
-          <div className="space-y-4 sm:space-y-6 order-1 lg:order-2">
+          {/* Coluna 2: Entradas Recentes */}
+          <div className="space-y-4 sm:space-y-6">
             {entries.length > 0 ? (
               <>
                 <div className="flex items-center justify-between sticky top-0 bg-background/95 backdrop-blur-sm z-10 py-2 -mx-3 px-3 sm:mx-0 sm:px-0 sm:static">
@@ -565,150 +521,83 @@ ${entry.learnings ? `💡 ${t("journal.learnings")}:\n${entry.learnings}` : ''}
                   </Badge>
                 </div>
 
-                {/* Cards de Notas - 100% Width em Mobile */}
+                {/* Cards Simplificados */}
                 <div className="space-y-3 sm:space-y-4">
-                  {entries.slice(0, 10).map((entry, index) => {
-                    const noteColors = [
-                      'from-blue-50 to-blue-100/50 dark:from-blue-950/30 dark:to-blue-900/20 border-blue-200/50 dark:border-blue-800/30',
-                      'from-purple-50 to-purple-100/50 dark:from-purple-950/30 dark:to-purple-900/20 border-purple-200/50 dark:border-purple-800/30',
-                      'from-pink-50 to-pink-100/50 dark:from-pink-950/30 dark:to-pink-900/20 border-pink-200/50 dark:border-pink-800/30',
-                      'from-yellow-50 to-yellow-100/50 dark:from-yellow-950/30 dark:to-yellow-900/20 border-yellow-200/50 dark:border-yellow-800/30',
-                      'from-green-50 to-green-100/50 dark:from-green-950/30 dark:to-green-900/20 border-green-200/50 dark:border-green-800/30',
-                    ];
-                    const colorClass = noteColors[index % noteColors.length];
-
-                    const getEntryTitle = (entry: JournalEntry) => {
-                      if (entry.what_god_said) {
-                        const words = entry.what_god_said.split(' ').slice(0, 5).join(' ');
-                        return words + (entry.what_god_said.split(' ').length > 5 ? '...' : '');
-                      }
-                      const tagInfo = entry.tags[0] ? emotionalTags.find(t => t.value === entry.tags[0]) : null;
-                      return tagInfo ? `${tagInfo.icon} ${t(`journal.tags.${entry.tags[0]}`)}` : t("journal.myReflection");
-                    };
-
-                    const getEntrySummary = (entry: JournalEntry) => {
-                      const parts = [];
-                      if (entry.prayers) parts.push(entry.prayers);
-                      if (entry.answered_prayers) parts.push(entry.answered_prayers);
-                      if (entry.learnings) parts.push(entry.learnings);
-                      const summary = parts.join(' ').split(' ').slice(0, 15).join(' ');
-                      return summary ? summary + '...' : '';
-                    };
-
-                    return (
-                      <Card 
-                        key={entry.id}
-                        className={cn(
-                          "bg-gradient-to-br border-2 shadow-md hover:shadow-xl transition-all cursor-pointer group touch-manipulation active:scale-[0.98]",
-                          colorClass
-                        )}
-                        onClick={() => handleEditEntry(entry)}
-                      >
-                        <CardHeader className="pb-2 sm:pb-3 px-4 sm:px-6">
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex-1 min-w-0">
-                              <CardTitle className="text-sm sm:text-base font-bold line-clamp-2 group-hover:text-primary transition-colors">
-                                {getEntryTitle(entry)}
-                              </CardTitle>
-                              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1.5">
-                                <CalendarIcon className="w-3 h-3" />
-                                {format(new Date(entry.entry_date + 'T00:00:00'), "dd MMM yyyy", { locale: dateLocale })}
-                              </p>
+                  {entries.slice(0, 10).map((entry) => (
+                    <Card 
+                      key={entry.id}
+                      className="border hover:border-primary transition-colors"
+                    >
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium">
+                            {format(new Date(entry.entry_date + 'T00:00:00'), "dd MMM yyyy", { locale: dateLocale })}
+                          </p>
+                          
+                          {entry.feeling_rating && (
+                            <div className="flex items-center gap-1.5">
+                              <Heart className={cn("w-4 h-4", getFeelingColor(entry.feeling_rating))} fill="currentColor" />
+                              <span className="text-xs font-semibold">{entry.feeling_rating}/10</span>
                             </div>
-                            
-                            {/* Ícone de Sentimento */}
-                            {entry.feeling_rating && (
-                              <div className={cn(
-                                "p-1.5 sm:p-2 rounded-full shadow-sm shrink-0",
-                                entry.feeling_rating >= 8 
-                                  ? "bg-green-500/20"
-                                  : entry.feeling_rating >= 6
-                                  ? "bg-blue-500/20"
-                                  : entry.feeling_rating >= 4
-                                  ? "bg-orange-500/20"
-                                  : "bg-red-500/20"
-                              )}>
-                                <Heart className={cn("w-3.5 h-3.5 sm:w-4 sm:h-4", getFeelingColor(entry.feeling_rating))} fill="currentColor" />
-                              </div>
+                          )}
+                        </div>
+                        
+                        {entry.tags.length > 0 && (
+                          <div className="flex gap-1.5 mt-2">
+                            {entry.tags.slice(0, 3).map((tag) => {
+                              const tagInfo = emotionalTags.find(t => t.value === tag);
+                              return tagInfo ? (
+                                <span key={tag} className="text-lg" title={t(`journal.tags.${tag}`)}>
+                                  {tagInfo.icon}
+                                </span>
+                              ) : null;
+                            })}
+                            {entry.tags.length > 3 && (
+                              <span className="text-xs text-muted-foreground">+{entry.tags.length - 3}</span>
                             )}
                           </div>
-                        </CardHeader>
+                        )}
+                      </CardHeader>
 
-                        <CardContent className="space-y-3 px-4 sm:px-6 pb-4 sm:pb-6">
-                          {/* Resumo */}
-                          {getEntrySummary(entry) && (
-                            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
-                              {getEntrySummary(entry)}
-                            </p>
-                          )}
-
-                          {/* Tags e Ações */}
-                          <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                            <div className="flex items-center gap-1 sm:gap-1.5">
-                              {entry.tags.slice(0, 3).map((tag) => {
-                                const tagInfo = emotionalTags.find(t => t.value === tag);
-                                return tagInfo ? (
-                                  <span key={tag} className="text-sm sm:text-base" title={t(`journal.tags.${tag}`)}>
-                                    {tagInfo.icon}
-                                  </span>
-                                ) : null;
-                              })}
-                              {entry.tags.length > 3 && (
-                                <span className="text-xs text-muted-foreground ml-0.5 sm:ml-1">
-                                  +{entry.tags.length - 3}
-                                </span>
-                              )}
-                            </div>
-
-                            {/* Ações rápidas - Touch Friendly */}
-                            <div className="flex items-center gap-0.5 sm:gap-1">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 sm:h-7 sm:w-7 opacity-70 group-hover:opacity-100 transition-opacity touch-manipulation active:scale-90"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleCopyEntry(entry);
-                                }}
-                              >
-                                <Copy className="w-3.5 h-3.5 sm:w-3 sm:h-3" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 sm:h-7 sm:w-7 opacity-70 group-hover:opacity-100 transition-opacity touch-manipulation active:scale-90"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                }}
-                              >
-                                <Star className="w-3.5 h-3.5 sm:w-3 sm:h-3" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 sm:h-7 sm:w-7 opacity-70 group-hover:opacity-100 transition-opacity hover:text-destructive touch-manipulation active:scale-90"
-                                onClick={async (e) => {
-                                  e.stopPropagation();
-                                  if (!confirm(t("journal.deleteConfirm"))) return;
-                                  const { error } = await supabase
-                                    .from("spiritual_journal")
-                                    .delete()
-                                    .eq("id", entry.id);
-                                  
-                                  if (!error) {
-                                    toast({ title: t("journal.deleteSuccess") });
-                                    loadEntries();
-                                  }
-                                }}
-                              >
-                                <Trash2 className="w-3.5 h-3.5 sm:w-3 sm:h-3" />
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                })}
+                      <CardContent className="flex gap-2 pt-0">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="flex-1"
+                          onClick={() => setViewingEntry(entry)}
+                        >
+                          <Eye className="w-3 h-3 mr-1" />
+                          {t("journal.viewComplete")}
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          onClick={() => handleEditEntry(entry)}
+                        >
+                          <Edit className="w-3 h-3" />
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          className="hover:text-destructive"
+                          onClick={async () => {
+                            if (!confirm(t("journal.deleteConfirm"))) return;
+                            const { error } = await supabase
+                              .from("spiritual_journal")
+                              .delete()
+                              .eq("id", entry.id);
+                            
+                            if (!error) {
+                              toast({ title: t("journal.deleteSuccess") });
+                              loadEntries();
+                            }
+                          }}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
 
                 {entries.length > 10 && (
@@ -733,7 +622,7 @@ ${entry.learnings ? `💡 ${t("journal.learnings")}:\n${entry.learnings}` : ''}
           </div>
         </div>
 
-        {/* Botão Flutuante Fixo - Mobile First */}
+        {/* Botão Flutuante - Apenas Mobile */}
         <Button
           onClick={() => {
             setSelectedDate(new Date());
@@ -741,10 +630,104 @@ ${entry.learnings ? `💡 ${t("journal.learnings")}:\n${entry.learnings}` : ''}
             form?.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }}
           size="icon"
-          className="fixed bottom-6 right-6 h-14 w-14 sm:h-12 sm:w-12 rounded-full shadow-2xl bg-gradient-primary hover:scale-110 transition-transform z-50 touch-manipulation"
+          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl bg-gradient-primary hover:scale-110 transition-transform z-50 touch-manipulation lg:hidden"
         >
-          <Plus className="w-6 h-6 sm:w-5 sm:h-5" />
+          <Plus className="w-6 h-6" />
         </Button>
+
+        {/* Dialog para Visualização Completa */}
+        <Dialog open={!!viewingEntry} onOpenChange={() => setViewingEntry(null)}>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            {viewingEntry && (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Book className="w-5 h-5" />
+                    {format(new Date(viewingEntry.entry_date + 'T00:00:00'), "PPP", { locale: dateLocale })}
+                  </DialogTitle>
+                </DialogHeader>
+                
+                <div className="space-y-4">
+                  {viewingEntry.feeling_rating && (
+                    <div className="flex items-center gap-2">
+                      <Heart className={cn("w-5 h-5", getFeelingColor(viewingEntry.feeling_rating))} fill="currentColor" />
+                      <span className="font-semibold">{t("journal.feelingRating")}: {viewingEntry.feeling_rating}/10</span>
+                    </div>
+                  )}
+
+                  {viewingEntry.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {viewingEntry.tags.map((tag) => {
+                        const tagInfo = emotionalTags.find(t => t.value === tag);
+                        return tagInfo ? (
+                          <Badge key={tag} variant="secondary">
+                            <span className="mr-1">{tagInfo.icon}</span>
+                            {t(`journal.tags.${tag}`)}
+                          </Badge>
+                        ) : null;
+                      })}
+                    </div>
+                  )}
+
+                  <Separator />
+
+                  {viewingEntry.what_god_said && (
+                    <div>
+                      <h4 className="font-semibold text-sm flex items-center gap-1 mb-2">
+                        <Sparkles className="w-4 h-4 text-yellow-600" />
+                        {t("journal.whatGodSaid")}
+                      </h4>
+                      <p className="text-sm bg-yellow-50 dark:bg-yellow-950/20 p-3 rounded-md border">
+                        {viewingEntry.what_god_said}
+                      </p>
+                    </div>
+                  )}
+
+                  {viewingEntry.prayers && (
+                    <div>
+                      <h4 className="font-semibold text-sm mb-2">🙏 {t("journal.prayers")}</h4>
+                      <p className="text-sm bg-blue-50 dark:bg-blue-950/20 p-3 rounded-md border">
+                        {viewingEntry.prayers}
+                      </p>
+                    </div>
+                  )}
+
+                  {viewingEntry.answered_prayers && (
+                    <div>
+                      <h4 className="font-semibold text-sm mb-2">✅ {t("journal.answeredPrayers")}</h4>
+                      <p className="text-sm bg-green-50 dark:bg-green-950/20 p-3 rounded-md border">
+                        {viewingEntry.answered_prayers}
+                      </p>
+                    </div>
+                  )}
+
+                  {viewingEntry.learnings && (
+                    <div>
+                      <h4 className="font-semibold text-sm mb-2">💡 {t("journal.learnings")}</h4>
+                      <p className="text-sm bg-purple-50 dark:bg-purple-950/20 p-3 rounded-md border">
+                        {viewingEntry.learnings}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <DialogFooter className="flex gap-2">
+                  <Button variant="outline" onClick={() => handleCopyEntry(viewingEntry)}>
+                    <Copy className="w-3 h-3 mr-2" />
+                    Copiar
+                  </Button>
+                  <Button onClick={() => {
+                    setViewingEntry(null);
+                    handleEditEntry(viewingEntry);
+                  }}>
+                    <Edit className="w-3 h-3 mr-2" />
+                    Editar
+                  </Button>
+                </DialogFooter>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );
