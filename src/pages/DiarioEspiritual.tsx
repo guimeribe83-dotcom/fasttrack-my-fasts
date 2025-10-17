@@ -1,22 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/Layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Slider } from "@/components/ui/slider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
 import { 
-  Book, Heart, Sparkles, CalendarIcon, Plus, Edit, Trash2, Copy, 
-  BookOpen, Check, Eye
+  BookOpen, Plus, Edit, Trash2, Settings
 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { ptBR, enUS, es } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
@@ -34,12 +27,12 @@ interface JournalEntry {
 }
 
 const emotionalTags = [
-  { value: 'grateful', icon: '🙏', color: 'bg-blue-500/10 text-blue-600 hover:bg-blue-500/20' },
-  { value: 'renewed', icon: '✨', color: 'bg-green-500/10 text-green-600 hover:bg-green-500/20' },
-  { value: 'tired', icon: '😴', color: 'bg-orange-500/10 text-orange-600 hover:bg-orange-500/20' },
-  { value: 'tempted', icon: '⚔️', color: 'bg-red-500/10 text-red-600 hover:bg-red-500/20' },
-  { value: 'peaceful', icon: '🕊️', color: 'bg-purple-500/10 text-purple-600 hover:bg-purple-500/20' },
-  { value: 'hopeful', icon: '🌟', color: 'bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20' },
+  { value: 'grateful', icon: '🙏' },
+  { value: 'renewed', icon: '✨' },
+  { value: 'tired', icon: '😴' },
+  { value: 'tempted', icon: '⚔️' },
+  { value: 'peaceful', icon: '🕊️' },
+  { value: 'hopeful', icon: '🌟' },
 ];
 
 export default function DiarioEspiritual() {
@@ -47,26 +40,17 @@ export default function DiarioEspiritual() {
   const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [entries, setEntries] = useState<JournalEntry[]>([]);
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [currentEntry, setCurrentEntry] = useState<JournalEntry | null>(null);
-  const [feelingRating, setFeelingRating] = useState<number>(5);
-  const [whatGodSaid, setWhatGodSaid] = useState('');
-  const [prayers, setPrayers] = useState('');
-  const [answeredPrayers, setAnsweredPrayers] = useState('');
-  const [learnings, setLearnings] = useState('');
+  const [noteText, setNoteText] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [editingEntry, setEditingEntry] = useState<JournalEntry | null>(null);
   const [activeFastId, setActiveFastId] = useState<string | null>(null);
-  const [viewingEntry, setViewingEntry] = useState<JournalEntry | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const dateLocale = i18n.language === 'pt' ? ptBR : i18n.language === 'es' ? es : enUS;
 
   useEffect(() => {
     checkAuth();
   }, []);
-
-  useEffect(() => {
-    loadEntry(selectedDate);
-  }, [selectedDate]);
 
   const checkAuth = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -115,84 +99,47 @@ export default function DiarioEspiritual() {
     })));
   };
 
-  const loadEntry = async (date: Date) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const dateStr = format(date, 'yyyy-MM-dd');
-    const { data } = await supabase
-      .from("spiritual_journal")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("entry_date", dateStr)
-      .maybeSingle();
-
-    if (data) {
-      const tags = Array.isArray(data.tags) ? data.tags as string[] : [];
-      setCurrentEntry({
-        ...data,
-        tags
-      });
-      setFeelingRating(data.feeling_rating || 5);
-      setWhatGodSaid(data.what_god_said || '');
-      setPrayers(data.prayers || '');
-      setAnsweredPrayers(data.answered_prayers || '');
-      setLearnings(data.learnings || '');
-      setSelectedTags(tags);
-    } else {
-      // Reset form for new entry
-      setCurrentEntry(null);
-      setFeelingRating(5);
-      setWhatGodSaid('');
-      setPrayers('');
-      setAnsweredPrayers('');
-      setLearnings('');
-      setSelectedTags([]);
-    }
-  };
-
-  const toggleTag = (tag: string) => {
-    setSelectedTags(prev =>
-      prev.includes(tag)
-        ? prev.filter(t => t !== tag)
-        : [...prev, tag]
-    );
-  };
-
   const handleSave = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
+    if (!noteText.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Campo vazio",
+        description: "Escreva algo antes de salvar.",
+      });
+      return;
+    }
+
     setLoading(true);
 
-    const dateStr = format(selectedDate, 'yyyy-MM-dd');
+    const dateStr = format(new Date(), 'yyyy-MM-dd');
     const entryData = {
       user_id: user.id,
       fast_id: activeFastId,
       entry_date: dateStr,
-      feeling_rating: feelingRating,
-      what_god_said: whatGodSaid || null,
-      prayers: prayers || null,
-      answered_prayers: answeredPrayers || null,
-      learnings: learnings || null,
+      feeling_rating: null,
+      what_god_said: noteText,
+      prayers: null,
+      answered_prayers: null,
+      learnings: null,
       tags: selectedTags,
     };
 
     try {
-      if (currentEntry) {
-        // Update existing entry
+      if (editingEntry) {
         const { error } = await supabase
           .from("spiritual_journal")
           .update(entryData)
-          .eq("id", currentEntry.id);
+          .eq("id", editingEntry.id);
 
         if (error) throw error;
 
         toast({
-          title: t("journal.updateSuccess"),
+          title: "Nota atualizada com sucesso!",
         });
       } else {
-        // Create new entry
         const { error } = await supabase
           .from("spiritual_journal")
           .insert(entryData);
@@ -200,17 +147,19 @@ export default function DiarioEspiritual() {
         if (error) throw error;
 
         toast({
-          title: t("journal.createSuccess"),
+          title: "Nota salva com sucesso!",
         });
       }
 
+      setNoteText('');
+      setSelectedTags([]);
+      setEditingEntry(null);
       loadEntries();
-      loadEntry(selectedDate);
     } catch (error: any) {
       console.error("Error saving entry:", error);
       toast({
         variant: "destructive",
-        title: t("journal.error"),
+        title: "Erro ao salvar",
         description: error.message,
       });
     } finally {
@@ -218,10 +167,8 @@ export default function DiarioEspiritual() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!currentEntry) return;
-
-    if (!confirm(t("journal.deleteConfirm"))) return;
+  const handleDelete = async (entryId: string) => {
+    if (!confirm("Tem certeza que deseja deletar esta nota?")) return;
 
     setLoading(true);
 
@@ -229,21 +176,26 @@ export default function DiarioEspiritual() {
       const { error } = await supabase
         .from("spiritual_journal")
         .delete()
-        .eq("id", currentEntry.id);
+        .eq("id", entryId);
 
       if (error) throw error;
 
       toast({
-        title: t("journal.deleteSuccess"),
+        title: "Nota deletada com sucesso!",
       });
 
+      if (editingEntry?.id === entryId) {
+        setNoteText('');
+        setSelectedTags([]);
+        setEditingEntry(null);
+      }
+
       loadEntries();
-      loadEntry(selectedDate);
     } catch (error: any) {
       console.error("Error deleting entry:", error);
       toast({
         variant: "destructive",
-        title: t("journal.error"),
+        title: "Erro ao deletar",
         description: error.message,
       });
     } finally {
@@ -251,483 +203,186 @@ export default function DiarioEspiritual() {
     }
   };
 
-  const hasEntryForDate = (date: Date) => {
-    const dateStr = format(date, 'yyyy-MM-dd');
-    return entries.some(entry => entry.entry_date === dateStr);
-  };
-
-  const getFeelingColor = (rating: number | null) => {
-    if (!rating) return "text-muted-foreground";
-    if (rating >= 8) return "text-green-600 dark:text-green-400";
-    if (rating >= 6) return "text-blue-600 dark:text-blue-400";
-    if (rating >= 4) return "text-orange-600 dark:text-orange-400";
-    return "text-red-600 dark:text-red-400";
-  };
-
-  const handleCopyEntry = (entry: JournalEntry) => {
-    const content = `
-📅 ${format(new Date(entry.entry_date + 'T00:00:00'), "PPP", { locale: dateLocale })}
-❤️ ${t("journal.feelingRating")}: ${entry.feeling_rating}/10
-
-${entry.what_god_said ? `🙏 ${t("journal.whatGodSaid")}:\n${entry.what_god_said}\n\n` : ''}
-${entry.prayers ? `📿 ${t("journal.prayers")}:\n${entry.prayers}\n\n` : ''}
-${entry.answered_prayers ? `✅ ${t("journal.answeredPrayers")}:\n${entry.answered_prayers}\n\n` : ''}
-${entry.learnings ? `💡 ${t("journal.learnings")}:\n${entry.learnings}` : ''}
-    `.trim();
-
-    navigator.clipboard.writeText(content);
-    toast({
-      title: t("journal.copied"),
-      description: t("journal.copiedMessage"),
-    });
-  };
-
   const handleEditEntry = (entry: JournalEntry) => {
-    setSelectedDate(new Date(entry.entry_date + 'T00:00:00'));
+    setEditingEntry(entry);
+    setNoteText(entry.what_god_said || '');
+    setSelectedTags(entry.tags);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    toast({
-      title: t("journal.editingEntry"),
-      description: format(new Date(entry.entry_date + 'T00:00:00'), "PPP", { locale: dateLocale }),
-    });
+    textareaRef.current?.focus();
+  };
+
+  const handleNewNote = () => {
+    setEditingEntry(null);
+    setNoteText('');
+    setSelectedTags([]);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    textareaRef.current?.focus();
   };
 
   return (
     <Layout>
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-6xl pb-24">
-        {/* Header Simplificado */}
-        <div className="mb-6 border-b pb-4">
-          <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
-            <Book className="w-6 h-6 text-primary" />
-            {t("journal.title")}
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {t("journal.subtitle")}
-          </p>
+      <div className="min-h-screen bg-gradient-to-br from-primary/10 via-purple-500/10 to-background">
+        {/* Header com Gradiente */}
+        <div className="bg-gradient-to-r from-primary via-purple-600 to-primary py-6 px-4 shadow-lg">
+          <div className="container mx-auto max-w-4xl flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <BookOpen className="w-7 h-7 text-white" />
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">
+                Diário Espiritual
+              </h1>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/20"
+              onClick={() => navigate('/configuracoes')}
+            >
+              <Settings className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
 
-        {/* Layout Responsivo: 1 coluna em mobile, 2 em desktop */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-
-          {/* Coluna 1: Formulário */}
-          <div className="space-y-4 sm:space-y-6">
-            {/* Seletor de Data - Compacto */}
-            <Card className="border-primary/20 shadow-md">
-              <CardHeader className="pb-2 sm:pb-3">
-                <CardTitle className="text-sm sm:text-base flex items-center gap-2">
-                  <CalendarIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
-                  {t("journal.selectDate")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start text-left font-normal hover:bg-primary/5 text-sm">
-                      <CalendarIcon className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                      {format(selectedDate, "PPP", { locale: dateLocale })}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={selectedDate}
-                      onSelect={(date) => date && setSelectedDate(date)}
-                      locale={dateLocale}
-                      modifiers={{
-                        hasEntry: (date) => hasEntryForDate(date)
-                      }}
-                      modifiersStyles={{
-                        hasEntry: {
-                          fontWeight: 'bold',
-                          textDecoration: 'underline',
-                        }
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </CardContent>
-            </Card>
-
-            {/* Formulário de Entrada - Otimizado para Mobile */}
-            <Card id="journal-form" className="border-primary/20 shadow-md scroll-mt-20">
-              <CardHeader className="pb-2 sm:pb-3">
-                <CardTitle className="text-sm sm:text-base flex items-center gap-2">
-                  {currentEntry ? (
-                    <>
-                      <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
-                      {t("journal.editEntry")}
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
-                      {t("journal.newEntry")}
-                    </>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 sm:space-y-5">
-                {/* Conexão com Deus - Slider com Espaçamento para Polegar */}
-                <div className="space-y-3 bg-gradient-to-br from-primary/5 to-purple-500/5 p-3 sm:p-4 rounded-xl border border-primary/10">
-                  <Label className="flex items-center gap-2 text-xs sm:text-sm font-semibold">
-                    <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
-                    {t("journal.feelingRating")}
-                  </Label>
-                  <div className="space-y-3 sm:space-y-3 px-1 py-2">
-                    <Slider
-                      value={[feelingRating]}
-                      onValueChange={(values) => setFeelingRating(values[0])}
-                      min={1}
-                      max={10}
-                      step={1}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-muted-foreground text-xs sm:text-sm">{t("journal.distant")}</span>
-                      <div className="px-3 sm:px-4 py-1 sm:py-1 rounded-full bg-primary text-white font-bold text-base sm:text-lg shadow-md">
-                        {feelingRating}/10
-                      </div>
-                      <span className="text-muted-foreground text-xs sm:text-sm">{t("journal.close")}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Ícones de Humor - Touch-Friendly */}
-                <div className="space-y-3">
-                  <Label className="flex items-center gap-2 text-xs sm:text-sm font-semibold">
-                    <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
-                    {t("journal.emotionalTags")}
-                  </Label>
-                  <div className="flex flex-wrap gap-2">
-                    {emotionalTags.map((tag) => (
-                      <Badge
-                        key={tag.value}
-                        variant={selectedTags.includes(tag.value) ? "default" : "outline"}
-                        className={cn(
-                          "cursor-pointer transition-all py-2 px-3 sm:py-1.5 sm:px-3 text-xs sm:text-sm touch-manipulation",
-                          selectedTags.includes(tag.value) 
-                            ? "bg-primary text-white shadow-md scale-105" 
-                            : "hover:bg-accent hover:scale-105 active:scale-95"
-                        )}
-                        onClick={() => toggleTag(tag.value)}
-                      >
-                        <span className="mr-1.5 text-base">{tag.icon}</span>
-                        {t(`journal.tags.${tag.value}`)}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-
-                <Separator className="my-3 sm:my-4" />
-
-                {/* Campos de Texto - Otimizados para Digitação Mobile */}
-                <div className="space-y-2">
-                  <Label htmlFor="whatGodSaid" className="flex items-center gap-2 text-xs sm:text-sm font-semibold">
-                    <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-yellow-600" />
-                    {t("journal.whatGodSaid")}
-                  </Label>
-                  <Textarea
-                    id="whatGodSaid"
-                    value={whatGodSaid}
-                    onChange={(e) => setWhatGodSaid(e.target.value)}
-                    placeholder={t("journal.whatGodSaidPlaceholder")}
-                    className="min-h-[100px] sm:min-h-[90px] resize-none bg-yellow-500/5 border-yellow-500/20 focus:border-yellow-500/40 text-sm sm:text-base p-3 sm:p-3"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="prayers" className="flex items-center gap-2 text-xs sm:text-sm font-semibold">
-                    🙏 {t("journal.prayers")}
-                  </Label>
-                  <Textarea
-                    id="prayers"
-                    value={prayers}
-                    onChange={(e) => setPrayers(e.target.value)}
-                    placeholder={t("journal.prayersPlaceholder")}
-                    className="min-h-[100px] sm:min-h-[90px] resize-none bg-blue-500/5 border-blue-500/20 focus:border-blue-500/40 text-sm sm:text-base p-3 sm:p-3"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="answeredPrayers" className="flex items-center gap-2 text-xs sm:text-sm font-semibold">
-                    ✅ {t("journal.answeredPrayers")}
-                  </Label>
-                  <Textarea
-                    id="answeredPrayers"
-                    value={answeredPrayers}
-                    onChange={(e) => setAnsweredPrayers(e.target.value)}
-                    placeholder={t("journal.answeredPrayersPlaceholder")}
-                    className="min-h-[100px] sm:min-h-[90px] resize-none bg-green-500/5 border-green-500/20 focus:border-green-500/40 text-sm sm:text-base p-3 sm:p-3"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="learnings" className="flex items-center gap-2 text-xs sm:text-sm font-semibold">
-                    💡 {t("journal.learnings")}
-                  </Label>
-                  <Textarea
-                    id="learnings"
-                    value={learnings}
-                    onChange={(e) => setLearnings(e.target.value)}
-                    placeholder={t("journal.learningsPlaceholder")}
-                    className="min-h-[100px] sm:min-h-[90px] resize-none bg-purple-500/5 border-purple-500/20 focus:border-purple-500/40 text-sm sm:text-base p-3 sm:p-3"
-                  />
-                </div>
-
-                {/* Botões de Ação - Touch-Friendly */}
-                <div className="flex gap-2 sm:gap-3 pt-2">
-                  <Button
-                    onClick={handleSave}
-                    disabled={loading}
-                    className="flex-1 bg-gradient-primary shadow-lg hover:shadow-xl transition-all h-11 sm:h-10 text-sm sm:text-base touch-manipulation"
-                  >
-                    {loading ? (
-                      <span className="flex items-center gap-2">
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        {t("journal.saving")}
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-2">
-                        <Check className="w-4 h-4" />
-                        {t("journal.save")}
-                      </span>
+        {/* Container Principal */}
+        <div className="container mx-auto max-w-4xl px-4 py-6 pb-24">
+          {/* Campo de Criação / Edição */}
+          <Card className="mb-6 border-2 border-primary/20 shadow-xl bg-card/95 backdrop-blur">
+            <div className="p-6 space-y-4">
+              {/* Mood Tags */}
+              <div className="flex flex-wrap gap-2">
+                {emotionalTags.map((tag) => (
+                  <Badge
+                    key={tag.value}
+                    variant={selectedTags.includes(tag.value) ? "default" : "outline"}
+                    className={cn(
+                      "cursor-pointer transition-all text-base px-3 py-1.5 hover:scale-105",
+                      selectedTags.includes(tag.value) && "shadow-md"
                     )}
-                  </Button>
-                  {currentEntry && (
-                    <Button
-                      onClick={handleDelete}
-                      disabled={loading}
-                      variant="destructive"
-                      size="icon"
-                      className="shadow-md h-11 w-11 sm:h-10 sm:w-10 touch-manipulation"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Coluna 2: Entradas Recentes */}
-          <div className="space-y-4 sm:space-y-6">
-            {entries.length > 0 ? (
-              <>
-                <div className="flex items-center justify-between sticky top-0 bg-background/95 backdrop-blur-sm z-10 py-2 -mx-3 px-3 sm:mx-0 sm:px-0 sm:static">
-                  <h2 className="text-lg sm:text-xl font-bold flex items-center gap-2">
-                    <Book className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                    {t("journal.recentEntries")}
-                  </h2>
-                  <Badge variant="secondary" className="text-xs">
-                    {entries.length}
+                    onClick={() => setSelectedTags(prev =>
+                      prev.includes(tag.value)
+                        ? prev.filter(t => t !== tag.value)
+                        : [...prev, tag.value]
+                    )}
+                  >
+                    {tag.icon}
                   </Badge>
-                </div>
+                ))}
+              </div>
 
-                {/* Cards Simplificados */}
-                <div className="space-y-3 sm:space-y-4">
-                  {entries.slice(0, 10).map((entry) => (
-                    <Card 
-                      key={entry.id}
-                      className="border hover:border-primary transition-colors"
-                    >
-                      <CardHeader className="pb-3">
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm font-medium">
-                            {format(new Date(entry.entry_date + 'T00:00:00'), "dd MMM yyyy", { locale: dateLocale })}
-                          </p>
-                          
-                          {entry.feeling_rating && (
-                            <div className="flex items-center gap-1.5">
-                              <Heart className={cn("w-4 h-4", getFeelingColor(entry.feeling_rating))} fill="currentColor" />
-                              <span className="text-xs font-semibold">{entry.feeling_rating}/10</span>
-                            </div>
-                          )}
-                        </div>
-                        
-                        {entry.tags.length > 0 && (
-                          <div className="flex gap-1.5 mt-2">
-                            {entry.tags.slice(0, 3).map((tag) => {
-                              const tagInfo = emotionalTags.find(t => t.value === tag);
-                              return tagInfo ? (
-                                <span key={tag} className="text-lg" title={t(`journal.tags.${tag}`)}>
-                                  {tagInfo.icon}
-                                </span>
-                              ) : null;
-                            })}
-                            {entry.tags.length > 3 && (
-                              <span className="text-xs text-muted-foreground">+{entry.tags.length - 3}</span>
-                            )}
-                          </div>
-                        )}
-                      </CardHeader>
+              {/* Textarea Principal */}
+              <Textarea
+                ref={textareaRef}
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+                placeholder="O que Deus te falou hoje?"
+                className="min-h-[250px] resize-none text-base leading-relaxed border-none focus-visible:ring-0 bg-transparent p-0 placeholder:text-muted-foreground/60"
+              />
 
-                      <CardContent className="flex gap-2 pt-0">
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          className="flex-1"
-                          onClick={() => setViewingEntry(entry)}
-                        >
-                          <Eye className="w-3 h-3 mr-1" />
-                          {t("journal.viewComplete")}
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="ghost"
-                          onClick={() => handleEditEntry(entry)}
-                        >
-                          <Edit className="w-3 h-3" />
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="ghost"
-                          className="hover:text-destructive"
-                          onClick={async () => {
-                            if (!confirm(t("journal.deleteConfirm"))) return;
-                            const { error } = await supabase
-                              .from("spiritual_journal")
-                              .delete()
-                              .eq("id", entry.id);
-                            
-                            if (!error) {
-                              toast({ title: t("journal.deleteSuccess") });
-                              loadEntries();
-                            }
-                          }}
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-
-                {entries.length > 10 && (
-                  <Button variant="outline" className="w-full text-sm touch-manipulation">
-                    {t("journal.viewAll")} ({entries.length - 10} mais)
+              {/* Botão Salvar */}
+              <div className="flex gap-2 pt-4 border-t">
+                <Button
+                  onClick={handleSave}
+                  disabled={loading}
+                  className="flex-1 bg-gradient-to-r from-primary to-purple-600 hover:from-primary-dark hover:to-purple-700 text-white shadow-lg"
+                >
+                  {loading ? "Salvando..." : editingEntry ? "Atualizar Nota" : "Salvar Nota"}
+                </Button>
+                {editingEntry && (
+                  <Button
+                    onClick={handleNewNote}
+                    variant="outline"
+                    className="border-primary/30"
+                  >
+                    Cancelar
                   </Button>
                 )}
-              </>
-            ) : (
-              <Card className="border-dashed">
-                <CardContent className="flex flex-col items-center justify-center py-8 sm:py-12 text-center px-4">
-                  <BookOpen className="w-10 h-10 sm:w-12 sm:h-12 text-muted-foreground mb-3 sm:mb-4 opacity-50" />
-                  <p className="text-muted-foreground text-sm">
-                    {t("journal.noEntries")}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {t("journal.startWriting")}
-                  </p>
-                </CardContent>
+              </div>
+            </div>
+          </Card>
+
+          {/* Entradas Salvas */}
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold text-foreground/80 flex items-center gap-2">
+              <BookOpen className="w-5 h-5" />
+              Suas Notas
+            </h2>
+
+            {entries.length === 0 ? (
+              <Card className="p-8 text-center border-dashed border-2">
+                <BookOpen className="w-12 h-12 mx-auto text-muted-foreground/50 mb-3" />
+                <p className="text-muted-foreground">
+                  Ainda não há notas. Comece a escrever acima!
+                </p>
               </Card>
+            ) : (
+              <div className="grid gap-4">
+                {entries.map((entry) => (
+                  <Card
+                    key={entry.id}
+                    className={cn(
+                      "border-2 transition-all hover:shadow-lg cursor-pointer bg-card/80 backdrop-blur",
+                      editingEntry?.id === entry.id && "border-primary shadow-lg"
+                    )}
+                    onClick={() => handleEditEntry(entry)}
+                  >
+                    <div className="p-4">
+                      {/* Data e Tags */}
+                      <div className="flex items-center justify-between mb-3">
+                        <p className="text-sm font-medium text-muted-foreground">
+                          {format(new Date(entry.entry_date + 'T00:00:00'), "dd 'de' MMM", { locale: dateLocale })}
+                        </p>
+                        <div className="flex gap-1.5">
+                          {entry.tags.slice(0, 3).map((tag) => {
+                            const tagInfo = emotionalTags.find(t => t.value === tag);
+                            return tagInfo ? (
+                              <span key={tag} className="text-lg">
+                                {tagInfo.icon}
+                              </span>
+                            ) : null;
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Preview do Texto */}
+                      <p className="text-foreground/90 text-sm leading-relaxed line-clamp-3">
+                        {entry.what_god_said || "Nota vazia"}
+                      </p>
+
+                      {/* Ações */}
+                      <div className="flex gap-2 mt-4 pt-3 border-t" onClick={(e) => e.stopPropagation()}>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleEditEntry(entry)}
+                          className="flex-1"
+                        >
+                          <Edit className="w-3.5 h-3.5 mr-1.5" />
+                          Editar
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleDelete(entry.id)}
+                          className="hover:text-destructive"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
             )}
           </div>
         </div>
 
-        {/* Botão Flutuante - Apenas Mobile */}
+        {/* Botão Flutuante ➕ */}
         <Button
-          onClick={() => {
-            setSelectedDate(new Date());
-            const form = document.querySelector('#journal-form');
-            form?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }}
-          size="icon"
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl bg-gradient-primary hover:scale-110 transition-transform z-50 touch-manipulation lg:hidden"
+          onClick={handleNewNote}
+          size="lg"
+          className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-2xl bg-gradient-to-br from-purple-600 to-primary hover:from-purple-700 hover:to-primary-dark hover:scale-110 transition-transform z-50"
         >
-          <Plus className="w-6 h-6" />
+          <Plus className="w-7 h-7" />
         </Button>
-
-        {/* Dialog para Visualização Completa */}
-        <Dialog open={!!viewingEntry} onOpenChange={() => setViewingEntry(null)}>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-            {viewingEntry && (
-              <>
-                <DialogHeader>
-                  <DialogTitle className="flex items-center gap-2">
-                    <Book className="w-5 h-5" />
-                    {format(new Date(viewingEntry.entry_date + 'T00:00:00'), "PPP", { locale: dateLocale })}
-                  </DialogTitle>
-                </DialogHeader>
-                
-                <div className="space-y-4">
-                  {viewingEntry.feeling_rating && (
-                    <div className="flex items-center gap-2">
-                      <Heart className={cn("w-5 h-5", getFeelingColor(viewingEntry.feeling_rating))} fill="currentColor" />
-                      <span className="font-semibold">{t("journal.feelingRating")}: {viewingEntry.feeling_rating}/10</span>
-                    </div>
-                  )}
-
-                  {viewingEntry.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {viewingEntry.tags.map((tag) => {
-                        const tagInfo = emotionalTags.find(t => t.value === tag);
-                        return tagInfo ? (
-                          <Badge key={tag} variant="secondary">
-                            <span className="mr-1">{tagInfo.icon}</span>
-                            {t(`journal.tags.${tag}`)}
-                          </Badge>
-                        ) : null;
-                      })}
-                    </div>
-                  )}
-
-                  <Separator />
-
-                  {viewingEntry.what_god_said && (
-                    <div>
-                      <h4 className="font-semibold text-sm flex items-center gap-1 mb-2">
-                        <Sparkles className="w-4 h-4 text-yellow-600" />
-                        {t("journal.whatGodSaid")}
-                      </h4>
-                      <p className="text-sm bg-yellow-50 dark:bg-yellow-950/20 p-3 rounded-md border">
-                        {viewingEntry.what_god_said}
-                      </p>
-                    </div>
-                  )}
-
-                  {viewingEntry.prayers && (
-                    <div>
-                      <h4 className="font-semibold text-sm mb-2">🙏 {t("journal.prayers")}</h4>
-                      <p className="text-sm bg-blue-50 dark:bg-blue-950/20 p-3 rounded-md border">
-                        {viewingEntry.prayers}
-                      </p>
-                    </div>
-                  )}
-
-                  {viewingEntry.answered_prayers && (
-                    <div>
-                      <h4 className="font-semibold text-sm mb-2">✅ {t("journal.answeredPrayers")}</h4>
-                      <p className="text-sm bg-green-50 dark:bg-green-950/20 p-3 rounded-md border">
-                        {viewingEntry.answered_prayers}
-                      </p>
-                    </div>
-                  )}
-
-                  {viewingEntry.learnings && (
-                    <div>
-                      <h4 className="font-semibold text-sm mb-2">💡 {t("journal.learnings")}</h4>
-                      <p className="text-sm bg-purple-50 dark:bg-purple-950/20 p-3 rounded-md border">
-                        {viewingEntry.learnings}
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                <DialogFooter className="flex gap-2">
-                  <Button variant="outline" onClick={() => handleCopyEntry(viewingEntry)}>
-                    <Copy className="w-3 h-3 mr-2" />
-                    Copiar
-                  </Button>
-                  <Button onClick={() => {
-                    setViewingEntry(null);
-                    handleEditEntry(viewingEntry);
-                  }}>
-                    <Edit className="w-3 h-3 mr-2" />
-                    Editar
-                  </Button>
-                </DialogFooter>
-              </>
-            )}
-          </DialogContent>
-        </Dialog>
       </div>
     </Layout>
   );
