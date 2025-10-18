@@ -297,7 +297,8 @@
     "close": "Close",
     "confirm": "Confirm",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "view": "View"
   },
   "journal": {
     "title": "Spiritual Journal",
@@ -308,6 +309,8 @@
     "selectDate": "Select Date",
     "newEntry": "New Entry",
     "editEntry": "Edit Entry",
+    "viewEntry": "View Entry",
+    "viewDescription": "Read your spiritual note in full.",
     "dialogDescription": "Write your reflections and what God has been speaking to your heart",
     "emptyTitle": "Your journal is empty",
     "emptyDescription": "Start recording your spiritual reflections and experiences with God",

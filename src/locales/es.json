@@ -297,7 +297,8 @@
     "close": "Cerrar",
     "confirm": "Confirmar",
     "yes": "Sí",
-    "no": "No"
+    "no": "No",
+    "view": "Ver"
   },
   "journal": {
     "title": "Diario Espiritual",
@@ -308,6 +309,8 @@
     "selectDate": "Seleccionar Fecha",
     "newEntry": "Nueva Entrada",
     "editEntry": "Editar Entrada",
+    "viewEntry": "Ver Entrada",
+    "viewDescription": "Lee tu nota espiritual completa.",
     "dialogDescription": "Escribe tus reflexiones y lo que Dios ha estado hablando a tu corazón",
     "emptyTitle": "Tu diario está vacío",
     "emptyDescription": "Comienza a registrar tus reflexiones espirituales y experiencias con Dios",

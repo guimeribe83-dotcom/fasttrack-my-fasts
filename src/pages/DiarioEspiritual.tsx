@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { BookOpen, Plus, Edit, Trash2 } from "lucide-react";
+import { BookOpen, Plus, Edit, Trash2, Eye } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR, enUS, es } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
@@ -50,6 +50,8 @@ export default function DiarioEspiritual() {
   const [editingEntry, setEditingEntry] = useState<JournalEntry | null>(null);
   const [activeFastId, setActiveFastId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [viewingEntry, setViewingEntry] = useState<JournalEntry | null>(null);
 
   const dateLocale = i18n.language === 'pt' ? ptBR : i18n.language === 'es' ? es : enUS;
 
@@ -210,10 +212,16 @@ export default function DiarioEspiritual() {
     }
   };
 
+  const handleOpenViewDialog = (entry: JournalEntry) => {
+    setViewingEntry(entry);
+    setIsViewDialogOpen(true);
+  };
+
   const handleEditEntry = (entry: JournalEntry) => {
     setEditingEntry(entry);
     setNoteText(entry.what_god_said || '');
     setSelectedTags(entry.tags);
+    setIsViewDialogOpen(false);
     setIsDialogOpen(true);
   };
 
@@ -264,8 +272,7 @@ export default function DiarioEspiritual() {
             {entries.map((entry) => (
               <Card
                 key={entry.id}
-                className="group p-4 hover:border-primary transition-all cursor-pointer"
-                onClick={() => handleEditEntry(entry)}
+                className="group p-4 hover:border-primary transition-all"
               >
                 {/* Header: Data + Tags */}
                 <div className="flex items-center justify-between mb-3">
@@ -296,6 +303,17 @@ export default function DiarioEspiritual() {
                     variant="ghost"
                     onClick={(e) => {
                       e.stopPropagation();
+                      handleOpenViewDialog(entry);
+                    }}
+                  >
+                    <Eye className="w-3 h-3 mr-1" />
+                    {t("common.view")}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={(e) => {
+                      e.stopPropagation();
                       handleEditEntry(entry);
                     }}
                   >
@@ -319,6 +337,51 @@ export default function DiarioEspiritual() {
             ))}
           </div>
         )}
+
+        {/* Dialog de Visualização (Somente Leitura) */}
+        <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+          <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{t("journal.viewEntry")}</DialogTitle>
+              <DialogDescription>{t("journal.viewDescription")}</DialogDescription>
+            </DialogHeader>
+
+            {viewingEntry && (
+              <>
+                {/* Tags */}
+                {viewingEntry.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {viewingEntry.tags.map((tag) => {
+                      const tagInfo = emotionalTags.find(t => t.value === tag);
+                      return tagInfo ? (
+                        <Badge key={tag} variant="outline" className="text-base px-3 py-1.5">
+                          {tagInfo.icon}
+                        </Badge>
+                      ) : null;
+                    })}
+                  </div>
+                )}
+
+                {/* Conteúdo */}
+                <div className="bg-muted/30 p-4 rounded-md">
+                  <p className="whitespace-pre-line text-sm text-foreground leading-relaxed">
+                    {viewingEntry.what_god_said || t("journal.emptyNote")}
+                  </p>
+                </div>
+              </>
+            )}
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
+                {t("common.close")}
+              </Button>
+              <Button onClick={() => viewingEntry && handleEditEntry(viewingEntry)}>
+                <Edit className="w-4 h-4 mr-2" />
+                {t("common.edit")}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Dialog para Criar/Editar */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
