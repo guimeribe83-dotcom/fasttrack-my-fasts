@@ -7,7 +7,6 @@ import { InstallPWA } from "@/components/InstallPWA";
 import { PWAUpdatePrompt } from "@/components/PWAUpdatePrompt";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 import { DailyContentCard } from "@/components/gamification/DailyContentCard";
-import { StreakDisplay } from "@/components/gamification/StreakDisplay";
 import { BadgesDisplay } from "@/components/gamification/BadgesDisplay";
 import EmotionalCheckIn from "@/components/EmotionalCheckIn";
 import { Button } from "@/components/ui/button";
@@ -300,15 +299,6 @@ export default function Index() {
         <div className="hidden md:block">
           <p className="text-sm text-muted-foreground capitalize">{today}</p>
         </div>
-
-        {/* Streak Display */}
-        {stats && (
-          <StreakDisplay 
-            currentStreak={stats.current_streak}
-            bestStreak={stats.best_streak}
-            totalDays={stats.total_days_completed}
-          />
-        )}
 
         {/* Daily Content */}
         <DailyContentCard />
