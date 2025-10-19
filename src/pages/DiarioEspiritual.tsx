@@ -4,6 +4,8 @@ import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -23,6 +25,7 @@ import { useTranslation } from "react-i18next";
 interface JournalEntry {
   id: string;
   entry_date: string;
+  title: string | null;
   feeling_rating: number | null;
   what_god_said: string | null;
   prayers: string | null;
@@ -45,6 +48,7 @@ export default function DiarioEspiritual() {
   const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [entries, setEntries] = useState<JournalEntry[]>([]);
+  const [noteTitle, setNoteTitle] = useState('');
   const [noteText, setNoteText] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [editingEntry, setEditingEntry] = useState<JournalEntry | null>(null);
@@ -126,6 +130,7 @@ export default function DiarioEspiritual() {
       user_id: user.id,
       fast_id: activeFastId,
       entry_date: dateStr,
+      title: noteTitle.trim() || null,
       feeling_rating: null,
       what_god_said: noteText,
       prayers: null,
@@ -158,6 +163,7 @@ export default function DiarioEspiritual() {
         });
       }
 
+      setNoteTitle('');
       setNoteText('');
       setSelectedTags([]);
       setEditingEntry(null);
@@ -219,6 +225,7 @@ export default function DiarioEspiritual() {
 
   const handleEditEntry = (entry: JournalEntry) => {
     setEditingEntry(entry);
+    setNoteTitle(entry.title || '');
     setNoteText(entry.what_god_said || '');
     setSelectedTags(entry.tags);
     setIsViewDialogOpen(false);
@@ -227,6 +234,7 @@ export default function DiarioEspiritual() {
 
   const handleNewNote = () => {
     setEditingEntry(null);
+    setNoteTitle('');
     setNoteText('');
     setSelectedTags([]);
     setIsDialogOpen(true);
@@ -235,6 +243,7 @@ export default function DiarioEspiritual() {
   const handleCancelDialog = () => {
     setIsDialogOpen(false);
     setEditingEntry(null);
+    setNoteTitle('');
     setNoteText('');
     setSelectedTags([]);
   };
@@ -291,6 +300,13 @@ export default function DiarioEspiritual() {
                   </div>
                 </div>
 
+                {/* Título (se existir) */}
+                {entry.title && (
+                  <h3 className="text-base font-semibold text-foreground mb-2 line-clamp-1">
+                    {entry.title}
+                  </h3>
+                )}
+
                 {/* Preview do Texto */}
                 <p className="text-foreground text-sm leading-relaxed line-clamp-3">
                   {entry.what_god_said || t("journal.emptyNote")}
@@ -340,11 +356,15 @@ export default function DiarioEspiritual() {
 
         {/* Dialog de Visualização (Somente Leitura) */}
         <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-          <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{t("journal.viewEntry")}</DialogTitle>
-              <DialogDescription>{t("journal.viewDescription")}</DialogDescription>
-            </DialogHeader>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {viewingEntry?.title || t("journal.viewEntry")}
+            </DialogTitle>
+            <DialogDescription>
+              {viewingEntry && format(new Date(viewingEntry.entry_date + 'T00:00:00'), "PPP", { locale: dateLocale })}
+            </DialogDescription>
+          </DialogHeader>
 
             {viewingEntry && (
               <>
@@ -414,13 +434,37 @@ export default function DiarioEspiritual() {
                 ))}
               </div>
 
-              {/* Textarea */}
-              <Textarea
-                value={noteText}
-                onChange={(e) => setNoteText(e.target.value)}
-                placeholder={t("journal.placeholder")}
-                className="min-h-[300px] resize-none"
-              />
+              {/* Campo de Título */}
+              <div className="space-y-2">
+                <Label htmlFor="title" className="text-sm font-medium">
+                  {t("journal.titleLabel")}
+                </Label>
+                <Input
+                  id="title"
+                  value={noteTitle}
+                  onChange={(e) => setNoteTitle(e.target.value)}
+                  placeholder={t("journal.titlePlaceholder")}
+                  maxLength={100}
+                  className="font-medium"
+                />
+                <p className="text-xs text-muted-foreground">
+                  {t("journal.titleHint")}
+                </p>
+              </div>
+
+              {/* Campo de Conteúdo */}
+              <div className="space-y-2">
+                <Label htmlFor="content" className="text-sm font-medium">
+                  {t("journal.contentLabel")}
+                </Label>
+                <Textarea
+                  id="content"
+                  value={noteText}
+                  onChange={(e) => setNoteText(e.target.value)}
+                  placeholder={t("journal.placeholder")}
+                  className="min-h-[300px] resize-none"
+                />
+              </div>
             </div>
 
             <DialogFooter>

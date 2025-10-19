@@ -401,6 +401,7 @@ export type Database = {
           learnings: string | null
           prayers: string | null
           tags: Json | null
+          title: string | null
           updated_at: string
           user_id: string
           what_god_said: string | null
@@ -415,6 +416,7 @@ export type Database = {
           learnings?: string | null
           prayers?: string | null
           tags?: Json | null
+          title?: string | null
           updated_at?: string
           user_id: string
           what_god_said?: string | null
@@ -429,6 +431,7 @@ export type Database = {
           learnings?: string | null
           prayers?: string | null
           tags?: Json | null
+          title?: string | null
           updated_at?: string
           user_id?: string
           what_god_said?: string | null
