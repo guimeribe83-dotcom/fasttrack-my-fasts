@@ -30,15 +30,47 @@ export default function Biblia() {
     loadBooks();
   }, []);
 
+  // Funções para salvar/recuperar último livro lido
+  const saveLastRead = (bookAbbrev: string, chapter: number) => {
+    localStorage.setItem('lastBibleRead', JSON.stringify({ bookAbbrev, chapter }));
+  };
+
+  const getLastRead = (): { bookAbbrev: string; chapter: number } | null => {
+    const saved = localStorage.getItem('lastBibleRead');
+    return saved ? JSON.parse(saved) : null;
+  };
+
+  // Auto-carregar capítulo padrão após carregar livros
+  const loadDefaultChapter = async (loadedBooks: BibleBook[]) => {
+    const lastRead = getLastRead();
+    
+    if (lastRead) {
+      // Tentar carregar último lido
+      const book = loadedBooks.find(b => b.abbrev.pt === lastRead.bookAbbrev);
+      if (book) {
+        setSelectedBook(book);
+        await loadChapter(lastRead.bookAbbrev, lastRead.chapter);
+        return;
+      }
+    }
+    
+    // Fallback: João capítulo 1 (livro 43 - primeiro do NT)
+    const defaultBook = loadedBooks.find(b => b.abbrev.pt === 'jo');
+    if (defaultBook) {
+      setSelectedBook(defaultBook);
+      await loadChapter(defaultBook.abbrev.pt, 1);
+    }
+  };
+
   const loadBooks = async () => {
     try {
       setLoading(true);
       const data = await bibleApi.getBooks();
       setBooks(data);
       
-      // Sucesso ao carregar
+      // Auto-carregar capítulo padrão
       if (data.length > 0) {
-        toast.success("Bíblia carregada com sucesso");
+        await loadDefaultChapter(data);
       }
     } catch (error) {
       console.error(error);
@@ -55,6 +87,9 @@ export default function Biblia() {
       const data = await bibleApi.getChapter(version, bookAbbrev, chapter);
       setChapterData(data);
       setSelectedChapter(chapter);
+      
+      // Salvar último lido
+      saveLastRead(bookAbbrev, chapter);
       
       // Scroll suave para o topo
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -172,15 +207,7 @@ export default function Biblia() {
             </div>
           ) : (
             <>
-              {!selectedBook ? (
-                <Card className="p-8 text-center bg-gradient-to-br from-primary/5 via-purple-500/5 to-blue-500/5 border-primary/20">
-                  <BookOpen className="h-16 w-16 mx-auto mb-4 text-primary" />
-                  <h2 className="text-xl font-semibold mb-2">{t("bible.title")}</h2>
-                  <p className="text-muted-foreground">
-                    Selecione um livro para começar a leitura
-                  </p>
-                </Card>
-              ) : loadingChapter ? (
+              {loadingChapter ? (
                 <Card className="p-6 space-y-4 bg-gradient-to-br from-primary/5 via-purple-500/5 to-blue-500/5 border-primary/20">
                   {Array.from({ length: 8 }).map((_, i) => (
                     <div key={i} className="flex gap-3">
