@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { bibleApi, BibleBook, BibleChapter } from "@/lib/bibleApi";
 import { toast } from "sonner";
-import { Layout } from "@/components/Layout";
+import { Layout } from "@/components/Layout"; // Force rebuild
 
 type ViewMode = 'books' | 'chapters' | 'verses';
 
