@@ -1,15 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import bibliaIcon from "@/assets/biblia.png";
 
 export const BibleFloatingButton = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const handleClick = () => {
-    toast.info("Em breve", {
-      description: "Recurso de leitura da Bíblia em desenvolvimento.",
-    });
+    navigate("/biblia");
   };
 
   return (
