@@ -14,9 +14,12 @@ export default function Biblia() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   const {
+    availableBooks,
     currentBook,
     currentChapter,
+    currentChapterData,
     isLoading,
+    error,
     goToNextChapter,
     goToPreviousChapter,
     changeBook,
@@ -37,8 +40,6 @@ export default function Biblia() {
     setIsAuthenticated(true);
   };
 
-  // Obter dados do capítulo atual
-  const currentChapterData = getChapter(currentBook, currentChapter);
 
   if (!isAuthenticated) {
     return null;
@@ -52,6 +53,7 @@ export default function Biblia() {
 
         {/* Seletores */}
         <BibleSelector
+          availableBooks={availableBooks}
           currentBook={currentBook}
           currentChapter={currentChapter}
           onBookChange={changeBook}
@@ -65,19 +67,13 @@ export default function Biblia() {
             onNext={goToNextChapter}
           />
 
-          {currentChapterData && !isLoading && (
-            <BibleText
-              bookId={currentBook}
-              chapterNumber={currentChapter}
-              verses={currentChapterData.verses}
-            />
-          )}
-
-          {isLoading && (
-            <div className="flex items-center justify-center py-20">
-              <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
-            </div>
-          )}
+          <BibleText
+            bookId={currentBook}
+            chapterNumber={currentChapter}
+            verses={currentChapterData?.verses || []}
+            isLoading={isLoading}
+            error={error}
+          />
         </div>
       </div>
     </Layout>

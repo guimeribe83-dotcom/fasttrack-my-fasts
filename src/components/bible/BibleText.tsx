@@ -1,14 +1,57 @@
-import { BibleVerse } from "@/data/bibleData";
-import { findBookById } from "@/data/bibleData";
+import { BibleVerse, bibleBooks } from "@/data/bibleData";
 
 interface BibleTextProps {
   bookId: string;
   chapterNumber: number;
   verses: BibleVerse[];
+  isLoading?: boolean;
+  error?: string | null;
 }
 
-export const BibleText = ({ bookId, chapterNumber, verses }: BibleTextProps) => {
-  const book = findBookById(bookId);
+export const BibleText = ({ bookId, chapterNumber, verses, isLoading, error }: BibleTextProps) => {
+  const book = bibleBooks.find(b => b.id === bookId);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto mb-4" />
+          <p className="text-muted-foreground">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-12">
+        <div className="bg-destructive/10 border border-destructive rounded-lg p-6 text-center">
+          <p className="text-destructive font-semibold mb-2">⚠️ Aviso</p>
+          <p className="text-sm text-foreground mb-4">{error}</p>
+          <p className="text-xs text-muted-foreground">
+            Para acessar toda a Bíblia, obtenha um token gratuito em{" "}
+            <a 
+              href="https://www.abibliadigital.com.br/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              abibliadigital.com.br
+            </a>
+            {" "}e adicione ao arquivo .env como VITE_BIBLE_API_TOKEN
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (verses.length === 0) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-12 text-center">
+        <p className="text-muted-foreground">Nenhum versículo disponível.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 md:py-12 animate-fade-in">

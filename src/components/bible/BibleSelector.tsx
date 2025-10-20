@@ -1,8 +1,9 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { bibleBooks, findBookById } from "@/data/bibleData";
+import { BibleBook } from "@/data/bibleData";
 import { useTranslation } from "react-i18next";
 
 interface BibleSelectorProps {
+  availableBooks: BibleBook[];
   currentBook: string;
   currentChapter: number;
   onBookChange: (bookId: string) => void;
@@ -10,13 +11,14 @@ interface BibleSelectorProps {
 }
 
 export const BibleSelector = ({
+  availableBooks,
   currentBook,
   currentChapter,
   onBookChange,
   onChapterChange,
 }: BibleSelectorProps) => {
   const { t } = useTranslation();
-  const book = findBookById(currentBook);
+  const book = availableBooks.find(b => b.id === currentBook);
   const chapters = Array.from({ length: book?.chapters.length || 0 }, (_, i) => i + 1);
 
   return (
@@ -28,7 +30,7 @@ export const BibleSelector = ({
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="max-h-[300px] bg-card border-border">
-            {bibleBooks.map((book) => (
+            {availableBooks.map((book) => (
               <SelectItem key={book.id} value={book.id}>
                 {book.name}
               </SelectItem>
