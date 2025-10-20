@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Trash2, Calendar, Layers, CheckCircle, Heart } from "lucide-react";
+import { getFallbackPrayerByCategory } from "@/lib/prayerFallbacks";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useOfflineQueue } from "@/hooks/useOfflineQueue";
 import { useBackgroundSync } from "@/hooks/useBackgroundSync";
@@ -181,22 +182,47 @@ export default function NovoJejum() {
 
       if (purposeError) throw purposeError;
 
-      // Generate personalized prayer in background
-      supabase.functions.invoke('generate-personalized-prayer', {
-        body: {
-          purposeCategory,
-          purposeDescription,
-          fastName: name,
-          totalDays: parseInt(totalDays)
-        }
-      }).then(({ data }) => {
-        if (data?.prayerData) {
-          supabase.from("fast_prayers").insert({
+      // Generate personalized prayer
+      toast({
+        title: "Gerando sua oração...",
+        description: "Criando uma oração personalizada para você.",
+      });
+
+      try {
+        const { data: prayerResponse, error: prayerError } = await supabase.functions.invoke(
+          'generate-personalized-prayer',
+          {
+            body: {
+              purposeCategory,
+              purposeDescription,
+              fastName: name,
+              totalDays: parseInt(totalDays)
+            }
+          }
+        );
+
+        if (!prayerError && prayerResponse?.prayerData) {
+          await supabase.from("fast_prayers").insert({
             fast_id: fast.id,
-            prayer_data: data.prayerData
-          });
+            prayer_data: prayerResponse.prayerData
+          } as any);
+        } else {
+          // Use fallback if AI fails
+          const fallbackPrayer = getFallbackPrayerByCategory(purposeCategory);
+          await supabase.from("fast_prayers").insert({
+            fast_id: fast.id,
+            prayer_data: fallbackPrayer
+          } as any);
         }
-      }).catch(err => console.error("Prayer generation error:", err));
+      } catch (prayerError) {
+        console.error("Prayer generation error:", prayerError);
+        // Save fallback prayer on error
+        const fallbackPrayer = getFallbackPrayerByCategory(purposeCategory);
+        await supabase.from("fast_prayers").insert({
+          fast_id: fast.id,
+          prayer_data: fallbackPrayer
+        } as any);
+      }
 
       // Deactivate other fasts
       await supabase
@@ -222,8 +248,8 @@ export default function NovoJejum() {
       }
 
       toast({
-        title: "Jejum criado!",
-        description: "Seu jejum foi criado com sucesso.",
+        title: "Jejum e oração criados!",
+        description: "Seu jejum foi criado com uma oração personalizada.",
       });
 
       navigate("/");
