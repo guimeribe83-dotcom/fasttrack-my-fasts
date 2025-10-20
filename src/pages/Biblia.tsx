@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -11,7 +11,6 @@ import { toast } from "sonner";
 import { Layout } from "@/components/Layout";
 import { BibleBookSelector } from "@/components/bible/BibleBookSelector";
 import { BibleChapterSelector } from "@/components/bible/BibleChapterSelector";
-import { BibleActionButton } from "@/components/bible/BibleActionButton";
 import { BibleVerseCard } from "@/components/bible/BibleVerseCard";
 
 export default function Biblia() {
@@ -145,35 +144,27 @@ export default function Biblia() {
         <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg supports-[backdrop-filter]:bg-background/60 border-b border-primary/10 shadow-sm">
           <div className="container max-w-4xl mx-auto p-4 space-y-3">
             {/* Primeira linha: Navegação e Título */}
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigate(-1)}
-                  className="hover:bg-primary/10"
-                >
-                  <ArrowLeft className="h-5 w-5" />
-                </Button>
-                <div className="flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-primary" />
-                  <h1 className="text-lg md:text-xl font-bold">
-                    {selectedBook ? `${selectedBook.name} ${selectedChapter || ''}` : t("bible.title")}
-                  </h1>
-                </div>
-              </div>
+            <div className="flex items-center justify-between">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate(-1)}
+                className="hover:bg-primary/10"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
               
-              {/* Seletor de Versão */}
-              <Select value={version} onValueChange={setVersion}>
-                <SelectTrigger className="w-[100px] bg-primary/10 text-primary border-primary/20 font-medium">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-popover/95 backdrop-blur-md z-50">
-                  <SelectItem value="acf">ACF</SelectItem>
-                  <SelectItem value="nvi">NVI</SelectItem>
-                  <SelectItem value="aa">AA</SelectItem>
-                </SelectContent>
-              </Select>
+              <h1 className="text-lg md:text-xl font-bold text-center flex-1">
+                {t("bible.title")}
+              </h1>
+              
+              <Button
+                variant="ghost"
+                size="icon"
+                className="hover:bg-primary/10"
+              >
+                <MoreVertical className="h-5 w-5" />
+              </Button>
             </div>
 
             {/* Segunda linha: Seletores */}
@@ -273,8 +264,6 @@ export default function Biblia() {
           </>
         )}
 
-        {/* Botão Flutuante de Ações */}
-        {chapterData && <BibleActionButton />}
       </div>
     </Layout>
   );
