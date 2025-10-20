@@ -35,9 +35,15 @@ export default function Biblia() {
       setLoading(true);
       const data = await bibleApi.getBooks();
       setBooks(data);
+      
+      // Sucesso ao carregar
+      if (data.length > 0) {
+        toast.success("Bíblia carregada com sucesso");
+      }
     } catch (error) {
       console.error(error);
-      toast.error(t("bible.errorLoading"));
+      // O fallback já é tratado no bibleApi
+      toast.info("Usando dados salvos localmente");
     } finally {
       setLoading(false);
     }
@@ -54,7 +60,17 @@ export default function Biblia() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
       console.error(error);
-      toast.error(t("bible.errorLoading"));
+      
+      const errorMessage = error instanceof Error ? error.message : "Erro ao carregar capítulo";
+      
+      toast.error(errorMessage, {
+        action: {
+          label: "Tentar novamente",
+          onClick: () => loadChapter(bookAbbrev, chapter)
+        }
+      });
+      
+      setChapterData(null);
     } finally {
       setLoadingChapter(false);
     }
