@@ -411,5 +411,23 @@
     "deliverance": "Libertação",
     "breakthrough": "Milagres",
     "other": "Outro"
+  },
+  "bible": {
+    "title": "Bíblia Sagrada",
+    "version": "Versão",
+    "oldTestament": "Antigo Testamento",
+    "newTestament": "Novo Testamento",
+    "search": "Buscar livro...",
+    "selectChapter": "Selecione o capítulo",
+    "chapters": "capítulos",
+    "previousChapter": "Capítulo anterior",
+    "nextChapter": "Próximo capítulo",
+    "verses": "versículos",
+    "loading": "Carregando...",
+    "errorLoading": "Erro ao carregar",
+    "noResults": "Nenhum resultado encontrado"
+  },
+  "floatingButton": {
+    "openBible": "Abrir Bíblia"
   }
 }

@@ -411,5 +411,23 @@
     "deliverance": "Deliverance",
     "breakthrough": "Breakthrough",
     "other": "Other"
+  },
+  "bible": {
+    "title": "Holy Bible",
+    "version": "Version",
+    "oldTestament": "Old Testament",
+    "newTestament": "New Testament",
+    "search": "Search book...",
+    "selectChapter": "Select chapter",
+    "chapters": "chapters",
+    "previousChapter": "Previous chapter",
+    "nextChapter": "Next chapter",
+    "verses": "verses",
+    "loading": "Loading...",
+    "errorLoading": "Error loading",
+    "noResults": "No results found"
+  },
+  "floatingButton": {
+    "openBible": "Open Bible"
   }
 }

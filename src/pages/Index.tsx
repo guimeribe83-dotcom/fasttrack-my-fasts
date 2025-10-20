@@ -5,6 +5,7 @@ import { ProgressCircle } from "@/components/ProgressCircle";
 import { BlockCard } from "@/components/BlockCard";
 import { InstallPWA } from "@/components/InstallPWA";
 import { PWAUpdatePrompt } from "@/components/PWAUpdatePrompt";
+import { BibleFloatingButton } from "@/components/BibleFloatingButton";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 import { DailyContentCard } from "@/components/gamification/DailyContentCard";
 import { BadgesDisplay } from "@/components/gamification/BadgesDisplay";
@@ -312,6 +313,7 @@ export default function Index() {
       {showOnboarding && <OnboardingFlow onComplete={handleOnboardingComplete} />}
       <InstallPWA />
       <PWAUpdatePrompt />
+      <BibleFloatingButton />
       <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-4 md:space-y-6">
         {/* Header - Mobile Only */}
         <div 
