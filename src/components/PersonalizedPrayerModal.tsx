@@ -47,11 +47,19 @@ export const PersonalizedPrayerModal = ({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
-        <SheetHeader className="relative h-32 -mx-6 -mt-6 mb-6 bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
-          <div className="text-center text-white px-4">
-            <Sparkles className="w-12 h-12 mx-auto mb-2 animate-pulse" />
-            <SheetTitle className="text-xl font-bold text-white">{prayer.title}</SheetTitle>
-            <p className="text-sm text-white/90 mt-1">{prayer.introduction}</p>
+        <SheetHeader className="pb-4 border-b border-border/50">
+          <div className="flex items-start gap-3">
+            <div className="mt-1 p-2 rounded-lg bg-amber-500/10">
+              <Sparkles className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+            </div>
+            <div className="flex-1">
+              <SheetTitle className="text-2xl font-bold text-foreground mb-1">
+                {prayer.title}
+              </SheetTitle>
+              <p className="text-sm text-muted-foreground">
+                {prayer.introduction}
+              </p>
+            </div>
           </div>
         </SheetHeader>
 
