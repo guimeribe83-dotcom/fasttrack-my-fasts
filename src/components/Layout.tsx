@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import { UserHeader } from "./UserHeader";
 import { PWAFeatures } from "./PWAFeatures";
 import { LoginStreakBadge } from "./gamification/LoginStreakBadge";
+import { LoginStreakFloatingBadge } from "./gamification/LoginStreakFloatingBadge";
 import { useLoginStreak } from "@/hooks/useLoginStreak";
 
 interface LayoutProps {
@@ -92,6 +93,7 @@ export const Layout = ({ children }: LayoutProps) => {
   return (
     <div className="flex min-h-screen bg-background">
       <PWAFeatures />
+      <LoginStreakFloatingBadge streak={loginStreak} />
       {/* Sidebar - Desktop only */}
       <aside className="hidden md:flex w-60 bg-sidebar border-r border-sidebar-border flex-col">
         <div className="p-6 border-b border-sidebar-border">
