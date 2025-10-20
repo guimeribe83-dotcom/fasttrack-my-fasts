@@ -363,11 +363,11 @@
       "peaceful": "Em Paz",
       "hopeful": "Esperançoso"
     },
-    "filterByDate": "Filtrar por data",
+    "filterByDate": "Filtrar por período",
     "filterActive": "Filtro ativo",
     "clearFilter": "Limpar filtro",
-    "noEntriesForDate": "Nenhuma entrada nesta data",
-    "noEntriesForDateDesc": "Não há entradas registradas para a data selecionada"
+    "noEntriesForDate": "Nenhuma entrada neste período",
+    "noEntriesForDateDesc": "Não há entradas registradas para o período selecionado"
   },
   "checkIn": {
     "title": "Como foi seu dia?",

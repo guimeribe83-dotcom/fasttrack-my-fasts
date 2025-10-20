@@ -70,7 +70,7 @@ export default function DiarioEspiritual() {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [viewingEntry, setViewingEntry] = useState<JournalEntry | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined);
+  const [dateFilter, setDateFilter] = useState<{ from: Date | undefined; to?: Date | undefined } | undefined>(undefined);
 
   const dateLocale = i18n.language === 'pt' ? ptBR : i18n.language === 'es' ? es : enUS;
 
@@ -267,11 +267,22 @@ export default function DiarioEspiritual() {
     setSelectedTags([]);
   };
 
-  const filteredEntries = dateFilter
+  const filteredEntries = dateFilter?.from
     ? entries.filter(entry => {
         const entryDate = new Date(entry.entry_date + 'T00:00:00');
-        const filterDate = new Date(dateFilter);
-        return entryDate.toDateString() === filterDate.toDateString();
+        const fromDate = new Date(dateFilter.from);
+        fromDate.setHours(0, 0, 0, 0);
+        
+        if (dateFilter.to) {
+          const toDate = new Date(dateFilter.to);
+          toDate.setHours(23, 59, 59, 999);
+          return entryDate >= fromDate && entryDate <= toDate;
+        } else {
+          // Se só tem 'from', filtra apenas aquele dia
+          const nextDay = new Date(fromDate);
+          nextDay.setDate(nextDay.getDate() + 1);
+          return entryDate >= fromDate && entryDate < nextDay;
+        }
       })
     : entries;
 
@@ -296,20 +307,31 @@ export default function DiarioEspiritual() {
                 <Button
                   variant="outline"
                   className={cn(
-                    "justify-start text-left font-normal",
-                    dateFilter && "border-primary"
+                    "justify-start text-left font-normal min-w-[280px]",
+                    dateFilter?.from && "border-primary"
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dateFilter ? format(dateFilter, "PPP", { locale: dateLocale }) : t("journal.filterByDate")}
+                  {dateFilter?.from ? (
+                    dateFilter.to ? (
+                      <>
+                        {format(dateFilter.from, "dd/MM/yyyy", { locale: dateLocale })} - {format(dateFilter.to, "dd/MM/yyyy", { locale: dateLocale })}
+                      </>
+                    ) : (
+                      format(dateFilter.from, "PPP", { locale: dateLocale })
+                    )
+                  ) : (
+                    t("journal.filterByDate")
+                  )}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="end">
                 <Calendar
-                  mode="single"
+                  mode="range"
                   selected={dateFilter}
                   onSelect={setDateFilter}
                   initialFocus
+                  numberOfMonths={2}
                   className={cn("p-3 pointer-events-auto")}
                 />
               </PopoverContent>
@@ -317,9 +339,12 @@ export default function DiarioEspiritual() {
           </div>
 
           {/* Indicador de Filtro Ativo */}
-          {dateFilter && (
+          {dateFilter?.from && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>{t("journal.filterActive")}: {format(dateFilter, "PPP", { locale: dateLocale })}</span>
+              <span>
+                {t("journal.filterActive")}: {format(dateFilter.from, "dd/MM/yyyy", { locale: dateLocale })}
+                {dateFilter.to && ` - ${format(dateFilter.to, "dd/MM/yyyy", { locale: dateLocale })}`}
+              </span>
               <Button
                 variant="ghost"
                 size="sm"
@@ -334,7 +359,7 @@ export default function DiarioEspiritual() {
         </div>
 
         {/* Entradas Salvas */}
-        {filteredEntries.length === 0 && !dateFilter ? (
+        {filteredEntries.length === 0 && !dateFilter?.from ? (
           <Card className="p-12 text-center border-dashed">
             <BookOpen className="w-16 h-16 mx-auto text-muted-foreground/30 mb-4" />
             <h3 className="text-lg font-semibold text-foreground mb-2">

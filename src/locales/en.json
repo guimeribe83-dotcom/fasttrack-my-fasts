@@ -363,11 +363,11 @@
       "peaceful": "Peaceful",
       "hopeful": "Hopeful"
     },
-    "filterByDate": "Filter by date",
+    "filterByDate": "Filter by period",
     "filterActive": "Active filter",
     "clearFilter": "Clear filter",
-    "noEntriesForDate": "No entries for this date",
-    "noEntriesForDateDesc": "There are no entries recorded for the selected date"
+    "noEntriesForDate": "No entries for this period",
+    "noEntriesForDateDesc": "There are no entries recorded for the selected period"
   },
   "checkIn": {
     "title": "How was your day?",
