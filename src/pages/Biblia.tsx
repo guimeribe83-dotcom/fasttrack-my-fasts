@@ -31,10 +31,10 @@ export default function Biblia() {
 
   // Funções para salvar/recuperar último livro lido
   const saveLastRead = (bookAbbrev: string, chapter: number) => {
-    localStorage.setItem('lastBibleRead', JSON.stringify({ bookAbbrev, chapter }));
+    localStorage.setItem('lastBibleRead', JSON.stringify({ version, bookAbbrev, chapter }));
   };
 
-  const getLastRead = (): { bookAbbrev: string; chapter: number } | null => {
+  const getLastRead = (): { version?: string; bookAbbrev: string; chapter: number } | null => {
     const saved = localStorage.getItem('lastBibleRead');
     return saved ? JSON.parse(saved) : null;
   };
@@ -94,6 +94,22 @@ export default function Biblia() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
       console.error(error);
+      
+      // Tentar fallback offline
+      try {
+        const offlineData = await bibleApi.getOfflineChapter(version, bookAbbrev, chapter);
+        if (offlineData) {
+          setChapterData(offlineData);
+          setSelectedChapter(chapter);
+          toast("Modo offline", {
+            description: "Usando conteúdo salvo. Conecte-se para acessar todos os capítulos.",
+          });
+          setLoadingChapter(false);
+          return;
+        }
+      } catch (offlineError) {
+        console.error('Offline fallback failed:', offlineError);
+      }
       
       const errorMessage = error instanceof Error ? error.message : "Erro ao carregar capítulo";
       

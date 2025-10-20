@@ -4,6 +4,15 @@ const API_BASE_URL = 'https://www.abibliadigital.com.br/api';
 const RETRY_ATTEMPTS = 3;
 const RETRY_DELAY = 1000;
 
+// Função para obter headers de autenticação
+function getAuthHeaders(): HeadersInit {
+  const token = import.meta.env.VITE_BIBLE_API_TOKEN;
+  return {
+    'Authorization': token ? `Bearer ${token}` : '',
+    'Content-Type': 'application/json'
+  };
+}
+
 export interface BibleBook {
   abbrev: { pt: string; en: string };
   name: string;
@@ -51,7 +60,7 @@ interface CacheData<T> {
 async function fetchWithRetry(url: string, attempts: number = RETRY_ATTEMPTS): Promise<Response> {
   for (let i = 0; i < attempts; i++) {
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, { headers: getAuthHeaders() });
       if (response.ok) return response;
       
       if (i < attempts - 1) {
@@ -94,6 +103,17 @@ function saveToCache<T>(key: string, data: T): void {
     localStorage.setItem(`${CACHE_PREFIX}${key}`, JSON.stringify(cacheData));
   } catch (error) {
     console.warn('Failed to save to cache:', error);
+  }
+}
+
+// Função para carregar capítulo offline
+async function getOfflineChapter(version: string, bookAbbrev: string, chapter: number): Promise<BibleChapter | null> {
+  try {
+    const offlineData = await import(`./offlineChapters/${version}/${bookAbbrev}-${chapter}.json`);
+    return offlineData.default;
+  } catch (error) {
+    console.log(`No offline data for ${bookAbbrev} ${chapter}`);
+    return null;
   }
 }
 
@@ -148,8 +168,20 @@ export const bibleApi = {
       return data;
     } catch (error) {
       console.error(`Failed to fetch chapter ${bookAbbrev} ${chapter}:`, error);
+      
+      // Tentar carregar conteúdo offline
+      const offlineData = await getOfflineChapter(version, bookAbbrev, chapter);
+      if (offlineData) {
+        console.log('Using offline content');
+        return offlineData;
+      }
+      
       throw new Error('Não foi possível carregar o capítulo. Verifique sua conexão.');
     }
+  },
+
+  async getOfflineChapter(version: string, bookAbbrev: string, chapter: number): Promise<BibleChapter | null> {
+    return getOfflineChapter(version, bookAbbrev, chapter);
   },
 
   async searchVerses(version: string, query: string): Promise<any> {

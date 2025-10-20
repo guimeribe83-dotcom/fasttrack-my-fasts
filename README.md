@@ -60,6 +60,16 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## Bible API Configuration (Optional)
+
+This project includes a Bible reader feature. To access all Bible books and chapters online:
+
+1. Get a free API token at [A Bíblia Digital](https://www.abibliadigital.com.br/)
+2. Create a `.env` file in the project root (copy from `.env.example`)
+3. Add your token: `VITE_BIBLE_API_TOKEN="your-token-here"`
+
+**Note:** Without a token, the Bible reader will work offline with limited content (John chapter 1). With a token, you'll have access to the complete Bible in multiple versions.
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/5df1cfab-6382-458c-a987-a870c0144151) and click on Share -> Publish.
