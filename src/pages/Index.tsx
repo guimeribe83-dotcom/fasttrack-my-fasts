@@ -10,6 +10,7 @@ import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 import { DailyContentCard } from "@/components/gamification/DailyContentCard";
 import { BadgesDisplay } from "@/components/gamification/BadgesDisplay";
 import EmotionalCheckIn from "@/components/EmotionalCheckIn";
+import { PersonalizedPrayer } from "@/components/PersonalizedPrayer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -37,6 +38,7 @@ export default function Index() {
   const [checkInData, setCheckInData] = useState<any>(null);
   const [purpose, setPurpose] = useState<any>(null);
   const [purposeExpanded, setPurposeExpanded] = useState(false);
+  const [prayer, setPrayer] = useState<any>(null);
   
   const getDateFnsLocale = () => {
     switch (i18n.language) {
@@ -118,6 +120,17 @@ export default function Index() {
 
       if (purposeError) console.error(purposeError);
       setPurpose(purposeData);
+
+      // Load prayer
+      const { data: prayerData, error: prayerError } = await supabase
+        .from("fast_prayers")
+        .select("*")
+        .eq("fast_id", fast.id)
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (prayerError) console.error(prayerError);
+      setPrayer(prayerData);
 
       // Load blocks
       const {
@@ -342,6 +355,44 @@ export default function Index() {
 
         {/* Daily Content */}
         <DailyContentCard />
+
+        {/* Personalized Prayer */}
+        {prayer && (
+          <PersonalizedPrayer 
+            prayer={prayer.prayer_data} 
+            onRegenerate={async () => {
+              try {
+                const { data: newPrayer, error } = await supabase.functions.invoke('generate-personalized-prayer', {
+                  body: {
+                    purposeCategory: purpose?.category || 'other',
+                    purposeDescription: purpose?.description || '',
+                    fastName: activeFast.name,
+                    totalDays: activeFast.total_days
+                  }
+                });
+
+                if (!error && newPrayer && newPrayer.prayerData) {
+                  await supabase
+                    .from("fast_prayers")
+                    .update({ prayer_data: newPrayer.prayerData })
+                    .eq("fast_id", activeFast.id);
+                  
+                  setPrayer({ ...prayer, prayer_data: newPrayer.prayerData });
+                  toast({
+                    title: "Oração regenerada!",
+                    description: "Uma nova oração foi gerada para você."
+                  });
+                }
+              } catch (error) {
+                toast({
+                  variant: "destructive",
+                  title: "Erro ao regenerar oração",
+                  description: "Tente novamente mais tarde."
+                });
+              }
+            }}
+          />
+        )}
 
         {/* Spiritual Journal Card */}
         <Card 

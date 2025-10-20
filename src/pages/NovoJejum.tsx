@@ -181,6 +181,23 @@ export default function NovoJejum() {
 
       if (purposeError) throw purposeError;
 
+      // Generate personalized prayer in background
+      supabase.functions.invoke('generate-personalized-prayer', {
+        body: {
+          purposeCategory,
+          purposeDescription,
+          fastName: name,
+          totalDays: parseInt(totalDays)
+        }
+      }).then(({ data }) => {
+        if (data?.prayerData) {
+          supabase.from("fast_prayers").insert({
+            fast_id: fast.id,
+            prayer_data: data.prayerData
+          });
+        }
+      }).catch(err => console.error("Prayer generation error:", err));
+
       // Deactivate other fasts
       await supabase
         .from("fasts")

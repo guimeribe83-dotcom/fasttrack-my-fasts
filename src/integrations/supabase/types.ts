@@ -166,6 +166,41 @@ export type Database = {
           },
         ]
       }
+      fast_prayers: {
+        Row: {
+          created_at: string | null
+          fast_id: string
+          id: string
+          is_active: boolean | null
+          prayer_data: Json
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          fast_id: string
+          id?: string
+          is_active?: boolean | null
+          prayer_data: Json
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          fast_id?: string
+          id?: string
+          is_active?: boolean | null
+          prayer_data?: Json
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fast_prayers_fast_id_fkey"
+            columns: ["fast_id"]
+            isOneToOne: false
+            referencedRelation: "fasts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fast_purposes: {
         Row: {
           category: string

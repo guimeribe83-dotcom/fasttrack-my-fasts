@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.generate-daily-content]
 verify_jwt = false
+
+[functions.generate-personalized-prayer]
+verify_jwt = true
