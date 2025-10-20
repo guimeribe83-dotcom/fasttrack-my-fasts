@@ -131,6 +131,8 @@ export default function GerenciarJejuns() {
     );
   }
 
+  const hasActiveFast = fasts.some(fast => fast.is_active);
+
   return (
     <Layout>
       <div className="p-4 md:p-8 max-w-5xl mx-auto">
@@ -142,10 +144,12 @@ export default function GerenciarJejuns() {
               Defina o jejum ativo, edite ou crie novos propósitos
             </p>
           </div>
-          <Button onClick={() => navigate("/novo-jejum")} className="bg-gradient-primary h-11 whitespace-nowrap">
-            <Plus className="mr-2 w-4 h-4" />
-            Criar Novo Jejum
-          </Button>
+          {!hasActiveFast && (
+            <Button onClick={() => navigate("/novo-jejum")} className="bg-gradient-primary h-11 whitespace-nowrap">
+              <Plus className="mr-2 w-4 h-4" />
+              Criar Novo Jejum
+            </Button>
+          )}
         </div>
 
         {fasts.length === 0 ? (
@@ -266,6 +270,17 @@ export default function GerenciarJejuns() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Botão Flutuante quando há jejum ativo */}
+        {hasActiveFast && (
+          <Button
+            onClick={() => navigate("/novo-jejum")}
+            size="lg"
+            className="fixed bottom-20 md:bottom-6 right-6 h-14 w-14 rounded-full shadow-xl bg-primary hover:bg-primary/90 z-50"
+          >
+            <Plus className="w-6 h-6" />
+          </Button>
+        )}
       </div>
     </Layout>
   );
