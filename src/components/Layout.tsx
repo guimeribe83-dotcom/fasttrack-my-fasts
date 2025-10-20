@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { Home, Plus, History, Bell, List, LogOut, Settings, User as UserIcon } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +8,8 @@ import logo from "@/assets/logo.png";
 import { useTranslation } from "react-i18next";
 import { UserHeader } from "./UserHeader";
 import { PWAFeatures } from "./PWAFeatures";
+import { LoginStreakBadge } from "./gamification/LoginStreakBadge";
+import { useLoginStreak } from "@/hooks/useLoginStreak";
 
 interface LayoutProps {
   children: ReactNode;
@@ -17,6 +19,54 @@ export const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [userId, setUserId] = useState<string | undefined>();
+  const [loginStreak, setLoginStreak] = useState(0);
+
+  useLoginStreak(userId);
+
+  useEffect(() => {
+    const loadUserAndStreak = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+        
+        const { data: stats } = await supabase
+          .from("user_stats")
+          .select("login_streak")
+          .eq("user_id", user.id)
+          .single();
+        
+        if (stats) {
+          setLoginStreak(stats.login_streak);
+        }
+      }
+    };
+
+    loadUserAndStreak();
+
+    // Subscribe to stats changes
+    const channel = supabase
+      .channel('user_stats_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'user_stats',
+          filter: userId ? `user_id=eq.${userId}` : undefined,
+        },
+        (payload) => {
+          if (payload.new && 'login_streak' in payload.new) {
+            setLoginStreak(payload.new.login_streak as number);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId]);
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -102,7 +152,8 @@ export const Layout = ({ children }: LayoutProps) => {
       {/* Main Content */}
       <main className="flex-1 overflow-auto pb-20 md:pb-0">
         {/* Top Header - Desktop */}
-        <div className="hidden md:flex items-center justify-end p-4 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10">
+        <div className="hidden md:flex items-center justify-end gap-3 p-4 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10">
+          <LoginStreakBadge streak={loginStreak} />
           <UserHeader />
         </div>
         

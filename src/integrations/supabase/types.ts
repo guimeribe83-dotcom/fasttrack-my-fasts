@@ -512,36 +512,45 @@ export type Database = {
       }
       user_stats: {
         Row: {
+          best_login_streak: number | null
           best_streak: number
           created_at: string
           current_streak: number
           id: string
           last_check_in: string | null
+          last_login_date: string | null
           level: number
+          login_streak: number | null
           points: number
           total_days_completed: number
           updated_at: string
           user_id: string
         }
         Insert: {
+          best_login_streak?: number | null
           best_streak?: number
           created_at?: string
           current_streak?: number
           id?: string
           last_check_in?: string | null
+          last_login_date?: string | null
           level?: number
+          login_streak?: number | null
           points?: number
           total_days_completed?: number
           updated_at?: string
           user_id: string
         }
         Update: {
+          best_login_streak?: number | null
           best_streak?: number
           created_at?: string
           current_streak?: number
           id?: string
           last_check_in?: string | null
+          last_login_date?: string | null
           level?: number
+          login_streak?: number | null
           points?: number
           total_days_completed?: number
           updated_at?: string
