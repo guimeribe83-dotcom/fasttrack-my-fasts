@@ -34,6 +34,8 @@ export default function Index() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showCheckIn, setShowCheckIn] = useState(false);
   const [checkInData, setCheckInData] = useState<any>(null);
+  const [purpose, setPurpose] = useState<any>(null);
+  const [purposeExpanded, setPurposeExpanded] = useState(false);
   
   const getDateFnsLocale = () => {
     switch (i18n.language) {
@@ -105,6 +107,16 @@ export default function Index() {
         return;
       }
       setActiveFast(fast);
+
+      // Load purpose
+      const { data: purposeData, error: purposeError } = await supabase
+        .from("fast_purposes")
+        .select("*")
+        .eq("fast_id", fast.id)
+        .maybeSingle();
+
+      if (purposeError) console.error(purposeError);
+      setPurpose(purposeData);
 
       // Load blocks
       const {
@@ -270,6 +282,32 @@ export default function Index() {
     loadActiveFast();
   };
 
+  const getPurposeIcon = (category: string) => {
+    const icons: Record<string, string> = {
+      healing: "❤️",
+      guidance: "🧭",
+      gratitude: "🙏",
+      intercession: "🤲",
+      deliverance: "⛓️‍💥",
+      breakthrough: "⚡",
+      other: "✨"
+    };
+    return icons[category] || "✨";
+  };
+
+  const getPurposeCategoryName = (category: string) => {
+    const names: Record<string, string> = {
+      healing: t("purpose.healing"),
+      guidance: t("purpose.guidance"),
+      gratitude: t("purpose.gratitude"),
+      intercession: t("purpose.intercession"),
+      deliverance: t("purpose.deliverance"),
+      breakthrough: t("purpose.breakthrough"),
+      other: t("purpose.other")
+    };
+    return names[category] || category;
+  };
+
   return <Layout>
       {showOnboarding && <OnboardingFlow onComplete={handleOnboardingComplete} />}
       <InstallPWA />
@@ -322,6 +360,41 @@ export default function Index() {
             </div>
           </div>
         </Card>
+
+        {/* Purpose Card */}
+        {purpose && (
+          <Card className="p-4 md:p-6 bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/20 shadow-sm">
+            <div 
+              className="cursor-pointer"
+              onClick={() => setPurposeExpanded(!purposeExpanded)}
+            >
+              <div className="flex items-start gap-3 mb-2">
+                <div className="text-3xl">{getPurposeIcon(purpose.category)}</div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-1">
+                    <h3 className="text-base font-semibold text-foreground">
+                      {t("home.purposeTitle")}
+                    </h3>
+                    <span className="text-xs text-purple-600 dark:text-purple-400 font-medium">
+                      {getPurposeCategoryName(purpose.category)}
+                    </span>
+                  </div>
+                  <p className={`text-sm text-muted-foreground leading-relaxed ${
+                    purposeExpanded ? '' : 'line-clamp-2'
+                  }`}>
+                    {purpose.description}
+                  </p>
+                </div>
+              </div>
+              
+              {purpose.description.length > 100 && (
+                <button className="text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium mt-1">
+                  {purposeExpanded ? t("common.showLess") : t("common.showMore")}
+                </button>
+              )}
+            </div>
+          </Card>
+        )}
 
         {/* Progress Section */}
         <Card className="p-4 md:p-6 bg-gradient-to-br from-card to-card/50 border-border shadow-sm">

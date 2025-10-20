@@ -63,7 +63,8 @@
     "errorMarking": "Error al marcar el día",
     "dayAlreadyMarked": "Este día ya ha sido marcado",
     "fastEnds": "Fin previsto",
-    "daysFromStart": "días desde el inicio"
+    "daysFromStart": "días desde el inicio",
+    "purposeTitle": "Propósito del Ayuno"
   },
   "manage": {
     "title": "Administrar Ayunos",
@@ -298,7 +299,9 @@
     "confirm": "Confirmar",
     "yes": "Sí",
     "no": "No",
-    "view": "Ver"
+    "view": "Ver",
+    "showMore": "Ver más",
+    "showLess": "Ver menos"
   },
   "journal": {
     "title": "Diario Espiritual",
@@ -399,5 +402,14 @@
         "other": "Otro propósito"
       }
     }
+  },
+  "purpose": {
+    "healing": "Sanación",
+    "guidance": "Dirección",
+    "gratitude": "Gratitud",
+    "intercession": "Intercesión",
+    "deliverance": "Liberación",
+    "breakthrough": "Milagros",
+    "other": "Otro"
   }
 }

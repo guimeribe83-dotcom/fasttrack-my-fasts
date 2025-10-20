@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, Heart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Block {
   id?: string;
@@ -27,6 +29,9 @@ export default function EditarJejum() {
   const [totalDays, setTotalDays] = useState<number>(0);
   const [startDate, setStartDate] = useState("");
   const [blocks, setBlocks] = useState<Block[]>([]);
+  const [purposeCategory, setPurposeCategory] = useState<string>('guidance');
+  const [purposeDescription, setPurposeDescription] = useState('');
+  const [purposeId, setPurposeId] = useState<string | null>(null);
 
   useEffect(() => {
     loadFast();
@@ -66,6 +71,21 @@ export default function EditarJejum() {
             order_index: block.order_index,
           }))
         );
+      }
+
+      // Load purpose
+      const { data: purposeData, error: purposeError } = await supabase
+        .from("fast_purposes")
+        .select("*")
+        .eq("fast_id", id)
+        .maybeSingle();
+
+      if (purposeError) console.error(purposeError);
+
+      if (purposeData) {
+        setPurposeId(purposeData.id);
+        setPurposeCategory(purposeData.category);
+        setPurposeDescription(purposeData.description);
       }
     } catch (error: any) {
       toast({
@@ -136,6 +156,10 @@ export default function EditarJejum() {
         throw new Error("Total de dias deve ser maior que zero");
       }
 
+      if (!purposeDescription.trim()) {
+        throw new Error("O propósito do jejum é obrigatório");
+      }
+
       // Validar blocos
       if (blocks.length > 0) {
         // Verificar se todos os blocos têm nome
@@ -179,6 +203,31 @@ export default function EditarJejum() {
         .eq("id", id);
 
       if (fastError) throw fastError;
+
+      // Update or create purpose
+      if (purposeId) {
+        // Update existing purpose
+        const { error: purposeError } = await supabase
+          .from("fast_purposes")
+          .update({
+            category: purposeCategory,
+            description: purposeDescription.trim(),
+          })
+          .eq("id", purposeId);
+
+        if (purposeError) throw purposeError;
+      } else {
+        // Create new purpose if doesn't exist
+        const { error: purposeError } = await supabase
+          .from("fast_purposes")
+          .insert({
+            fast_id: id,
+            category: purposeCategory,
+            description: purposeDescription.trim(),
+          });
+
+        if (purposeError) throw purposeError;
+      }
 
       // Delete all existing fast_days for blocks that will be removed
       const { error: deleteDaysError } = await supabase
@@ -296,6 +345,51 @@ export default function EditarJejum() {
                 </p>
               </div>
             </Card>
+
+            {/* Purpose Section */}
+            <div className="space-y-4 p-4 bg-primary/5 rounded-lg border border-primary/10">
+              <div className="flex items-center gap-2">
+                <Heart className="w-5 h-5 text-primary" />
+                <h3 className="font-semibold text-lg">Propósito do Jejum *</h3>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="purposeCategory" className="text-sm font-medium">
+                  Por que você está jejuando?
+                </Label>
+                <Select 
+                  value={purposeCategory} 
+                  onValueChange={(value) => setPurposeCategory(value)}
+                >
+                  <SelectTrigger id="purposeCategory" className="h-11">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="healing">❤️ Cura física ou emocional</SelectItem>
+                    <SelectItem value="guidance">🧭 Direção e sabedoria</SelectItem>
+                    <SelectItem value="gratitude">🙏 Gratidão e adoração</SelectItem>
+                    <SelectItem value="intercession">🤲 Intercessão por alguém</SelectItem>
+                    <SelectItem value="deliverance">⛓️ Libertação espiritual</SelectItem>
+                    <SelectItem value="breakthrough">⚡ Breakthrough e milagres</SelectItem>
+                    <SelectItem value="other">✨ Outro propósito</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="purposeDescription" className="text-sm font-medium">
+                  Descreva seu propósito *
+                </Label>
+                <Textarea
+                  id="purposeDescription"
+                  value={purposeDescription}
+                  onChange={(e) => setPurposeDescription(e.target.value)}
+                  placeholder="Por exemplo: 'Busco cura para minha ansiedade' ou 'Jejuando por sabedoria na decisão de mudança de carreira'"
+                  className="min-h-[100px] resize-none"
+                  required
+                />
+              </div>
+            </div>
 
             <div>
               <div className="mb-4">

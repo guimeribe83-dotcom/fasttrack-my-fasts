@@ -63,7 +63,8 @@
     "errorMarking": "Erro ao marcar o dia",
     "dayAlreadyMarked": "Este dia já foi marcado",
     "fastEnds": "Término previsto",
-    "daysFromStart": "dias desde o início"
+    "daysFromStart": "dias desde o início",
+    "purposeTitle": "Propósito do Jejum"
   },
   "manage": {
     "title": "Gerenciar Jejuns",
@@ -298,7 +299,9 @@
     "confirm": "Confirmar",
     "yes": "Sim",
     "no": "Não",
-    "view": "Visualizar"
+    "view": "Visualizar",
+    "showMore": "Ver mais",
+    "showLess": "Ver menos"
   },
   "journal": {
     "title": "Diário Espiritual",
@@ -399,5 +402,14 @@
         "other": "Outro propósito"
       }
     }
+  },
+  "purpose": {
+    "healing": "Cura",
+    "guidance": "Direção",
+    "gratitude": "Gratidão",
+    "intercession": "Intercessão",
+    "deliverance": "Libertação",
+    "breakthrough": "Milagres",
+    "other": "Outro"
   }
 }

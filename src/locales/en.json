@@ -63,7 +63,8 @@
     "errorMarking": "Error marking the day",
     "dayAlreadyMarked": "This day has already been marked",
     "fastEnds": "Expected end",
-    "daysFromStart": "days since start"
+    "daysFromStart": "days since start",
+    "purposeTitle": "Fasting Purpose"
   },
   "manage": {
     "title": "Manage Fasts",
@@ -298,7 +299,9 @@
     "confirm": "Confirm",
     "yes": "Yes",
     "no": "No",
-    "view": "View"
+    "view": "View",
+    "showMore": "Show more",
+    "showLess": "Show less"
   },
   "journal": {
     "title": "Spiritual Journal",
@@ -399,5 +402,14 @@
         "other": "Other purpose"
       }
     }
+  },
+  "purpose": {
+    "healing": "Healing",
+    "guidance": "Guidance",
+    "gratitude": "Gratitude",
+    "intercession": "Intercession",
+    "deliverance": "Deliverance",
+    "breakthrough": "Breakthrough",
+    "other": "Other"
   }
 }
