@@ -25,9 +25,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { BookOpen, Plus, Edit, Trash2, Eye } from "lucide-react";
+import { BookOpen, Plus, Edit, Trash2, Eye, Calendar as CalendarIcon, X } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR, enUS, es } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
@@ -67,6 +70,7 @@ export default function DiarioEspiritual() {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [viewingEntry, setViewingEntry] = useState<JournalEntry | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined);
 
   const dateLocale = i18n.language === 'pt' ? ptBR : i18n.language === 'es' ? es : enUS;
 
@@ -263,21 +267,74 @@ export default function DiarioEspiritual() {
     setSelectedTags([]);
   };
 
+  const filteredEntries = dateFilter
+    ? entries.filter(entry => {
+        const entryDate = new Date(entry.entry_date + 'T00:00:00');
+        const filterDate = new Date(dateFilter);
+        return entryDate.toDateString() === filterDate.toDateString();
+      })
+    : entries;
+
   return (
     <Layout>
       <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6 pb-24">
-        {/* Header Simples - Padrão do App */}
-        <div className="space-y-1">
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-            {t("journal.title")}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {t("journal.subtitle")}
-          </p>
+        {/* Header com Filtro */}
+        <div className="space-y-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-1 flex-1">
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+                {t("journal.title")}
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                {t("journal.subtitle")}
+              </p>
+            </div>
+
+            {/* Filtro de Data */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "justify-start text-left font-normal",
+                    dateFilter && "border-primary"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dateFilter ? format(dateFilter, "PPP", { locale: dateLocale }) : t("journal.filterByDate")}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  mode="single"
+                  selected={dateFilter}
+                  onSelect={setDateFilter}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          {/* Indicador de Filtro Ativo */}
+          {dateFilter && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>{t("journal.filterActive")}: {format(dateFilter, "PPP", { locale: dateLocale })}</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setDateFilter(undefined)}
+                className="h-6 px-2"
+              >
+                <X className="h-3 w-3" />
+                {t("journal.clearFilter")}
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Entradas Salvas */}
-        {entries.length === 0 ? (
+        {filteredEntries.length === 0 && !dateFilter ? (
           <Card className="p-12 text-center border-dashed">
             <BookOpen className="w-16 h-16 mx-auto text-muted-foreground/30 mb-4" />
             <h3 className="text-lg font-semibold text-foreground mb-2">
@@ -291,9 +348,22 @@ export default function DiarioEspiritual() {
               {t("journal.createFirstEntry")}
             </Button>
           </Card>
+        ) : filteredEntries.length === 0 ? (
+          <Card className="p-12 text-center border-dashed">
+            <CalendarIcon className="w-16 h-16 mx-auto text-muted-foreground/30 mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">
+              {t("journal.noEntriesForDate")}
+            </h3>
+            <p className="text-sm text-muted-foreground mb-6">
+              {t("journal.noEntriesForDateDesc")}
+            </p>
+            <Button variant="outline" onClick={() => setDateFilter(undefined)}>
+              {t("journal.clearFilter")}
+            </Button>
+          </Card>
         ) : (
           <div className="grid gap-4">
-            {entries.map((entry) => (
+            {filteredEntries.map((entry) => (
               <Card
                 key={entry.id}
                 className="group p-4 hover:border-primary transition-all"

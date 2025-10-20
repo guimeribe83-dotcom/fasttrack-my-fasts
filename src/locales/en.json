@@ -362,7 +362,12 @@
       "tempted": "Tempted",
       "peaceful": "Peaceful",
       "hopeful": "Hopeful"
-    }
+    },
+    "filterByDate": "Filter by date",
+    "filterActive": "Active filter",
+    "clearFilter": "Clear filter",
+    "noEntriesForDate": "No entries for this date",
+    "noEntriesForDateDesc": "There are no entries recorded for the selected date"
   },
   "checkIn": {
     "title": "How was your day?",

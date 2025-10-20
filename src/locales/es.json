@@ -362,7 +362,12 @@
       "tempted": "Tentado",
       "peaceful": "En Paz",
       "hopeful": "Esperanzado"
-    }
+    },
+    "filterByDate": "Filtrar por fecha",
+    "filterActive": "Filtro activo",
+    "clearFilter": "Limpiar filtro",
+    "noEntriesForDate": "No hay entradas en esta fecha",
+    "noEntriesForDateDesc": "No hay entradas registradas para la fecha seleccionada"
   },
   "checkIn": {
     "title": "¿Cómo fue tu día?",

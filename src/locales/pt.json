@@ -362,7 +362,12 @@
       "tempted": "Tentado",
       "peaceful": "Em Paz",
       "hopeful": "Esperançoso"
-    }
+    },
+    "filterByDate": "Filtrar por data",
+    "filterActive": "Filtro ativo",
+    "clearFilter": "Limpar filtro",
+    "noEntriesForDate": "Nenhuma entrada nesta data",
+    "noEntriesForDateDesc": "Não há entradas registradas para a data selecionada"
   },
   "checkIn": {
     "title": "Como foi seu dia?",
