@@ -15,6 +15,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { BookOpen, Plus, Edit, Trash2, Eye } from "lucide-react";
@@ -56,6 +66,7 @@ export default function DiarioEspiritual() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [viewingEntry, setViewingEntry] = useState<JournalEntry | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const dateLocale = i18n.language === 'pt' ? ptBR : i18n.language === 'es' ? es : enUS;
 
@@ -181,8 +192,8 @@ export default function DiarioEspiritual() {
     }
   };
 
-  const handleDelete = async (entryId: string) => {
-    if (!confirm(t("journal.deleteConfirm"))) return;
+  const handleDelete = async () => {
+    if (!deleteId) return;
 
     setLoading(true);
 
@@ -190,7 +201,7 @@ export default function DiarioEspiritual() {
       const { error } = await supabase
         .from("spiritual_journal")
         .delete()
-        .eq("id", entryId);
+        .eq("id", deleteId);
 
       if (error) throw error;
 
@@ -198,13 +209,17 @@ export default function DiarioEspiritual() {
         title: t("journal.deleteSuccess"),
       });
 
-      if (editingEntry?.id === entryId) {
+      if (editingEntry?.id === deleteId) {
+        setNoteTitle('');
         setNoteText('');
         setSelectedTags([]);
         setEditingEntry(null);
         setIsDialogOpen(false);
       }
 
+      setIsViewDialogOpen(false);
+      setViewingEntry(null);
+      setDeleteId(null);
       loadEntries();
     } catch (error: any) {
       console.error("Error deleting entry:", error);
@@ -342,7 +357,7 @@ export default function DiarioEspiritual() {
                     className="hover:text-destructive"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDelete(entry.id);
+                      setDeleteId(entry.id);
                     }}
                   >
                     <Trash2 className="w-3 h-3 mr-1" />
@@ -477,6 +492,27 @@ export default function DiarioEspiritual() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("journal.deleteConfirmTitle")}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {t("journal.deleteConfirm")}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleDelete}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {t("common.delete")}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {/* Botão Flutuante ➕ */}
         <Button
