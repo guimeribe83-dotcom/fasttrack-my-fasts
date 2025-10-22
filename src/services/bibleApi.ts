@@ -45,6 +45,19 @@ interface ApiBibleBooksResponse {
   data: ApiBibleBook[];
 }
 
+interface AvailableBible {
+  id: string;
+  name: string;
+  language: {
+    id: string;
+    name: string;
+  };
+}
+
+interface AvailableBiblesResponse {
+  data: AvailableBible[];
+}
+
 // Mapeamento de IDs dos livros (API.Bible usa IDs diferentes)
 const BOOK_ID_MAP: Record<string, string> = {
   'gn': 'GEN',
@@ -131,9 +144,69 @@ export const BIBLE_VERSIONS = {
 // Serviço de API
 export class BibleApiService {
   private static BASE_URL = 'https://api.scripture.api.bible/v1';
-  private static DEFAULT_VERSION = BIBLE_VERSIONS.ara.id; // Almeida Revista e Atualizada
   private static CACHE_PREFIX = 'bible_cache_';
   private static CACHE_DURATION = 30 * 24 * 60 * 60 * 1000; // 30 dias
+  private static selectedBibleId: string | null = null;
+
+  // Buscar a primeira versão da Bíblia disponível para a chave API
+  private static async getAvailableBibleId(): Promise<string | null> {
+    // Se já temos uma versão selecionada, retornar
+    if (this.selectedBibleId) {
+      return this.selectedBibleId;
+    }
+
+    // Verificar cache
+    const cached = localStorage.getItem('selected_bible_id');
+    if (cached) {
+      const { id, timestamp } = JSON.parse(cached);
+      if (Date.now() - timestamp < 7 * 24 * 60 * 60 * 1000) { // 7 dias
+        this.selectedBibleId = id;
+        return id;
+      }
+    }
+
+    const apiKey = import.meta.env.VITE_BIBLE_API_KEY;
+    if (!apiKey) {
+      return null;
+    }
+
+    try {
+      const response = await fetch(`${this.BASE_URL}/bibles`, {
+        headers: { 'api-key': apiKey }
+      });
+
+      if (!response.ok) {
+        console.error('❌ Erro ao buscar bíblias disponíveis:', response.status);
+        return null;
+      }
+
+      const data: AvailableBiblesResponse = await response.json();
+      
+      // Priorizar versões em português
+      const portugueseBibles = data.data.filter(
+        b => b.language.id === 'por' || b.language.name.toLowerCase().includes('portuguese')
+      );
+
+      const selectedBible = portugueseBibles.length > 0 ? portugueseBibles[0] : data.data[0];
+      
+      if (selectedBible) {
+        this.selectedBibleId = selectedBible.id;
+        localStorage.setItem('selected_bible_id', JSON.stringify({
+          id: selectedBible.id,
+          name: selectedBible.name,
+          timestamp: Date.now()
+        }));
+        console.log(`✅ Bíblia selecionada: ${selectedBible.name} (${selectedBible.id})`);
+        return selectedBible.id;
+      }
+
+      console.error('❌ Nenhuma bíblia disponível para esta chave API');
+      return null;
+    } catch (error) {
+      console.error('❌ Erro ao buscar bíblias disponíveis:', error);
+      return null;
+    }
+  }
 
   // Buscar capítulo com cache
   static async fetchChapter(bookId: string, chapterNumber: number): Promise<BibleChapter | null> {
@@ -152,6 +225,13 @@ export class BibleApiService {
         return null;
       }
 
+      // Obter versão da bíblia disponível
+      const bibleId = await this.getAvailableBibleId();
+      if (!bibleId) {
+        console.error('❌ Nenhuma versão da Bíblia disponível');
+        return null;
+      }
+
       // Converter ID interno para ID da API.Bible
       const apiBibleBookId = BOOK_ID_MAP[bookId.toLowerCase()];
       if (!apiBibleBookId) {
@@ -159,7 +239,7 @@ export class BibleApiService {
         return null;
       }
 
-      const url = `${this.BASE_URL}/bibles/${this.DEFAULT_VERSION}/chapters/${apiBibleBookId}.${chapterNumber}?content-type=json&include-verse-spans=false`;
+      const url = `${this.BASE_URL}/bibles/${bibleId}/chapters/${apiBibleBookId}.${chapterNumber}?content-type=json&include-verse-spans=false`;
       
       const response = await fetch(url, {
         headers: {
@@ -211,8 +291,15 @@ export class BibleApiService {
         return [];
       }
 
+      // Obter versão da bíblia disponível
+      const bibleId = await this.getAvailableBibleId();
+      if (!bibleId) {
+        console.error('❌ Nenhuma versão da Bíblia disponível');
+        return [];
+      }
+
       const response = await fetch(
-        `${this.BASE_URL}/bibles/${this.DEFAULT_VERSION}/books`,
+        `${this.BASE_URL}/bibles/${bibleId}/books`,
         {
           headers: {
             'api-key': apiKey,
@@ -228,7 +315,7 @@ export class BibleApiService {
       const booksWithChapters = await Promise.all(
         result.data.map(async (book) => {
           const chaptersResponse = await fetch(
-            `${this.BASE_URL}/bibles/${this.DEFAULT_VERSION}/books/${book.id}/chapters`,
+            `${this.BASE_URL}/bibles/${bibleId}/books/${book.id}/chapters`,
             {
               headers: {
                 'api-key': apiKey,
