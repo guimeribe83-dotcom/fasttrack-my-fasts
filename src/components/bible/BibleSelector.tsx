@@ -2,7 +2,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { BibleBook } from "@/data/bibleData";
 import { useTranslation } from "react-i18next";
 import { LocalBibleService, BIBLE_VERSIONS, BibleVersionId } from "@/services/localBibleService";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 interface BibleSelectorProps {
   availableBooks: BibleBook[];
@@ -10,6 +10,7 @@ interface BibleSelectorProps {
   currentChapter: number;
   onBookChange: (bookId: string) => void;
   onChapterChange: (chapter: number) => void;
+  onVersionChange?: () => void;
 }
 
 export const BibleSelector = ({
@@ -18,6 +19,7 @@ export const BibleSelector = ({
   currentChapter,
   onBookChange,
   onChapterChange,
+  onVersionChange,
 }: BibleSelectorProps) => {
   const { t } = useTranslation();
   const [selectedVersion, setSelectedVersion] = useState<BibleVersionId>(
@@ -30,8 +32,10 @@ export const BibleSelector = ({
   const handleVersionChange = async (versionId: BibleVersionId) => {
     setSelectedVersion(versionId);
     await LocalBibleService.loadVersion(versionId);
-    // Recarregar o capítulo atual para a nova versão
-    window.location.reload();
+    // Notificar o componente pai para recarregar os dados
+    if (onVersionChange) {
+      onVersionChange();
+    }
   };
 
   return (

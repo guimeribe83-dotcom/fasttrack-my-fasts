@@ -24,6 +24,7 @@ export default function Biblia() {
     goToPreviousChapter,
     changeBook,
     changeChapter,
+    reloadBooks,
   } = useBibleReader();
 
   // Verificar autenticação
@@ -58,6 +59,7 @@ export default function Biblia() {
           currentChapter={currentChapter}
           onBookChange={changeBook}
           onChapterChange={changeChapter}
+          onVersionChange={reloadBooks}
         />
 
         {/* Navegação e Texto */}
@@ -72,7 +74,7 @@ export default function Biblia() {
             chapterNumber={currentChapter}
             verses={currentChapterData?.verses || []}
             isLoading={isLoading}
-            error={error}
+            error={error || ''}
           />
         </div>
       </div>

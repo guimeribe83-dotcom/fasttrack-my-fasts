@@ -133,6 +133,15 @@ export const useBibleReader = () => {
     setCurrentChapter(chapterNumber);
   };
 
+  // Recarregar livros (útil ao trocar de versão)
+  const reloadBooks = async () => {
+    setIsLoading(true);
+    await loadBooksList();
+    // Recarregar capítulo atual com a nova versão
+    await loadChapter(currentBook, currentChapter);
+    setIsLoading(false);
+  };
+
   return {
     availableBooks,
     currentBook,
@@ -144,5 +153,6 @@ export const useBibleReader = () => {
     goToPreviousChapter,
     changeBook,
     changeChapter,
+    reloadBooks,
   };
 };
