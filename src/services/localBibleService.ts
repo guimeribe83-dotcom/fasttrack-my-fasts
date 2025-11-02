@@ -61,7 +61,7 @@ export class LocalBibleService {
 
     const normalizedId = bookId.toLowerCase();
     const book = this.data.find(
-      b => b.abbrev.pt.toLowerCase() === normalizedId
+      b => b.abbrev.toLowerCase() === normalizedId
     );
     
     return book || null;
@@ -88,11 +88,19 @@ export class LocalBibleService {
     await this.ensureLoaded();
     if (!this.data) return [];
 
+    // Lista de livros do Antigo Testamento
+    const oldTestament = [
+      'gn', 'ex', 'lv', 'nm', 'dt', 'js', 'jz', 'rt', 
+      '1sm', '2sm', '1rs', '2rs', '1cr', '2cr', 'ed', 'ne', 'et', 
+      'jo', 'sl', 'pv', 'ec', 'ct', 'is', 'jr', 'lm', 'ez', 'dn', 
+      'os', 'jl', 'am', 'ob', 'jn', 'mq', 'na', 'hc', 'sf', 'ag', 'zc', 'ml'
+    ];
+
     return this.data.map(book => ({
-      id: book.abbrev.pt.toLowerCase(),
+      id: book.abbrev.toLowerCase(),
       name: book.name,
-      abbr: book.abbrev.pt.toUpperCase(),
-      testament: book.testament === 'VT' ? 'old' as const : 'new' as const,
+      abbr: book.abbrev.toUpperCase(),
+      testament: oldTestament.includes(book.abbrev.toLowerCase()) ? 'old' as const : 'new' as const,
       chapters: book.chapters.map((verses, i) => ({
         number: i + 1,
         verses: verses.map((text, j) => ({

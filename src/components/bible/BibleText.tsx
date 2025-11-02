@@ -26,20 +26,8 @@ export const BibleText = ({ bookId, chapterNumber, verses, isLoading, error }: B
     return (
       <div className="max-w-3xl mx-auto px-4 py-12">
         <div className="bg-destructive/10 border border-destructive rounded-lg p-6 text-center">
-          <p className="text-destructive font-semibold mb-2">⚠️ Aviso</p>
-          <p className="text-sm text-foreground mb-4">{error}</p>
-          <p className="text-xs text-muted-foreground">
-            Para acessar toda a Bíblia, obtenha um token gratuito em{" "}
-            <a 
-              href="https://www.abibliadigital.com.br/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              abibliadigital.com.br
-            </a>
-            {" "}e adicione ao arquivo .env como VITE_BIBLE_API_TOKEN
-          </p>
+          <p className="text-destructive font-semibold mb-2">⚠️ Erro ao Carregar</p>
+          <p className="text-sm text-foreground">{error}</p>
         </div>
       </div>
     );

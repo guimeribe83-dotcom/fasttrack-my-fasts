@@ -11,7 +11,7 @@ interface BibleReaderPosition {
 
 export const useBibleReader = () => {
   const [availableBooks, setAvailableBooks] = useState<BibleBook[]>(offlineBibleBooks);
-  const [currentBook, setCurrentBook] = useState<string>('john'); // Começa com João (offline)
+  const [currentBook, setCurrentBook] = useState<string>('jo'); // João em português
   const [currentChapter, setCurrentChapter] = useState<number>(1);
   const [currentChapterData, setCurrentChapterData] = useState<BibleChapter | null>(null);
   const [isLoading, setIsLoading] = useState(false);

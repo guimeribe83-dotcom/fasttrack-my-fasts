@@ -1,8 +1,5 @@
 export interface BibleJsonBook {
-  abbrev: {
-    pt: string;
-    en?: string;
-  };
+  abbrev: string;
   author: string;
   chapters: string[][];
   group: string;
