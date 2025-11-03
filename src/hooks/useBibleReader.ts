@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { BibleApiService } from '@/services/bibleApi';
-import { bibleBooks as offlineBibleBooks, type BibleBook, type BibleChapter } from '@/data/bibleData';
+import { LocalBibleService } from '@/services/localBibleService';
+import { type BibleBook, type BibleChapter } from '@/types/bible';
 
 const STORAGE_KEY = 'bibleReaderPosition';
 
@@ -10,7 +10,7 @@ interface BibleReaderPosition {
 }
 
 export const useBibleReader = () => {
-  const [availableBooks, setAvailableBooks] = useState<BibleBook[]>(offlineBibleBooks);
+  const [availableBooks, setAvailableBooks] = useState<BibleBook[]>([]);
   const [currentBook, setCurrentBook] = useState<string>('jo'); // João em português
   const [currentChapter, setCurrentChapter] = useState<number>(1);
   const [currentChapterData, setCurrentChapterData] = useState<BibleChapter | null>(null);
@@ -20,7 +20,6 @@ export const useBibleReader = () => {
   // Carregar lista de livros ao iniciar
   useEffect(() => {
     loadBooksList();
-    BibleApiService.clearOldCache(); // Limpar cache antigo
   }, []);
 
   // Carregar posição salva no localStorage
@@ -52,9 +51,11 @@ export const useBibleReader = () => {
   }, [currentBook, currentChapter]);
 
   const loadBooksList = async () => {
-    const apiBooks = await BibleApiService.fetchBooks();
-    if (apiBooks.length > 0) {
-      setAvailableBooks(apiBooks);
+    try {
+      const books = await LocalBibleService.getAllBooks();
+      setAvailableBooks(books);
+    } catch (error) {
+      console.error('Erro ao carregar lista de livros:', error);
     }
   };
 
@@ -63,22 +64,13 @@ export const useBibleReader = () => {
     setError(null);
 
     try {
-      // 1. Tentar da API
-      const apiChapter = await BibleApiService.fetchChapter(bookId, chapterNum);
+      const chapter = await LocalBibleService.getChapter(bookId, chapterNum);
       
-      if (apiChapter) {
-        setCurrentChapterData(apiChapter);
+      if (chapter) {
+        setCurrentChapterData(chapter);
       } else {
-        // 2. Fallback: buscar dos dados offline
-        const offlineBook = offlineBibleBooks.find(b => b.id === bookId);
-        const offlineChapter = offlineBook?.chapters.find(c => c.number === chapterNum);
-        
-        if (offlineChapter) {
-          setCurrentChapterData(offlineChapter);
-        } else {
-          setError('Conteúdo não disponível offline. Configure o token da API para acessar toda a Bíblia.');
-          setCurrentChapterData(null);
-        }
+        setError('Capítulo não encontrado.');
+        setCurrentChapterData(null);
       }
     } catch (err) {
       setError('Erro ao carregar capítulo');
