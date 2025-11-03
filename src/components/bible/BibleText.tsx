@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { BibleVerse, bibleBooks } from "@/data/bibleData";
 
 interface BibleTextProps {
@@ -10,6 +11,11 @@ interface BibleTextProps {
 
 export const BibleText = ({ bookId, chapterNumber, verses, isLoading, error }: BibleTextProps) => {
   const book = bibleBooks.find(b => b.id === bookId);
+
+  // Scroll para o topo quando mudar de capítulo
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [bookId, chapterNumber]);
 
   if (isLoading) {
     return (
