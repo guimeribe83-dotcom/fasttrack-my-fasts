@@ -44,6 +44,69 @@ export type Database = {
         }
         Relationships: []
       }
+      bible_highlights: {
+        Row: {
+          book_id: string
+          chapter: number
+          color: string
+          created_at: string
+          id: string
+          user_id: string
+          verse: number
+        }
+        Insert: {
+          book_id: string
+          chapter: number
+          color: string
+          created_at?: string
+          id?: string
+          user_id: string
+          verse: number
+        }
+        Update: {
+          book_id?: string
+          chapter?: number
+          color?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+          verse?: number
+        }
+        Relationships: []
+      }
+      bible_notes: {
+        Row: {
+          book_id: string
+          chapter: number
+          created_at: string
+          id: string
+          note: string
+          updated_at: string
+          user_id: string
+          verse: number
+        }
+        Insert: {
+          book_id: string
+          chapter: number
+          created_at?: string
+          id?: string
+          note: string
+          updated_at?: string
+          user_id: string
+          verse: number
+        }
+        Update: {
+          book_id?: string
+          chapter?: number
+          created_at?: string
+          id?: string
+          note?: string
+          updated_at?: string
+          user_id?: string
+          verse?: number
+        }
+        Relationships: []
+      }
       daily_content: {
         Row: {
           created_at: string

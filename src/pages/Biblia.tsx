@@ -41,6 +41,23 @@ export default function Biblia() {
     setIsAuthenticated(true);
   };
 
+  const handleNavigateToVerse = (bookId: string, chapter: number, verse: number) => {
+    // Navegar para o livro e capítulo
+    if (bookId !== currentBook) {
+      changeBook(bookId);
+    }
+    if (chapter !== currentChapter) {
+      changeChapter(chapter);
+    }
+    // Após navegar, fazer scroll até o versículo (com delay para garantir que a página carregou)
+    setTimeout(() => {
+      const verseElement = document.querySelector(`[data-verse="${verse}"]`);
+      if (verseElement) {
+        verseElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
+  };
+
 
   if (!isAuthenticated) {
     return null;
@@ -50,7 +67,10 @@ export default function Biblia() {
     <Layout>
       <div className="min-h-screen bg-background">
         {/* Cabeçalho */}
-        <BibleHeader onBack={() => navigate("/")} />
+        <BibleHeader 
+          onBack={() => navigate("/")}
+          onNavigateToVerse={handleNavigateToVerse}
+        />
 
         {/* Seletores */}
         <BibleSelector

@@ -1,21 +1,41 @@
 import { useEffect } from "react";
-import { BibleVerse, bibleBooks } from "@/data/bibleData";
+import { BibleVerse as BibleVerseType, bibleBooks } from "@/data/bibleData";
+import { BibleVerse } from "./BibleVerse";
+import { useBibleMarkings } from "@/hooks/useBibleMarkings";
 
 interface BibleTextProps {
   bookId: string;
   chapterNumber: number;
-  verses: BibleVerse[];
+  verses: BibleVerseType[];
   isLoading?: boolean;
   error?: string | null;
 }
 
 export const BibleText = ({ bookId, chapterNumber, verses, isLoading, error }: BibleTextProps) => {
   const book = bibleBooks.find(b => b.id === bookId);
+  
+  const {
+    highlights,
+    notes,
+    addHighlight,
+    removeHighlight,
+    saveNote,
+    removeNote,
+  } = useBibleMarkings(bookId, chapterNumber);
 
   // Scroll para o topo quando mudar de capítulo
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [bookId, chapterNumber]);
+
+  // Funções wrapper para os handlers
+  const handleHighlight = (verse: number, color: any) => {
+    addHighlight({ verse, color });
+  };
+
+  const handleSaveNote = (verse: number, note: string) => {
+    saveNote({ verse, note });
+  };
 
   if (isLoading) {
     return (
@@ -60,20 +80,19 @@ export const BibleText = ({ bookId, chapterNumber, verses, isLoading, error }: B
       {/* Versículos */}
       <div className="space-y-4">
         {verses.map((verse) => (
-          <div
+          <BibleVerse
             key={verse.number}
-            className="flex gap-3 group hover:bg-accent/50 rounded-lg p-2 transition-colors"
-          >
-            {/* Número do Versículo */}
-            <span className="flex-shrink-0 text-sm font-bold text-blue-500 dark:text-blue-400 select-none min-w-[2rem]">
-              {verse.number}
-            </span>
-
-            {/* Texto do Versículo */}
-            <p className="text-base md:text-lg text-foreground leading-relaxed">
-              {verse.text}
-            </p>
-          </div>
+            verse={verse}
+            bookId={bookId}
+            bookName={book?.name || ""}
+            chapter={chapterNumber}
+            highlight={highlights.find(h => h.verse === verse.number)}
+            note={notes.find(n => n.verse === verse.number)}
+            onHighlight={handleHighlight}
+            onRemoveHighlight={removeHighlight}
+            onSaveNote={handleSaveNote}
+            onRemoveNote={removeNote}
+          />
         ))}
       </div>
 
