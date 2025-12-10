@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 import confetti from "canvas-confetti";
 
 interface UserStats {
@@ -12,18 +11,9 @@ interface UserStats {
   last_check_in: string | null;
 }
 
-interface Badge {
-  id: string;
-  name: string;
-  icon: string;
-  requirement_type: string;
-  requirement_value: number;
-}
-
 export const useGamification = () => {
   const [stats, setStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
 
   useEffect(() => {
     loadStats();
@@ -66,77 +56,6 @@ export const useGamification = () => {
       spread: 70,
       origin: { y: 0.6 }
     });
-  };
-
-  const checkAndAwardBadges = async (userId: string, stats: UserStats, fastCompleted: boolean = false) => {
-    try {
-      // Load all badges
-      const { data: allBadges } = await supabase
-        .from("badges")
-        .select("*");
-
-      if (!allBadges) return;
-
-      // Load already earned badges
-      const { data: earnedBadges } = await supabase
-        .from("user_badges")
-        .select("badge_id")
-        .eq("user_id", userId);
-
-      const earnedIds = new Set(earnedBadges?.map(b => b.badge_id) || []);
-
-      // Check which badges should be awarded
-      const newBadges: Badge[] = [];
-
-      for (const badge of allBadges) {
-        if (earnedIds.has(badge.id)) continue;
-
-        let shouldAward = false;
-
-        switch (badge.requirement_type) {
-          case "streak":
-            shouldAward = stats.current_streak >= badge.requirement_value;
-            break;
-          case "total_days":
-            shouldAward = stats.total_days_completed >= badge.requirement_value;
-            break;
-          case "fast_completed":
-            shouldAward = fastCompleted;
-            break;
-        }
-
-        if (shouldAward) {
-          newBadges.push(badge);
-        }
-      }
-
-      // Award new badges
-      if (newBadges.length > 0) {
-        const badgeInserts = newBadges.map(badge => ({
-          user_id: userId,
-          badge_id: badge.id
-        }));
-
-        await supabase.from("user_badges").insert(badgeInserts);
-
-        // Show celebration
-        confetti({
-          particleCount: 150,
-          spread: 100,
-          origin: { y: 0.5 }
-        });
-
-        // Show toast for each new badge
-        newBadges.forEach(badge => {
-          toast({
-            title: `Nova Conquista! ${badge.icon}`,
-            description: `Você desbloqueou: ${badge.name}`,
-          });
-        });
-      }
-    } catch (error) {
-      console.error("Error checking badges:", error);
-    }
   };
 
   const updateStats = async (dayCompleted: boolean, fastCompleted: boolean = false) => {
@@ -194,9 +113,6 @@ export const useGamification = () => {
 
         // Celebrate
         celebrateCompletion();
-
-        // Check for new badges
-        await checkAndAwardBadges(user.id, updatedStats, fastCompleted);
         
         // Send push notification for achievement
         if (fastCompleted || dayCompleted) {
@@ -213,11 +129,11 @@ export const useGamification = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      let title = "🎉 Conquista Desbloqueada!";
+      let title = "🎉 Parabéns!";
       let body = "";
 
       if (fastCompleted) {
-        body = `Parabéns! Você completou um jejum e ganhou ${stats.points} pontos!`;
+        body = `Você completou um jejum e ganhou ${stats.points} pontos!`;
       } else if (stats.current_streak > 1) {
         body = `Sequência de ${stats.current_streak} dias! Continue assim! 🔥`;
       } else {

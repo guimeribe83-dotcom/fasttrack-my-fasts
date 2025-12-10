@@ -8,7 +8,7 @@ import { PWAUpdatePrompt } from "@/components/PWAUpdatePrompt";
 import { BibleFloatingButton } from "@/components/BibleFloatingButton";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 import { DailyContentCard } from "@/components/gamification/DailyContentCard";
-import { BadgesDisplay } from "@/components/gamification/BadgesDisplay";
+
 import EmotionalCheckIn from "@/components/EmotionalCheckIn";
 import { PersonalizedPrayer } from "@/components/PersonalizedPrayer";
 import { Button } from "@/components/ui/button";
@@ -609,8 +609,6 @@ export default function Index() {
           </div>
         )}
 
-        {/* Badges Display */}
-        <BadgesDisplay />
 
         {/* Action Buttons */}
         <div className="flex gap-3 pt-2">
