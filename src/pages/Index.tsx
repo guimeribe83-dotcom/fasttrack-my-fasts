@@ -8,7 +8,6 @@ import { PWAUpdatePrompt } from "@/components/PWAUpdatePrompt";
 import { BibleFloatingButton } from "@/components/BibleFloatingButton";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 import { DailyContentCard } from "@/components/gamification/DailyContentCard";
-
 import EmotionalCheckIn from "@/components/EmotionalCheckIn";
 import { PersonalizedPrayer } from "@/components/PersonalizedPrayer";
 import { Button } from "@/components/ui/button";
