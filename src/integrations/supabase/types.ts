@@ -107,6 +107,95 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_conversations: {
+        Row: {
+          created_at: string | null
+          id: string
+          title: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          title?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      chat_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string | null
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string | null
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string | null
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_preferences: {
+        Row: {
+          current_mood: string[] | null
+          discussion_topics: string[] | null
+          id: string
+          needs_today: string[] | null
+          religious_affiliation: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          current_mood?: string[] | null
+          discussion_topics?: string[] | null
+          id?: string
+          needs_today?: string[] | null
+          religious_affiliation?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          current_mood?: string[] | null
+          discussion_topics?: string[] | null
+          id?: string
+          needs_today?: string[] | null
+          religious_affiliation?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_content: {
         Row: {
           created_at: string

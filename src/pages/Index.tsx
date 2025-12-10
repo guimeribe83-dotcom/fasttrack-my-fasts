@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
-import { CheckCircle, Calendar, User, Book } from "lucide-react";
+import { CheckCircle, Calendar, User, Book, MessageCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useGamification } from "@/hooks/useGamification";
 import { format } from "date-fns";
@@ -392,6 +392,26 @@ export default function Index() {
             }}
           />
         )}
+
+        {/* Chat with God Card */}
+        <Card 
+          className="p-4 md:p-6 bg-gradient-to-br from-blue-500/10 to-purple-500/10 border-blue-500/20 shadow-sm cursor-pointer hover:shadow-md transition-all hover:-translate-y-1"
+          onClick={() => navigate("/chat")}
+        >
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20">
+              <MessageCircle className="w-6 h-6 text-blue-500" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-foreground mb-1">
+                Chat com Deus
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Converse com um conselheiro espiritual
+              </p>
+            </div>
+          </div>
+        </Card>
 
         {/* Spiritual Journal Card */}
         <Card 
