@@ -17,6 +17,7 @@ import Configuracoes from "./pages/Configuracoes";
 import Perfil from "./pages/Perfil";
 import DiarioEspiritual from "./pages/DiarioEspiritual";
 import Biblia from "./pages/Biblia";
+import ChatComDeus from "./pages/ChatComDeus";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -57,6 +58,7 @@ const AppContent = () => {
       <Route path="/perfil" element={<Perfil />} />
       <Route path="/diario" element={<DiarioEspiritual />} />
       <Route path="/biblia" element={<Biblia />} />
+      <Route path="/chat" element={<ChatComDeus />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>
